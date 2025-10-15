@@ -1,5 +1,7 @@
 # Hi, I'm Junghan (힣) 👋
 
+**[한국어 버전 (Korean Version)](README-KO.md)**
+
 [Website](https://notes.junghanacs.com) · [Email](mailto:junghanacs@gmail.com)
 
 **AI Infra Architect | Polymath Engineer | Digital Gardener**
