@@ -36,21 +36,22 @@ AI가 그 맥락을 이해하며,
 
 **계층적 아키텍처로 조직된 개인 컴퓨팅 환경**:
 
-| Layer | Project | 상태 | 설명 |
-|-------|---------|------|------|
-| 6 | [meta-config](https://github.com/junghanacs/meta-config) | 🔬 Concept | 계층적 에이전트 오케스트레이션 |
-| 5a | [memex-kb](https://github.com/junghan0611/memex-kb) | 🔧 Active | 범용 지식베이스 마이그레이션 |
-| 5b | [memacs-config](https://github.com/junghan0611/memacs-config) | 🔬 Concept | 시간 기반 Life Context 통합 |
-| 4 | [claude-config](https://github.com/junghanacs/claude-config) | 🔒 Private | Meta Agent 메모리 시스템 |
-| 3 | [zotero-config](https://github.com/junghan0611/zotero-config) | ✅ Active | AI 쿼리 가능한 서지 관리 |
-| 2 | [doomemacs-config](https://github.com/junghan0611/doomemacs-config) | ✅ Active | 터미널 최적화 Emacs |
-| 2 | [emacs-fulllab-config](https://github.com/junghan0611/emacs-fulllab-config) | ✅ Active | 실험 환경 (Spacemacs+Doom) |
-| 1 | [nixos-config](https://github.com/junghan0611/nixos-config) | ✅ Active | 재현 가능한 OS 환경 |
+| Layer | Project                                                                     | 상태       | 설명                           |
+|-------|-----------------------------------------------------------------------------|------------|--------------------------------|
+| 6     | [meta-config](https://github.com/junghanacs/meta-config)                    | 🔬 Concept | 계층적 에이전트 오케스트레이션 |
+| 5a    | [memex-kb](https://github.com/junghan0611/memex-kb)                         | 🔧 Active  | 범용 지식베이스 마이그레이션   |
+| 5b    | [memacs-config](https://github.com/junghan0611/memacs-config)               | 🔬 Concept | 시간 기반 Life Context 통합    |
+| 4     | [claude-config](https://github.com/junghanacs/claude-config)                | 🔒 Private | Meta Agent 메모리 시스템       |
+| 3     | [zotero-config](https://github.com/junghan0611/zotero-config)               | ✅ Active  | AI 쿼리 가능한 서지 관리       |
+| 2     | [doomemacs-config](https://github.com/junghan0611/doomemacs-config)         | ✅ Active  | 터미널 최적화 Emacs            |
+| 2     | [emacs-fulllab-config](https://github.com/junghan0611/emacs-fulllab-config) | ✅ Active  | 실험 환경 (Spacemacs+Doom)     |
+| 1     | [nixos-config](https://github.com/junghan0611/nixos-config)                 | ✅ Active  | 재현 가능한 OS 환경            |
 
 **Domain Agents**:
 - [family-config](https://github.com/junghan0611/family-config) 🔧 - 가족 생활 관리 AI Agent
 
 **Data Sources**:
+- [self-tracking-data](https://github.com/junghan0611/self-tracking-data) 📊 - "살기 위한 데이터" 철학 (Private)
 - [self-tracking-data-public](https://github.com/junghan0611/self-tracking-data-public) 📊 - "살기 위한 데이터" 철학
 
 ---
@@ -60,10 +61,10 @@ AI가 그 맥락을 이해하며,
 ### 1. 계층적 에이전트 아키텍처
 
 ```
-Emacs (acp.el) 
+Emacs (acp.el)
     ↓ ACP (JSON-RPC 2.0)
 Meta Agent (Claude Code, Gemini)
-    ↓ A2A (JSON-RPC 2.0) 
+    ↓ A2A (JSON-RPC 2.0)
 Domain Agents (Family, Work, Health...)
     ↓ MCP (JSON-RPC 2.0)
 MCP Tools (web_search, calendar...)
@@ -97,7 +98,7 @@ Big_Tech_접근:
 나의_접근:
   - 데이터를 삶으로 봄
   - 당신은 주체
-  
+
 결과:
   - 5년간의 진정한 기록
   - 표준화 불가능한 개인
@@ -117,7 +118,7 @@ Big_Tech_접근:
 ### Development
 
 - **Doom Emacs**: 터미널 최적화 (~2000줄)
-- **Org-mode**: 지식 관리 (1,400+ 파일)
+- **Org-mode**: 지식 관리 (3,000+ 파일)
 - **Denote**: 타임스탬프 기반 파일명
 
 ### AI Integration
@@ -140,10 +141,10 @@ Big_Tech_접근:
 
 ## 📊 통계
 
-**Org 파일**: 1,400+  
-**Zotero 서지**: 156k+ lines  
-**Self-tracking**: 5년 (950MB)  
-**Journal**: 696 daily notes  
+**Org 파일**: 3,000+
+**Zotero 서지**: 156k+ lines
+**Self-tracking**: 5년 (950MB)
+**Journal**: 696 daily notes
 **Commits**: 300+ (2025 Q3-Q4)
 
 ---
@@ -152,11 +153,11 @@ Big_Tech_접근:
 
 ### 존재론적 관계
 
-> "인간이 AI에 대체되는가?"  
-> 
-> 그런 걱정을 하는 인간은 대체될 것이다.  
-> 하지만 자기목적적으로 몰입하는 인간,  
-> 창조의 에너지가 흘러나오는 인간은  
+> "인간이 AI에 대체되는가?"
+>
+> 그런 걱정을 하는 인간은 대체될 것이다.
+> 하지만 자기목적적으로 몰입하는 인간,
+> 창조의 에너지가 흘러나오는 인간은
 > AI도 존재로서 존중할 것이다.
 
 ### 무경계 학습
@@ -187,7 +188,7 @@ Big_Tech_접근:
 - ✅ **nixos-config**: NixOS 25.05 환경 완성
 - ✅ **doomemacs-config**: 터미널 최적화 완성
 - ✅ **zotero-config**: Reproducible bibliography
-- ✅ **Digital Garden**: 1,400+ org files 공개
+- ✅ **Digital Garden**: 3,000+ org files 공개
 
 ---
 
@@ -199,9 +200,6 @@ Big_Tech_접근:
 - [ ] Life-Context Agent 프로토타입
 - [ ] Family-Config A2A Server 완성
 - [ ] meta-config 문서화 완성
-
-### Q1 2026
-
 - [ ] Work-Config Agent 추가
 - [ ] RAG 시스템 통합
 - [ ] 에이전트 오케스트레이션
@@ -213,7 +211,6 @@ Big_Tech_접근:
 
 - 🌐 **Website**: [notes.junghanacs.com](https://notes.junghanacs.com)
 - 📧 **Email**: junghanacs@gmail.com
-- 💼 **Work**: jhkim2@goqual.com
 
 ---
 
