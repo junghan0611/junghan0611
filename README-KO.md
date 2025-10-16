@@ -38,10 +38,10 @@ AI가 그 맥락을 이해하며,
 
 | Layer | Project                                                                     | 상태       | 설명                           |
 |-------|-----------------------------------------------------------------------------|------------|--------------------------------|
-| 6     | [meta-config](https://github.com/junghanacs/meta-config)                    | 🔬 Concept | 계층적 에이전트 오케스트레이션 |
+| 6     | [meta-config](https://github.com/junghan0611/meta-config)                   | 🔬 Concept | 계층적 에이전트 오케스트레이션 |
 | 5a    | [memex-kb](https://github.com/junghan0611/memex-kb)                         | 🔧 Active  | 범용 지식베이스 마이그레이션   |
 | 5b    | [memacs-config](https://github.com/junghan0611/memacs-config)               | 🔬 Concept | 시간 기반 Life Context 통합    |
-| 4     | [claude-config](https://github.com/junghanacs/claude-config)                | 🔒 Private | Meta Agent 메모리 시스템       |
+| 4     | [claude-config](https://github.com/junghan0611/claude-config)               | 🔒 Private | Meta Agent 메모리 시스템       |
 | 3     | [zotero-config](https://github.com/junghan0611/zotero-config)               | ✅ Active  | AI 쿼리 가능한 서지 관리       |
 | 2     | [doomemacs-config](https://github.com/junghan0611/doomemacs-config)         | ✅ Active  | 터미널 최적화 Emacs            |
 | 2     | [emacs-fulllab-config](https://github.com/junghan0611/emacs-fulllab-config) | ✅ Active  | 실험 환경 (Spacemacs+Doom)     |

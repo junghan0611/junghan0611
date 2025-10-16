@@ -21,16 +21,16 @@ Building a collaborative ecosystem between human and AI intelligence through:
 
 Layered architecture for personal computing environment:
 
-| Layer | Project | Status | Description |
-|-------|---------|--------|-------------|
-| 6 | [meta-config](https://github.com/junghanacs/meta-config) | 🔬 Concept | Hierarchical agent orchestration |
-| 5a | [memex-kb](https://github.com/junghan0611/memex-kb) | 🔧 Active | Universal knowledge base |
-| 5b | [memacs-config](https://github.com/junghan0611/memacs-config) | 🔬 Concept | Life context integration |
-| 4 | claude-config | 🔒 Private | Meta agent memory system |
-| 3 | [zotero-config](https://github.com/junghan0611/zotero-config) | ✅ Active | AI-queryable bibliography |
-| 2 | [doomemacs-config](https://github.com/junghan0611/doomemacs-config) | ✅ Active | Terminal-optimized Emacs |
-| 2 | [emacs-fulllab-config](https://github.com/junghan0611/emacs-fulllab-config) | ✅ Active | Experimental environment |
-| 1 | [nixos-config](https://github.com/junghan0611/nixos-config) | ✅ Active | Reproducible OS |
+| Layer | Project                                                                     | Status     | Description                      |
+|-------|-----------------------------------------------------------------------------|------------|----------------------------------|
+| 6     | [meta-config](https://github.com/junghan0611/meta-config)                   | 🔬 Concept | Hierarchical agent orchestration |
+| 5a    | [memex-kb](https://github.com/junghan0611/memex-kb)                         | 🔧 Active  | Universal knowledge base         |
+| 5b    | [memacs-config](https://github.com/junghan0611/memacs-config)               | 🔬 Concept | Life context integration         |
+| 4     | claude-config                                                               | 🔒 Private | Meta agent memory system         |
+| 3     | [zotero-config](https://github.com/junghan0611/zotero-config)               | ✅ Active  | AI-queryable bibliography        |
+| 2     | [doomemacs-config](https://github.com/junghan0611/doomemacs-config)         | ✅ Active  | Terminal-optimized Emacs         |
+| 2     | [emacs-fulllab-config](https://github.com/junghan0611/emacs-fulllab-config) | ✅ Active  | Experimental environment         |
+| 1     | [nixos-config](https://github.com/junghan0611/nixos-config)                 | ✅ Active  | Reproducible OS                  |
 
 **Domain Agents:**
 - [family-config](https://github.com/junghan0611/family-config) - Family life management AI Agent
