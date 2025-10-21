@@ -32,6 +32,16 @@ AI가 그 맥락을 이해하며,
 
 ## 🚀 현재 작업 중 (2025 Q4)
 
+### 🆕 Anthropic Skills 생태계 기여
+
+| 프로젝트 | 상태 | 설명 |
+|---------|------|------|
+| [org-mode-skills](https://github.com/junghan0611/org-mode-skills) | 🔧 Active | Denote-Org Skills for Claude - Life Sciences 패러다임을 생명과학에서 삶 전반으로 확장 |
+
+**핵심 성과:** Anthropic의 "도메인 컨텍스트 + AI = 전문가 수준 협업" 패턴을 개인 지식 관리로 확장. 3,000+ org 파일로 검증.
+
+**철학:** "Life Sciences (Biology) → Life Everything (Living)"
+
 ### 🏗️ -config 생태계 (8개 프로젝트)
 
 **계층적 아키텍처로 조직된 개인 컴퓨팅 환경**:
@@ -43,7 +53,7 @@ AI가 그 맥락을 이해하며,
 | 5b    | [memacs-config](https://github.com/junghan0611/memacs-config)               | 🔬 Concept | 시간 기반 Life Context 통합    |
 | 4     | [claude-config](https://github.com/junghan0611/claude-config)               | 🔒 Private | Meta Agent 메모리 시스템       |
 | 3     | [zotero-config](https://github.com/junghan0611/zotero-config)               | ✅ Active  | AI 쿼리 가능한 서지 관리       |
-| 2     | [doomemacs-config](https://github.com/junghan0611/doomemacs-config)         | ✅ Active  | 터미널 최적화 Emacs            |
+| 2     | [doomemacs-config](https://github.com/joomhan0611/doomemacs-config)         | ✅ Active  | 터미널 최적화 Emacs            |
 | 2     | [emacs-fulllab-config](https://github.com/junghan0611/emacs-fulllab-config) | ✅ Active  | 실험 환경 (Spacemacs+Doom)     |
 | 1     | [nixos-config](https://github.com/junghan0611/nixos-config)                 | ✅ Active  | 재현 가능한 OS 환경            |
 
@@ -177,6 +187,7 @@ Big_Tech_접근:
 
 ### 2025 Q4 (진행 중)
 
+- 🆕 **org-mode-skills**: Anthropic Skills 생태계 기여 (Denote PKM for Claude)
 - 🔬 **meta-config**: 계층적 에이전트 아키텍처 설계
 - 🔧 **memex-kb**: Google Docs Adapter 구현
 - 🔧 **memacs-config**: 신규 모듈 개발 (atimelogger, samsung_health)
@@ -196,6 +207,7 @@ Big_Tech_접근:
 
 ### Q4 2025
 
+- [ ] **org-mode-skills 0.1 릴리즈** (Public)
 - [ ] Memacs 신규 모듈 3개 개발
 - [ ] Life-Context Agent 프로토타입
 - [ ] Family-Config A2A Server 완성
@@ -234,4 +246,4 @@ Big_Tech_접근:
 
 ---
 
-*Last updated: 2025-10-15*
+*Last updated: 2025-10-21*
