@@ -17,6 +17,14 @@ Building a collaborative ecosystem between human and AI intelligence through:
 
 ## Current Projects (2025 Q4)
 
+### 🆕 Anthropic Skills Ecosystem
+
+| Project | Status | Description |
+|---------|--------|-------------|
+| [org-mode-skills](https://github.com/junghan0611/org-mode-skills) | 🔧 Active | Denote-Org Skills for Claude - Extends Life Sciences paradigm from Biology to Life Everything |
+
+**Key achievement:** Bringing Anthropic's "domain context + AI = expert collaboration" pattern to personal knowledge management. Validated with 3,000+ org files.
+
 ### -config Ecosystem (8 Projects)
 
 Layered architecture for personal computing environment:
