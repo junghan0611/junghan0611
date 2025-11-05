@@ -2,7 +2,7 @@
 
 **[한국어 버전 (Korean Version)](README-KO.md)**
 
-[Website](https://notes.junghanacs.com) · [Email](mailto:junghanacs@gmail.com)
+[Website](https://notes.junghanacs.com) · [Email](mailto:junghanacs@gmail.com) · [Resume 한글](resume/junghankim-resume-ko-styled.pdf) · [Resume EN](resume/junghankim-resume-en.pdf)
 
 **AI Infra Architect | Polymath Engineer | Digital Gardener**
 
