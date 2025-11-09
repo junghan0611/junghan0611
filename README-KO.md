@@ -42,6 +42,14 @@ AI가 그 맥락을 이해하며,
 
 **철학:** "Life Sciences (Biology) → Life Everything (Living)"
 
+### 🔤 기반 타이포그래피
+
+| 프로젝트 | 상태 | 설명 |
+|---------|------|------|
+| [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | ✅ Active | IBM Plex Mono + IBM Plex Sans KR을 통합한 한국어 프로그래밍 폰트. 지식 관리, 터미널 최적화, AI 협업을 위한 100% 유니코드 지원. 8-layer 생태계의 기반. |
+
+**핵심 기능:** 확장된 유니코드 지원 (87% → 100%), 프로그래밍 합자, 8가지 웨이트, 콘솔 최적화, Nerd Fonts 통합, WOFF2 웹폰트.
+
 ### 🏗️ -config 생태계 (8개 프로젝트)
 
 **계층적 아키텍처로 조직된 개인 컴퓨팅 환경**:

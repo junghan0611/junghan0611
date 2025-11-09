@@ -25,6 +25,14 @@ Building a collaborative ecosystem between human and AI intelligence through:
 
 **Key achievement:** Bringing Anthropic's "domain context + AI = expert collaboration" pattern to personal knowledge management. Validated with 3,000+ org files.
 
+### 🔤 Foundational Typography
+
+| Project | Status | Description |
+|---------|--------|-------------|
+| [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | ✅ Active | Korean programming font merging IBM Plex Mono + IBM Plex Sans KR. 100% Unicode coverage for knowledge management, terminal optimization, and AI collaboration workflows. Foundation for 8-layer ecosystem. |
+
+**Key features:** Extended Unicode support (87% → 100%), programming ligatures, 8 weights, console optimization, Nerd Fonts integration, WOFF2 web fonts.
+
 ### -config Ecosystem (8 Projects)
 
 Layered architecture for personal computing environment:
