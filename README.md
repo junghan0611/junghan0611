@@ -21,7 +21,7 @@ Building a collaborative ecosystem between human and AI intelligence through:
 
 | Project | Status | Description |
 |---------|--------|-------------|
-| [org-mode-skills](https://github.com/junghan0611/org-mode-skills) | 🔧 Active | Denote-Org Skills for Claude - Extends Life Sciences paradigm from Biology to Life Everything |
+| [org-mode-skills](https://github.com/junghan0611/org-mode-skills) `@e2a50ec` | 🔧 Active | Denote-Org Skills for Claude - Extends Life Sciences paradigm from Biology to Life Everything |
 
 **Key achievement:** Bringing Anthropic's "domain context + AI = expert collaboration" pattern to personal knowledge management. Validated with 3,000+ org files.
 
@@ -29,7 +29,7 @@ Building a collaborative ecosystem between human and AI intelligence through:
 
 | Project | Status | Description |
 |---------|--------|-------------|
-| [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | ✅ Active | Korean programming font merging IBM Plex Mono + IBM Plex Sans KR. 100% Unicode coverage for knowledge management, terminal optimization, and AI collaboration workflows. Foundation for 8-layer ecosystem. |
+| [GLG-Mono](https://github.com/junghan0611/GLG-Mono) `@2dfe5c4` | ✅ Active | Korean programming font merging IBM Plex Mono + IBM Plex Sans KR. 100% Unicode coverage for knowledge management, terminal optimization, and AI collaboration workflows. Foundation for 8-layer ecosystem. |
 
 **Key features:** Extended Unicode support (87% → 100%), programming ligatures, 8 weights, console optimization, Nerd Fonts integration, WOFF2 web fonts.
 
@@ -37,23 +37,23 @@ Building a collaborative ecosystem between human and AI intelligence through:
 
 Layered architecture for personal computing environment:
 
-| Layer | Project                                                                     | Status     | Description                      |
-|-------|-----------------------------------------------------------------------------|------------|----------------------------------|
-| 6     | [meta-config](https://github.com/junghan0611/meta-config)                   | 🔬 Concept | Hierarchical agent orchestration |
-| 5a    | [memex-kb](https://github.com/junghan0611/memex-kb)                         | 🔧 Active  | Universal knowledge base         |
-| 5b    | [memacs-config](https://github.com/junghan0611/memacs-config)               | 🔬 Concept | Life context integration         |
-| 4     | claude-config                                                               | 🔒 Private | Meta agent memory system         |
-| 3     | [zotero-config](https://github.com/junghan0611/zotero-config)               | ✅ Active  | AI-queryable bibliography        |
-| 2     | [doomemacs-config](https://github.com/junghan0611/doomemacs-config)         | ✅ Active  | Terminal-optimized Emacs         |
-| 2     | [emacs-fulllab-config](https://github.com/junghan0611/emacs-fulllab-config) | ✅ Active  | Experimental environment         |
-| 1     | [nixos-config](https://github.com/junghan0611/nixos-config)                 | ✅ Active  | Reproducible OS                  |
+| Layer | Project                                                                                    | Status     | Description                      |
+|-------|--------------------------------------------------------------------------------------------|------------|----------------------------------|
+| 6     | [meta-config](https://github.com/junghan0611/meta-config) `@00abfd5`                       | 🔬 Concept | Hierarchical agent orchestration |
+| 5a    | [memex-kb](https://github.com/junghan0611/memex-kb) `@8594bf7`                             | 🔧 Active  | Universal knowledge base         |
+| 5b    | [memacs-config](https://github.com/junghan0611/memacs-config) `@605ce07`                   | 🔬 Concept | Life context integration         |
+| 4     | claude-config                                                                              | 🔒 Private | Meta agent memory system         |
+| 3     | [zotero-config](https://github.com/junghan0611/zotero-config) `@bcb6f6f`                   | ✅ Active  | AI-queryable bibliography        |
+| 2     | [doomemacs-config](https://github.com/junghan0611/doomemacs-config) `@2fe832b`             | ✅ Active  | Terminal-optimized Emacs         |
+| 2     | [emacs-fulllab-config](https://github.com/junghan0611/emacs-fulllab-config) `@9bfffb6`     | ✅ Active  | Experimental environment         |
+| 1     | [nixos-config](https://github.com/junghan0611/nixos-config) `@caecb07`                     | ✅ Active  | Reproducible OS                  |
 
 **Domain Agents:**
-- [family-config](https://github.com/junghan0611/family-config) - Family life management AI Agent
+- [family-config](https://github.com/junghan0611/family-config) `@aa2991b` - Family life management AI Agent
 
 **Data Sources:**
 - [self-tracking-data](https://github.com/junghan0611/self-tracking-data) 📊 Private
-- [self-tracking-data-public](https://github.com/junghan0611/self-tracking-data-public) 📊 Public
+- [self-tracking-data-public](https://github.com/junghan0611/self-tracking-data-public) `@e9e9b6a` 📊 Public
 
 ## Tech Stack
 
