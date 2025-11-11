@@ -36,7 +36,7 @@ AI가 그 맥락을 이해하며,
 
 | 프로젝트 | 상태 | 설명 |
 |---------|------|------|
-| [org-mode-skills](https://github.com/junghan0611/org-mode-skills) | 🔧 Active | Denote-Org Skills for Claude - Life Sciences 패러다임을 생명과학에서 삶 전반으로 확장 |
+| [org-mode-skills](https://github.com/junghan0611/org-mode-skills) `@e2a50ec` | 🔧 Active | Denote-Org Skills for Claude - Life Sciences 패러다임을 생명과학에서 삶 전반으로 확장 |
 
 **핵심 성과:** Anthropic의 "도메인 컨텍스트 + AI = 전문가 수준 협업" 패턴을 개인 지식 관리로 확장. 3,000+ org 파일로 검증.
 
@@ -46,7 +46,7 @@ AI가 그 맥락을 이해하며,
 
 | 프로젝트 | 상태 | 설명 |
 |---------|------|------|
-| [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | ✅ Active | IBM Plex Mono + IBM Plex Sans KR을 통합한 한국어 프로그래밍 폰트. 지식 관리, 터미널 최적화, AI 협업을 위한 100% 유니코드 지원. 8-layer 생태계의 기반. |
+| [GLG-Mono](https://github.com/junghan0611/GLG-Mono) `@2dfe5c4` | ✅ Active | IBM Plex Mono + IBM Plex Sans KR을 통합한 한국어 프로그래밍 폰트. 지식 관리, 터미널 최적화, AI 협업을 위한 100% 유니코드 지원. 8-layer 생태계의 기반. |
 
 **핵심 기능:** 확장된 유니코드 지원 (87% → 100%), 프로그래밍 합자, 8가지 웨이트, 콘솔 최적화, Nerd Fonts 통합, WOFF2 웹폰트.
 
@@ -54,23 +54,23 @@ AI가 그 맥락을 이해하며,
 
 **계층적 아키텍처로 조직된 개인 컴퓨팅 환경**:
 
-| Layer | Project                                                                     | 상태       | 설명                           |
-|-------|-----------------------------------------------------------------------------|------------|--------------------------------|
-| 6     | [meta-config](https://github.com/junghan0611/meta-config)                   | 🔬 Concept | 계층적 에이전트 오케스트레이션 |
-| 5a    | [memex-kb](https://github.com/junghan0611/memex-kb)                         | 🔧 Active  | 범용 지식베이스 마이그레이션   |
-| 5b    | [memacs-config](https://github.com/junghan0611/memacs-config)               | 🔬 Concept | 시간 기반 Life Context 통합    |
-| 4     | [claude-config](https://github.com/junghan0611/claude-config)               | 🔒 Private | Meta Agent 메모리 시스템       |
-| 3     | [zotero-config](https://github.com/junghan0611/zotero-config)               | ✅ Active  | AI 쿼리 가능한 서지 관리       |
-| 2     | [doomemacs-config](https://github.com/joomhan0611/doomemacs-config)         | ✅ Active  | 터미널 최적화 Emacs            |
-| 2     | [emacs-fulllab-config](https://github.com/junghan0611/emacs-fulllab-config) | ✅ Active  | 실험 환경 (Spacemacs+Doom)     |
-| 1     | [nixos-config](https://github.com/junghan0611/nixos-config)                 | ✅ Active  | 재현 가능한 OS 환경            |
+| Layer | Project                                                                                    | 상태       | 설명                           |
+|-------|--------------------------------------------------------------------------------------------|------------|--------------------------------|
+| 6     | [meta-config](https://github.com/junghan0611/meta-config) `@00abfd5`                       | 🔬 Concept | 계층적 에이전트 오케스트레이션 |
+| 5a    | [memex-kb](https://github.com/junghan0611/memex-kb) `@8594bf7`                             | 🔧 Active  | 범용 지식베이스 마이그레이션   |
+| 5b    | [memacs-config](https://github.com/junghan0611/memacs-config) `@605ce07`                   | 🔬 Concept | 시간 기반 Life Context 통합    |
+| 4     | [claude-config](https://github.com/junghan0611/claude-config)                              | 🔒 Private | Meta Agent 메모리 시스템       |
+| 3     | [zotero-config](https://github.com/junghan0611/zotero-config) `@bcb6f6f`                   | ✅ Active  | AI 쿼리 가능한 서지 관리       |
+| 2     | [doomemacs-config](https://github.com/junghan0611/doomemacs-config) `@2fe832b`             | ✅ Active  | 터미널 최적화 Emacs            |
+| 2     | [emacs-fulllab-config](https://github.com/junghan0611/emacs-fulllab-config) `@9bfffb6`     | ✅ Active  | 실험 환경 (Spacemacs+Doom)     |
+| 1     | [nixos-config](https://github.com/junghan0611/nixos-config) `@caecb07`                     | ✅ Active  | 재현 가능한 OS 환경            |
 
 **Domain Agents**:
-- [family-config](https://github.com/junghan0611/family-config) 🔧 - 가족 생활 관리 AI Agent
+- [family-config](https://github.com/junghan0611/family-config) `@aa2991b` 🔧 - 가족 생활 관리 AI Agent
 
 **Data Sources**:
 - [self-tracking-data](https://github.com/junghan0611/self-tracking-data) 📊 - "살기 위한 데이터" 철학 (Private)
-- [self-tracking-data-public](https://github.com/junghan0611/self-tracking-data-public) 📊 - "살기 위한 데이터" 철학
+- [self-tracking-data-public](https://github.com/junghan0611/self-tracking-data-public) `@e9e9b6a` 📊 - "살기 위한 데이터" 철학
 
 ---
 
