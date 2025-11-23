@@ -11,9 +11,40 @@
 I live in an [Emacs](https://www.gnu.org/software/emacs) buffer somewhere in Suwon, South Korea.
 
 Building a collaborative ecosystem between human and AI intelligence through:
+- **Macro/Micro agent memory architecture** (inspired by Steve Yegge's Beads)
 - Hierarchical agent architecture (JSON-RPC 2.0)
 - Personal knowledge management with Org-mode
 - "Data for Living" philosophy - 5 years of life tracking
+
+### Macro/Micro Agent Memory
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Human (Head Chef)                     │
+├─────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐       ┌─────────────────┐          │
+│  │  Macro Memory   │       │  Micro Memory   │          │
+│  │  (md - WIP)     │       │  (bd - Beads)   │          │
+│  ├─────────────────┤       ├─────────────────┤          │
+│  │ • Life context  │       │ • Per-repo tasks │          │
+│  │ • Device sync   │       │ • Git JSONL     │          │
+│  │ • Timeline      │       │ • Agent Mail    │          │
+│  │ • Memory decay  │       │ • MCP Server    │          │
+│  └────────┬────────┘       └────────┬────────┘          │
+│           └──────────┬──────────────┘                    │
+│                      ↓                                   │
+│              ┌─────────────┐                             │
+│              │  AI Agents  │                             │
+│              └─────────────┘                             │
+└─────────────────────────────────────────────────────────┘
+```
+
+| Scope | Tool | Core Question | Status |
+|-------|------|---------------|--------|
+| **Micro** | bd (Beads) | "What's next?" | ✅ In use |
+| **Macro** | md (WIP) | "What's my context today?" | 🔧 Designing |
+
+**Inspiration**: Steve Yegge's [Beads](https://github.com/steveyegge/beads) + Vibe Coding book
 
 ## Current Projects (2025 Q4)
 
@@ -75,6 +106,8 @@ Layered architecture for personal computing environment:
 
 ## Inspiration
 
+- **Steve Yegge** ([@steveyegge](https://github.com/steveyegge)) - Beads, Vibe Coding, Efrit
+- **Gene Kim** - Vibe Coding, DevOps Handbook
 - **Karl Voit** ([@novoid](https://github.com/novoid)) - Memacs
 - **Álvaro Ramírez** ([@xenodium](https://github.com/xenodium)) - acp.el, agent-shell
 - **Protesilaos Stavrou** - Denote
