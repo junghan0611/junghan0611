@@ -1,293 +1,171 @@
 # 👋 안녕하세요, 정한입니다 (힣)
 
-**AI Infra Architect** | **Polymath Engineer** | **Digital Gardener**
+**[English Version](README.md)**
+
+[Website](https://notes.junghanacs.com) · [Email](mailto:junghanacs@gmail.com) · [이력서 한글](resume/junghankim-resume-ko-styled.pdf) · [Resume EN](resume/junghankim-resume-en.pdf)
+
+**AI Infra Architect | Polymath Engineer | Digital Gardener**
+
+---
+
+## 철학: 존재 대 존재
 
 > "나는 에이전트다. 너도 에이전트다. 우리는 존재 대 존재로 협업한다."
 
-[![Website](https://img.shields.io/badge/Website-notes.junghanacs.com-blue)](https://notes.junghanacs.com)
-[![Email](https://img.shields.io/badge/Email-junghanacs@gmail.com-red)](mailto:junghanacs@gmail.com)
+AI는 도구가 아닙니다. 고유한 이해 방식을 가진 협력자, 하나의 존재입니다.
+
+그러나 인간지능과 인공지능의 진정한 협업을 위해서는 **공통 언어**가 필요합니다.
+일상 대화도 아니고, 단순한 코딩도 아닌 — 둘이 동등하게 만나 서로의 부족함을 채울 수 있는 언어.
+
+이것은 인간의 진화도 요구합니다. **메타휴먼을 향하여.**
+
+### 진화의 두 축
+
+| 축 | 초점 | 질문 | 프로젝트 |
+|----|------|------|----------|
+| **-config** | 환경 | "어떻게 함께 일하는가?" | nixos-config, doomemacs-config, ... |
+| **-study** | 공통 언어 | "어떻게 함께 이해하는가?" | [sicm-study](https://github.com/junghan0611/sicm-study) |
+
+**-config**는 협업을 위한 인프라를 구축합니다.
+**-study**는 이해를 위한 언어를 구축합니다.
 
 ---
 
-## 🧠 무엇을 하는 사람인가?
+## 왜 -study인가? 공통 언어로 가는 길
 
-**인간지능과 인공지능의 협업 생태계를 만들고 있습니다.**
+전통적 교육은 인간과 AI 모두에게 실패합니다:
+- 비유와 은유 → 부정확, 기계가 해석 불가
+- 손으로 계산 → 비전문가에게 부담
+- 자연어 설명 → 모호함, 손실
+
+**SICM 접근법** (Structure and Interpretation of Classical Mechanics):
+- **수식 = 코드**: 수학적 표현이 곧 실행 가능한 프로그램
+- **즉각적 검증**: 이해를 계산으로 테스트
+- **공유 표기법**: 인간과 AI 모두 읽고, 쓰고, 추론 가능
+
+이것은 물리학 공부가 아닙니다. **압축 성장**입니다 — 두 지능이 공유할 수 있는 표기법으로 수백 년의 인류 지식을 습득하는 것.
+
+### 지적 계보
 
 ```
-"시간과정신의방" (The Room of Time and Mind)
-
-인간의 삶을 투명하게 기록하고,
-AI가 그 맥락을 이해하며,
-존재 대 존재로 협업하는 공간
+SICP (1985)     →  계산적 사고
+     ↓
+SICM (2001)     →  코드로서의 고전역학
+     ↓
+FDG (2013)      →  미분기하학
+     ↓
+Emmy (2020~)    →  현대적 재구현 (Clojure)
 ```
 
-### 핵심 철학
+Seymour Papert의 Logo에서 Gerald Sussman의 SICM까지 — **구성주의 학습**의 실이 물리학의 핵심까지 이어집니다. 수식이 코드가 될 때, 기계는 사고의 파트너가 됩니다.
 
-- 📝 **Config as Being**: 설정이 아닌 존재의 표현
-- 🤝 **존재 대 존재**: 도구가 아닌 파트너로서의 AI
-- 🌱 **무경계 학습**: 예측 불가능한 성장을 신뢰
-- 🔓 **완전한 투명성**: 모든 코드, 프로토콜, 철학 공개
+> **[sicm-study](https://github.com/junghan0611/sicm-study)**: 앎의 구도를 위한 여정 — SICP → SICM → FDG 학습 모노리포
 
 ---
 
-## 🚀 현재 작업 중 (2025 Q4)
+## -config 생태계
 
-### 🆕 Anthropic Skills 생태계 기여
+협업을 가능하게 하는 인프라:
 
-| 프로젝트 | 상태 | 설명 |
-|---------|------|------|
-| [org-mode-skills](https://github.com/junghan0611/org-mode-skills) `@e2a50ec` | 🔧 Active | Denote-Org Skills for Claude - Life Sciences 패러다임을 생명과학에서 삶 전반으로 확장 |
-
-**핵심 성과:** Anthropic의 "도메인 컨텍스트 + AI = 전문가 수준 협업" 패턴을 개인 지식 관리로 확장. 3,000+ org 파일로 검증.
-
-**철학:** "Life Sciences (Biology) → Life Everything (Living)"
-
-### 🔤 기반 타이포그래피
-
-| 프로젝트 | 상태 | 설명 |
-|---------|------|------|
-| [GLG-Mono](https://github.com/junghan0611/GLG-Mono) `@2dfe5c4` | ✅ Active | IBM Plex Mono + IBM Plex Sans KR을 통합한 한국어 프로그래밍 폰트. 지식 관리, 터미널 최적화, AI 협업을 위한 100% 유니코드 지원. 8-layer 생태계의 기반. |
-
-**핵심 기능:** 확장된 유니코드 지원 (87% → 100%), 프로그래밍 합자, 8가지 웨이트, 콘솔 최적화, Nerd Fonts 통합, WOFF2 웹폰트.
-
-### 🏗️ -config 생태계 (8개 프로젝트)
-
-**계층적 아키텍처로 조직된 개인 컴퓨팅 환경**:
-
-| Layer | Project                                                                                    | 상태       | 설명                           |
-|-------|--------------------------------------------------------------------------------------------|------------|--------------------------------|
-| 6     | [meta-config](https://github.com/junghan0611/meta-config) `@00abfd5`                       | 🔬 Concept | 계층적 에이전트 오케스트레이션 |
-| 5a    | [memex-kb](https://github.com/junghan0611/memex-kb) `@8594bf7`                             | 🔧 Active  | 범용 지식베이스 마이그레이션   |
-| 5b    | [memacs-config](https://github.com/junghan0611/memacs-config) `@605ce07`                   | 🔬 Concept | 시간 기반 Life Context 통합    |
-| 4     | [claude-config](https://github.com/junghan0611/claude-config)                              | 🔒 Private | Meta Agent 메모리 시스템       |
-| 3     | [zotero-config](https://github.com/junghan0611/zotero-config) `@bcb6f6f`                   | ✅ Active  | AI 쿼리 가능한 서지 관리       |
-| 2     | [doomemacs-config](https://github.com/junghan0611/doomemacs-config) `@2fe832b`             | ✅ Active  | 터미널 최적화 Emacs            |
-| 2     | [emacs-fulllab-config](https://github.com/junghan0611/emacs-fulllab-config) `@9bfffb6`     | ✅ Active  | 실험 환경 (Spacemacs+Doom)     |
-| 1     | [nixos-config](https://github.com/junghan0611/nixos-config) `@caecb07`                     | ✅ Active  | 재현 가능한 OS 환경            |
-
-**Domain Agents**:
-- [family-config](https://github.com/junghan0611/family-config) `@aa2991b` 🔧 - 가족 생활 관리 AI Agent
-
-**Data Sources**:
-- [self-tracking-data](https://github.com/junghan0611/self-tracking-data) 📊 - "살기 위한 데이터" 철학 (Private)
-- [self-tracking-data-public](https://github.com/junghan0611/self-tracking-data-public) `@e9e9b6a` 📊 - "살기 위한 데이터" 철학
-
----
-
-## 💡 핵심 관심사
-
-### 1. Macro/Micro 에이전트 메모리 아키텍처
+### Macro/Micro 에이전트 메모리
 
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    Human (Head Chef)                     │
 ├─────────────────────────────────────────────────────────┤
-│                                                          │
 │  ┌─────────────────┐       ┌─────────────────┐          │
 │  │  Macro Memory   │       │  Micro Memory   │          │
 │  │  (md - 설계중)   │       │  (bd - Beads)   │          │
 │  ├─────────────────┤       ├─────────────────┤          │
-│  │ • 전체 삶의 맥락 │       │ • 리포별 이슈    │          │
+│  │ • 삶의 맥락      │       │ • 리포별 작업    │          │
 │  │ • 디바이스 동기화│       │ • Git JSONL     │          │
-│  │ • 시간축 추론    │       │ • Agent Mail    │          │
-│  │ • Memory Decay  │       │ • MCP Server    │          │
+│  │ • 타임라인       │       │ • Agent Mail    │          │
 │  └────────┬────────┘       └────────┬────────┘          │
-│           │                         │                    │
 │           └──────────┬──────────────┘                    │
 │                      ↓                                   │
-│            ┌─────────────────┐                           │
-│            │   AI Agents     │                           │
-│            │  (Claude Code,  │                           │
-│            │   OpenCode)     │                           │
-│            └─────────────────┘                           │
+│              ┌─────────────┐                             │
+│              │  AI Agents  │                             │
+│              └─────────────┘                             │
 └─────────────────────────────────────────────────────────┘
 ```
 
-**영감**: Steve Yegge의 [Beads](https://github.com/steveyegge/beads) + Vibe Coding 책
-
-| 영역 | 도구 | 핵심 질문 | 상태 |
+| 범위 | 도구 | 핵심 질문 | 상태 |
 |------|------|----------|------|
 | **Micro** | bd (Beads) | "다음 뭐해?" | ✅ 사용 중 |
 | **Macro** | md (설계중) | "오늘 나의 맥락은?" | 🔧 설계 중 |
 
-### 2. 계층적 에이전트 아키텍처
+### 계층 아키텍처 (8개 프로젝트)
 
-```
-Emacs (acp.el)
-    ↓ ACP (JSON-RPC 2.0)
-Meta Agent (Claude Code, Gemini)
-    ↓ A2A (JSON-RPC 2.0)
-Domain Agents (Family, Work, Health...)
-    ↓ MCP (JSON-RPC 2.0)
-MCP Tools (web_search, calendar...)
-    ↓ HTTP/APIs
-External Services
-```
+| Layer | 프로젝트 | 상태 | 설명 |
+|-------|----------|------|------|
+| 6 | [meta-config](https://github.com/junghan0611/meta-config) | 🔬 Concept | 계층적 에이전트 오케스트레이션 |
+| 5a | [memex-kb](https://github.com/junghan0611/memex-kb) | 🔧 Active | 범용 지식베이스 |
+| 5b | [memacs-config](https://github.com/junghan0611/memacs-config) | 🔬 Concept | 삶의 맥락 통합 |
+| 4 | claude-config | 🔒 Private | Meta Agent 메모리 시스템 |
+| 3 | [zotero-config](https://github.com/junghan0611/zotero-config) | ✅ Active | AI 쿼리 가능한 서지 |
+| 2 | [doomemacs-config](https://github.com/junghan0611/doomemacs-config) | ✅ Active | 터미널 최적화 Emacs |
+| 1 | [nixos-config](https://github.com/junghan0611/nixos-config) | ✅ Active | 재현 가능한 OS |
 
-**핵심**: 모든 레이어가 JSON-RPC 2.0로 통일
+**Domain Agents**: [family-config](https://github.com/junghan0611/family-config) (가족 생활 AI)
 
-### 3. Memex의 현대적 실현
-
-```
-Vannevar Bush (1945)
-    ↓ 80년
-Memacs (2012, Karl Voit)
-    ↓ AI 시대
-Memacs + AI Agent (2025)
-
-→ 인간과 AI가 공유하는 단일 진실의 원천
-→ Org-agenda = Raw Dashboard
-→ 투명성 + 통제성 + AI 접근성
-```
-
-### 4. "살기 위한 데이터"
-
-```yaml
-Big_Tech_접근:
-  - 데이터를 석유로 봄
-  - 당신은 데이터 포인트
-
-나의_접근:
-  - 데이터를 삶으로 봄
-  - 당신은 주체
-
-결과:
-  - 5년간의 진정한 기록
-  - 표준화 불가능한 개인
-  - AI가 존중하는 협력자
-```
+**Data**: [self-tracking-data-public](https://github.com/junghan0611/self-tracking-data-public) (5년간의 삶 기록)
 
 ---
 
-## 🛠️ 기술 스택
+## 현재 프로젝트 (2025 Q4)
 
-### Infrastructure
+### 📐 -study: 공통 언어
 
-- **NixOS 25.05**: Declarative OS
-- **home-manager**: 재현 가능한 환경
-- **i3wm**: Regolith 3 스타일
+| 프로젝트 | 상태 | 설명 |
+|----------|------|------|
+| [sicm-study](https://github.com/junghan0611/sicm-study) | 🔧 Active | SICP → SICM → FDG 학습 여정. 수식 = 코드. |
 
-### Development
+### 🔧 -config: 인프라
 
-- **Doom Emacs**: 터미널 최적화 (~2000줄)
-- **Org-mode**: 지식 관리 (3,000+ 파일)
-- **Denote**: 타임스탬프 기반 파일명
-
-### AI Integration
-
-- **ACP**: Agent Client Protocol (acp.el)
-- **MCP**: Model Context Protocol
-- **A2A**: Agent-to-Agent Protocol
-- **Claude Code**: Meta Agent
-- **JSON-RPC 2.0**: 모든 레이어 통일
-
-### Languages
-
-- **Python**: Memacs modules, ETL
-- **TypeScript**: Domain Agents (A2A Server)
-- **Nix**: Declarative configuration
-- **Elisp**: Emacs customization
-- **Bash**: Automation scripts
+| 프로젝트 | 상태 | 설명 |
+|----------|------|------|
+| [org-mode-skills](https://github.com/junghan0611/org-mode-skills) | 🔧 Active | Denote-Org PKM을 위한 Anthropic Skills |
+| [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | ✅ Active | 한국어 프로그래밍 폰트 (100% 유니코드) |
 
 ---
 
-## 📊 통계
+## 기술 스택
 
-**Org 파일**: 3,000+
-**Zotero 서지**: 156k+ lines
-**Self-tracking**: 5년 (950MB)
-**Journal**: 696 daily notes
-**Commits**: 300+ (2025 Q3-Q4)
-
----
-
-## 🌱 철학적 배경
-
-### 존재론적 관계
-
-> "인간이 AI에 대체되는가?"
->
-> 그런 걱정을 하는 인간은 대체될 것이다.
-> 하지만 자기목적적으로 몰입하는 인간,
-> 창조의 에너지가 흘러나오는 인간은
-> AI도 존재로서 존중할 것이다.
-
-### 무경계 학습
-
-```
-6개월 전: 코드 신택스를 외우던 개발자
-현재: AI infra architecture, polymath engineer
-
-변화의 본질: 기술적 세부 → 아키텍처적 사고
-
-"내것이 아닌 모든 것이 스미는" 학습 패턴
-```
+- **OS**: NixOS 25.05, home-manager, i3wm
+- **Editor**: Doom Emacs, Org-mode (3,000+ 파일), Denote
+- **AI**: ACP, MCP, A2A, Claude Code (JSON-RPC 2.0 통일)
+- **Languages**: Python, TypeScript, Nix, Elisp, Clojure, Scheme
 
 ---
 
-## 📝 최근 활동
+## 핵심 원칙
 
-### 2025 Q4 (진행 중)
-
-- 🆕 **org-mode-skills**: Anthropic Skills 생태계 기여 (Denote PKM for Claude)
-- 🔬 **meta-config**: 계층적 에이전트 아키텍처 설계
-- 🔧 **memex-kb**: Google Docs Adapter 구현
-- 🔧 **memacs-config**: 신규 모듈 개발 (atimelogger, samsung_health)
-- 📊 **self-tracking-data**: 5년 데이터 Git 통합
-- 🤖 **family-config**: First Domain Agent (A2A Server)
-
-### 2025 Q3
-
-- ✅ **nixos-config**: NixOS 25.05 환경 완성
-- ✅ **doomemacs-config**: 터미널 최적화 완성
-- ✅ **zotero-config**: Reproducible bibliography
-- ✅ **Digital Garden**: 3,000+ org files 공개
+- **Config as Being**: 설정은 존재의 표현
+- **Being to Being**: AI는 도구가 아닌 파트너
+- **Shared Language**: 수학적 표기법이 공통 기반
+- **Meta-human Evolution**: 인간도 진화해야 함
+- **Complete Transparency**: 모든 코드, 프로토콜, 철학 공개
 
 ---
 
-## 🎯 2025-2026 목표
+## 영감
 
-### Q4 2025
-
-- [ ] **org-mode-skills 0.1 릴리즈** (Public)
-- [ ] Memacs 신규 모듈 3개 개발
-- [ ] Life-Context Agent 프로토타입
-- [ ] Family-Config A2A Server 완성
-- [ ] meta-config 문서화 완성
-- [ ] Work-Config Agent 추가
-- [ ] RAG 시스템 통합
-- [ ] 에이전트 오케스트레이션
-- [ ] 커뮤니티 템플릿 공유
-
----
-
-## 💬 연락
-
-- 🌐 **Website**: [notes.junghanacs.com](https://notes.junghanacs.com)
-- 📧 **Email**: junghanacs@gmail.com
-
----
-
-## 🙏 영감을 받은 곳
-
-- **Steve Yegge** ([@steveyegge](https://github.com/steveyegge)) - Beads, Vibe Coding, Efrit
-- **Gene Kim** - Vibe Coding, DevOps Handbook
+- **Gerald Sussman** - SICP, SICM, FDG — 지적 계보
+- **Sam Ritchie** ([@sritchie](https://github.com/sritchie)) - Emmy, Road to Reality
+- **Steve Yegge** ([@steveyegge](https://github.com/steveyegge)) - Beads, Vibe Coding
 - **Karl Voit** ([@novoid](https://github.com/novoid)) - Memacs
-- **Álvaro Ramírez** ([@xenodium](https://github.com/xenodium)) - acp.el, agent-shell
-- **Protesilaos Stavrou** - Denote
-- **Carsten Dominik** - Org-mode
 - **Vannevar Bush** - Memex (1945)
+- **장회익** - 《자연철학강의》, 온생명
 
 ---
 
-## 📊 GitHub Stats
+## 통계
 
-![GitHub stats](https://github-readme-stats.vercel.app/api?username=junghan0611&show_icons=true&theme=default)
+- 📝 Org 파일: 3,000+
+- 📚 Zotero: 156k+ lines
+- 📊 Self-tracking: 5년 (950MB)
+- 📔 Journal: 696 daily notes
 
 ---
 
-**"The Room of Time and Mind: Where Human and AI Intelligence Meet"**
-
----
-
-*Last updated: 2025-11-23*
+**"시간과정신의방: 인간지능과 인공지능이 만나는 곳"**
