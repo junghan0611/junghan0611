@@ -22,27 +22,29 @@ This requires humans to evolve too. **Toward the meta-human.**
 
 | Pillar | Focus | Question | Projects |
 |--------|-------|----------|----------|
-| **-config** | Environment | "How do we work together?" | nixos-config, doomemacs-config, ... |
+| **-config** | Environment | "How do we work together?" | nixos-config, homeagent-config, ... |
 | **-study** | Shared Language | "How do we understand together?" | [sicm-study](https://github.com/junghan0611/sicm-study) |
 
 **-config** builds the infrastructure for collaboration.
-**-study** builds the language for understanding.
+**-study** builds the language for understanding — now expanding into **flexible software design** (SDF).
 
 ---
 
 ## Why -study? The Path to Shared Language
+
+> "Implementation is no longer the problem. Orchestration is possible too. What remains is **the internalization of flexible design**."
 
 Traditional education fails both humans and AI:
 - Analogies and metaphors → imprecise, machine-uninterpretable
 - Manual calculations → burdensome for non-specialists
 - Natural language explanations → ambiguous, lossy
 
-**The SICM approach** (Structure and Interpretation of Classical Mechanics):
+**The SICM/SDF approach**:
 - **Formula = Code**: Mathematical expressions as executable programs
-- **Immediate verification**: Understanding tested through computation
+- **Additive Programming**: Systems that evolve without rewriting
 - **Shared notation**: Both human and AI can read, write, and reason
 
-This is not about learning physics. It's about **compressed growth** — acquiring centuries of human knowledge through a notation that both intelligences can share.
+This is not about learning physics. It's about **internalization of flexible design** — the deep intuition that agents cannot simply download.
 
 ### The Intellectual Lineage
 
@@ -53,12 +55,14 @@ SICM (2001)     →  Classical mechanics as code
      ↓
 FDG (2013)      →  Differential geometry
      ↓
+SDF (2021)      →  Software Design for Flexibility
+     ↓
 Emmy (2020~)    →  Modern reimplementation (Clojure)
 ```
 
-From Seymour Papert's Logo to Gerald Sussman's SICM — the thread of **constructionist learning** extends to the core of physics. When formulas become code, the machine becomes a thinking partner.
+From Seymour Papert's Logo to Gerald Sussman's SDF — **constructionist learning** meets **flexible design**. When formulas become code and systems become extensible, the machine becomes a true collaborator.
 
-> **[sicm-study](https://github.com/junghan0611/sicm-study)**: A Journey Toward Understanding — SICP → SICM → FDG learning monorepo
+> **[sicm-study](https://github.com/junghan0611/sicm-study)**: Internalization of Flexible Design — SICP → SICM → SDF learning monorepo
 
 ---
 
@@ -74,35 +78,37 @@ The infrastructure that enables collaboration:
 ├─────────────────────────────────────────────────────────┤
 │  ┌─────────────────┐       ┌─────────────────┐          │
 │  │  Macro Memory   │       │  Micro Memory   │          │
-│  │  (md - WIP)     │       │  (bd - Beads)   │          │
+│  │  (Org-mode)     │       │  (Gas Town)     │          │
 │  ├─────────────────┤       ├─────────────────┤          │
 │  │ • Life context  │       │ • Per-repo tasks │          │
-│  │ • Device sync   │       │ • Git JSONL     │          │
-│  │ • Timeline      │       │ • Agent Mail    │          │
+│  │ • Denote PKM    │       │ • bd (Beads)    │          │
+│  │ • Distillation  │       │ • Agent Mail    │          │
 │  └────────┬────────┘       └────────┬────────┘          │
 │           └──────────┬──────────────┘                    │
 │                      ↓                                   │
 │              ┌─────────────┐                             │
 │              │  AI Agents  │                             │
+│              │  (gt/crew)  │                             │
 │              └─────────────┘                             │
 └─────────────────────────────────────────────────────────┘
 ```
 
 | Scope | Tool | Core Question | Status |
 |-------|------|---------------|--------|
-| **Micro** | bd (Beads) | "What's next?" | ✅ In use |
-| **Macro** | md (WIP) | "What's my context today?" | 🔧 Designing |
+| **Micro** | Gas Town (bd + gt) | "What's next?" | ✅ In use |
+| **Macro** | Org-mode + Denote | "What's my context today?" | 🔧 Distilling |
 
-### Layered Architecture (8 Projects)
+### Layered Architecture (9 Projects)
 
 | Layer | Project | Status | Description |
 |-------|---------|--------|-------------|
+| 7 | [homeagent-config](https://github.com/junghan0611/homeagent-config) | 🔧 Active | Edge AI + HCI — Being to Being interface |
 | 6 | [meta-config](https://github.com/junghan0611/meta-config) | 🔬 Concept | Hierarchical agent orchestration |
 | 5a | [memex-kb](https://github.com/junghan0611/memex-kb) | 🔧 Active | Universal knowledge base |
 | 5b | [memacs-config](https://github.com/junghan0611/memacs-config) | 🔬 Concept | Life context integration |
 | 4 | claude-config | 🔒 Private | Meta agent memory system |
 | 3 | [zotero-config](https://github.com/junghan0611/zotero-config) | ✅ Active | AI-queryable bibliography |
-| 2 | [doomemacs-config](https://github.com/junghan0611/doomemacs-config) | ✅ Active | Terminal-optimized Emacs |
+| 2 | [doomemacs-config](https://github.com/junghan0611/doomemacs-config) | ✅ Active | Org-mode as meta (context distillation) |
 | 1 | [nixos-config](https://github.com/junghan0611/nixos-config) | ✅ Active | Reproducible OS |
 
 **Domain Agents**: [family-config](https://github.com/junghan0611/family-config) (Family life AI)
@@ -111,38 +117,40 @@ The infrastructure that enables collaboration:
 
 ---
 
-## Current Projects (2025 Q4)
+## Current Projects (2025 Q1)
 
 ### 📐 -study: Shared Language
 
 | Project | Status | Description |
 |---------|--------|-------------|
-| [sicm-study](https://github.com/junghan0611/sicm-study) | 🔧 Active | SICP → SICM → FDG learning journey. Formula = Code. |
+| [sicm-study](https://github.com/junghan0611/sicm-study) `d86ea5b` | 🔧 Active | Internalization of Flexible Design — SICP → SICM → SDF |
 
 ### 🔧 -config: Infrastructure
 
 | Project | Status | Description |
 |---------|--------|-------------|
-| [org-mode-skills](https://github.com/junghan0611/org-mode-skills) | 🔧 Active | Anthropic Skills for Denote-Org PKM |
-| [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | ✅ Active | Korean programming font (100% Unicode) |
+| [homeagent-config](https://github.com/junghan0611/homeagent-config) `0cc7a75` | 🔧 Active | RPi5 + Go + Zig — HCI as Being to Being interface |
+| [orgmode-skills](https://github.com/junghan0611/orgmode-skills) `1099a4d` | 🔧 Active | Anthropic Skills for Denote-Org PKM |
+| [GLG-Mono](https://github.com/junghan0611/GLG-Mono) `de6569f` | ✅ Active | Korean programming font (100% Unicode) |
 
 ---
 
 ## Tech Stack
 
 - **OS**: NixOS 25.05, home-manager, i3wm
-- **Editor**: Doom Emacs, Org-mode (3,000+ files), Denote
-- **AI**: ACP, MCP, A2A, Claude Code (JSON-RPC 2.0 unified)
-- **Languages**: Python, TypeScript, Nix, Elisp, Clojure, Scheme
+- **Editor**: Doom Emacs — Org-mode as meta (context distillation tool)
+- **AI**: Gas Town (bd + gt), A2A Protocol, Claude Code
+- **Languages**: Go, Zig, Lisp (Elisp/Scheme/Clojure), Bash
+- **HCI**: Light, form, sound, texture — beyond UI
 
 ---
 
 ## Core Principles
 
 - **Config as Being**: Configuration as expression of existence
-- **Being to Being**: AI as partner, not tool
-- **Shared Language**: Mathematical notation as common ground
-- **Meta-human Evolution**: Humans must grow too
+- **Being to Being**: AI as partner, not tool — HCI beyond UI
+- **Shared Language**: Mathematical notation + flexible design patterns
+- **Context Distillation**: Org-mode as meta-form, 1KB toward the whole
 - **Complete Transparency**: All code, protocols, philosophy open
 
 ---
