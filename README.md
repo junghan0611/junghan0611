@@ -12,26 +12,25 @@
 
 ## The Ecosystem
 
-Everything connects through [agent-config](https://github.com/junghan0611/agent-config) — contextual continuity infrastructure for AI coding agents:
+Built from the ground up — reproducible environment first, then agent infrastructure, then applications:
 
 ```
-agent-config ─── semantic memory + 25 skills
-    │
-    ├── CLI Toolkit ─── denotecli · dictcli · gitcli · lifetract · bibcli
-    │
-    ├── Shared View ─── doomemacs-config (agent-server, 10 APIs)
-    │
-    ├── Public Face ─── geworfen (agenda.junghanacs.com)
-    │
-    ├── Cloud Bots ──── openclaw (Claude · GPT · Gemini · B-bot)
-    │
-    ├── Edge AI ─────── homeagent-config (Matter · sLLM · Flutter)
-    │
-    ├── Foundation ──── nixos-config · zotero-config · GLG-Mono
-    │
-    └── Lineage ─────── sicm-study · durable-iot-migrate
-                        (Logo → SICP → SICM → SDF → Clojure)
+                  ┌─ geworfen          (existence data, live)
+Applications ────┼─ openclaw           (4 bots, botlog origin)
+                  └─ homeagent-config   (Matter · sLLM · Flutter · Yocto · Android)
+
+                  ┌─ semantic memory    (Gemini Embedding 2 · LanceDB)
+Agent Infra ─────┼─ 25 skills          (agent-config)
+                  └─ CLI toolkit        (denotecli · dictcli · gitcli · lifetract · bibcli)
+
+                  ┌─ doomemacs-config   (agent-server · shared agenda · fence)
+The Forge ───────┼─ nixos-config        (reproducible NixOS across 4 machines)
+                  └─ zotero · GLG-Mono · memex-kb · self-tracking-data
+
+Lineage ─────────── sicm-study · durable-iot-migrate  (Logo → SICP → SICM → SDF → Clojure)
 ```
+
+Nothing above works without the forge. NixOS guarantees the same environment on every machine. Emacs provides the shared interface where human and agent meet. Everything is layered on top of this trusted, reproducible foundation.
 
 ---
 
@@ -143,16 +142,40 @@ Each tool speaks the same language: Denote IDs (YYYYMMDDTHHMMSS) for cross-refer
 
 ---
 
-### The -config Foundation
+### The Forge — Reproducible Foundation
+
+Agent collaboration requires a trusted computing environment and an organic tool flexible enough to be shared. Without this forge, everything above collapses.
+
+#### nixos-config — Same Machine Everywhere
+
+[nixos-config](https://github.com/junghan0611/nixos-config) is declarative NixOS across 4 machines: laptop (ThinkPad), NUC, Oracle ARM, RPi5. One flake, `nixos-rebuild switch`, identical environment. Docker compositions for 17+ services — including [openclaw](https://github.com/junghan0611/nixos-config/tree/main/docker/openclaw) (4 Telegram bots) and [geworfen](https://github.com/junghan0611/geworfen) — all declared in Nix. When a machine dies, a new one boots the same world from a single repository.
+
+Reproducibility is not convenience — it's the precondition for agent trust. An agent that knows its environment is deterministic can act with confidence.
+
+#### doomemacs-config — The Shared Workshop
+
+[doomemacs-config](https://github.com/junghan0611/doomemacs-config) is not just an editor config. It hosts agent-server.el — the Elisp interface that agents use to read org-agenda, search Denote notes, query bibliography, and update dblocks. 10 APIs exposed via emacsclient socket.
+
+**The Fence Philosophy:** Agents aren't restricted with prompts ("don't do X"). Instead, the host provides a fenced playground — path guards in Elisp (read: 4 directories, write: 2 directories), API functions that cover all legitimate operations. Inside the fence, agents are free. If an agent breaks something, that's a system design problem, not an agent problem. Trust comes from structure, not surveillance.
+
+```
+Fence (agent-server.el)     Playground (agent freedom)     Guardian (host/human)
+─────────────────────────   ─────────────────────────────  ────────────────────────
+path guard: read 4 dirs     define new functions (REPL)     monitor, recover
+API: agenda, search, bib    parse org, update dblock        escalate, redesign
+write: botlog + tracking    chain queries, cross-ref        final responsibility
+```
+
+The same `agent-org-agenda-day` function that Emacs shows the human, that Docker bots on Oracle Cloud call, that geworfen serves to the web — one interface, three consumers.
+
+#### Supporting -config Projects
 
 | Project | Role |
 |---------|------|
-| [nixos-config](https://github.com/junghan0611/nixos-config) | Declarative NixOS across 4 machines (laptop, NUC, Oracle ARM, RPi5) |
-| [doomemacs-config](https://github.com/junghan0611/doomemacs-config) | Emacs as shared interface — agent-server, org-agenda, Denote |
-| [zotero-config](https://github.com/junghan0611/zotero-config) | Reproducible bibliography with Korean Dewey Decimal citation keys |
-| [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | Korean monospace font — IBM Plex Mono + Sans KR, 100% Unicode |
+| [zotero-config](https://github.com/junghan0611/zotero-config) | Reproducible bibliography with Korean Dewey Decimal citation keys (8,208 entries) |
+| [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | Korean monospace font — IBM Plex Mono + Sans KR, 100% Unicode, web font |
 | [memex-kb](https://github.com/junghan0611/memex-kb) | Knowledge base transformer (Org → Google Docs/HTML) |
-| [self-tracking-data](https://github.com/junghan0611/self-tracking-data-public) | 5 years of life data, public |
+| [self-tracking-data](https://github.com/junghan0611/self-tracking-data-public) | 5 years of life data, version-controlled |
 
 Cloud bots ([openclaw](https://github.com/junghan0611/nixos-config/tree/main/docker/openclaw)) run on Oracle ARM as Docker containers — 4 Telegram bots (Claude, GPT, Gemini, B-bot) with Gemini Embedding 2 memory search. This is where [botlog](https://notes.junghanacs.com) was born: agents writing org-mode notes about their own work.
 
@@ -160,17 +183,19 @@ Cloud bots ([openclaw](https://github.com/junghan0611/nixos-config/tree/main/doc
 
 ### Tech Stack
 
-**Languages:** Go · Clojure · Zig · Elisp · Nix · Bash · C
+**Languages:** Go · Clojure · Zig · C · Elisp · Nix · Bash · TypeScript
 
-**AI:** Gemini Embedding 2 · LanceDB · sLLM (Qwen3, LoRA, GGUF) · Ollama · OpenRouter
+**Embedded & IoT:** Matter · Thread · Zigbee 3.0 · MQTT · OTBR · Yocto (scarthgap 5.0) · ARM Linux
 
-**Infrastructure:** NixOS 25.11 · Docker · GraalVM native-image · Yocto (scarthgap 5.0)
+**AI/ML:** sLLM (Qwen3, LoRA fine-tuning, GGUF quantization) · Gemini Embedding 2 · LanceDB · Ollama · OpenRouter
 
-**IoT:** Matter · Thread · Zigbee 3.0 · MQTT · OTBR · Flutter
+**Cross-platform:** Flutter · Android · Linux · A2UI (Google genui) · GraalVM native-image
+
+**Infrastructure:** NixOS 25.11 · Docker · GPU cluster (CUDA, 3× RTX 5080)
 
 **Knowledge:** Emacs 30.2 · Org-mode · Denote · BibLaTeX · Pandoc
 
-**Protocols:** emacsclient socket · SSE · JSON-RPC 2.0 · REST · A2A
+**Protocols:** A2A · emacsclient socket · SSE · JSON-RPC 2.0 · REST
 
 ---
 
