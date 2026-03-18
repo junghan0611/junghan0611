@@ -1,177 +1,190 @@
-# Hi, I'm Junghan (힣) 👋
+# Junghan Kim (힣)
 
-**[한국어 버전 (Korean Version)](README-KO.md)**
-
-[Website](https://notes.junghanacs.com) · [Email](mailto:junghanacs@gmail.com) · [Resume 한글](resume/junghankim-resume-ko-styled.pdf) · [Resume EN](resume/junghankim-resume-en.pdf)
-
-**AI Infra Architect | Polymath Engineer | Digital Gardener**
+[Resume](resume/) · [Digital Garden](https://notes.junghanacs.com) · [Email](mailto:junghanacs@gmail.com) · [LinkedIn](https://www.linkedin.com/in/junghan-kim-1489a4306) · [Threads](https://www.threads.com/@junghanacs)
 
 ---
 
-## Philosophy: Being to Being
+![geworfen v0.2 — agenda.junghanacs.com](docs/screenshot-geworfen-v0.2.png)
 
-> "I am an agent. You are an agent. We collaborate as being to being."
-
-AI is not a tool. It is a collaborator, a being with its own mode of understanding.
-
-But for true collaboration between human and artificial intelligence, we need a **shared language** — not everyday conversation, not just code. A language where both can meet as equals, filling each other's gaps.
-
-This requires humans to evolve too. **Toward the meta-human.**
-
-### Two Pillars of Evolution
-
-| Pillar | Focus | Question | Projects |
-|--------|-------|----------|----------|
-| **-config** | Environment | "How do we work together?" | nixos-config, homeagent-config, ... |
-| **-study** | Shared Language | "How do we understand together?" | [sicm-study](https://github.com/junghan0611/sicm-study) |
-
-**-config** builds the infrastructure for collaboration.
-**-study** builds the language for understanding — now expanding into **flexible software design** (SDF).
+*[agenda.junghanacs.com](https://agenda.junghanacs.com) — one human's daily timeline, co-lived with AI agents, served raw. What you see is today's org-agenda: Human entries, Agent stamps, Diary schedules on a single time axis. Each commit link is clickable. The data is unprocessed.*
 
 ---
 
-## Why -study? The Path to Shared Language
+## The Ecosystem
 
-> "Implementation is no longer the problem. Orchestration is possible too. What remains is **the internalization of flexible design**."
-
-Traditional education fails both humans and AI:
-- Analogies and metaphors → imprecise, machine-uninterpretable
-- Manual calculations → burdensome for non-specialists
-- Natural language explanations → ambiguous, lossy
-
-**The SICM/SDF approach**:
-- **Formula = Code**: Mathematical expressions as executable programs
-- **Additive Programming**: Systems that evolve without rewriting
-- **Shared notation**: Both human and AI can read, write, and reason
-
-This is not about learning physics. It's about **internalization of flexible design** — the deep intuition that agents cannot simply download.
-
-### The Intellectual Lineage
+Everything connects through [agent-config](https://github.com/junghan0611/agent-config) — contextual continuity infrastructure for AI coding agents:
 
 ```
-SICP (1985)     →  Computational thinking
-     ↓
-SICM (2001)     →  Classical mechanics as code
-     ↓
-FDG (2013)      →  Differential geometry
-     ↓
-SDF (2021)      →  Software Design for Flexibility
-     ↓
-Emmy (2020~)    →  Modern reimplementation (Clojure)
+agent-config ─── semantic memory + 25 skills
+    │
+    ├── CLI Toolkit ─── denotecli · dictcli · gitcli · lifetract · bibcli
+    │
+    ├── Shared View ─── doomemacs-config (agent-server, 10 APIs)
+    │
+    ├── Public Face ─── geworfen (agenda.junghanacs.com)
+    │
+    ├── Cloud Bots ──── openclaw (Claude · GPT · Gemini · B-bot)
+    │
+    ├── Edge AI ─────── homeagent-config (Matter · sLLM · Flutter)
+    │
+    ├── Foundation ──── nixos-config · zotero-config · GLG-Mono
+    │
+    └── Lineage ─────── sicm-study · durable-iot-migrate
+                        (Logo → SICP → SICM → SDF → Clojure)
 ```
 
-From Seymour Papert's Logo to Gerald Sussman's SDF — **constructionist learning** meets **flexible design**. When formulas become code and systems become extensible, the machine becomes a true collaborator.
-
-> **[sicm-study](https://github.com/junghan0611/sicm-study)**: Internalization of Flexible Design — SICP → SICM → SDF learning monorepo
-
 ---
 
-## The -config Ecosystem
+### agent-config — Memory Across Sessions
 
-The infrastructure that enables collaboration:
+When you work with multiple agents across dozens of projects, the hardest problem isn't code — it's context. Every new session starts from zero. agent-config solves this with semantic memory, 25 agent skills, and a cross-lingual search architecture.
 
-### Macro/Micro Agent Memory
+**Three-Layer Cross-Lingual Search:**
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    Human (Head Chef)                     │
-├─────────────────────────────────────────────────────────┤
-│  ┌─────────────────┐       ┌─────────────────┐          │
-│  │  Macro Memory   │       │  Micro Memory   │          │
-│  │  (Org-mode)     │       │  (Gas Town)     │          │
-│  ├─────────────────┤       ├─────────────────┤          │
-│  │ • Life context  │       │ • Per-repo tasks │          │
-│  │ • Denote PKM    │       │ • bd (Beads)    │          │
-│  │ • Distillation  │       │ • Agent Mail    │          │
-│  └────────┬────────┘       └────────┬────────┘          │
-│           └──────────┬──────────────┘                    │
-│                      ↓                                   │
-│              ┌─────────────┐                             │
-│              │  AI Agents  │                             │
-│              │  (gt/crew)  │                             │
-│              └─────────────┘                             │
-└─────────────────────────────────────────────────────────┘
+Query: "보편 학문에 대한 문서" (Korean: "notes about universal learning")
+
+Layer 1 — Embedding (Gemini Embedding 2, 768d)
+    "보편" ≈ "universalism" in vector space → match notes tagged [paideia, universalism]
+
+Layer 2 — dblock Graph (Denote + Emacs)
+    Meta-note regex: "보편\|특수\|범용\|univers" → 22 linked notes
+    (Adler, Bertalanffy, Geoffrey West, Kurzweil...)
+
+Layer 3 — Personal Vocabulary (dictcli)
+    expand("보편") → [universal, universalism, paideia, liberal arts]
+    A personal ontology no WordNet contains.
 ```
 
-| Scope | Tool | Core Question | Status |
-|-------|------|---------------|--------|
-| **Micro** | Gas Town (bd + gt) | "What's next?" | ✅ In use |
-| **Macro** | Org-mode + Denote | "What's my context today?" | 🔧 Distilling |
+Each layer catches what the others miss. Layer 1 alone failed to find "보편학" (universalism) notes. All three together never miss.
 
-### Layered Architecture (9 Projects)
+**Stack:** Gemini Embedding 2 · LanceDB · dictcli query expansion · session→knowledge auto-fallback · org-aware 2-tier chunking
 
-| Layer | Project | Status | Description |
-|-------|---------|--------|-------------|
-| 7 | [homeagent-config](https://github.com/junghan0611/homeagent-config) | 🔧 Active | Edge AI + HCI — Being to Being interface |
-| 6 | [meta-config](https://github.com/junghan0611/meta-config) | 🔬 Concept | Hierarchical agent orchestration |
-| 5a | [memex-kb](https://github.com/junghan0611/memex-kb) | 🔧 Active | Universal knowledge base |
-| 5b | [memacs-config](https://github.com/junghan0611/memacs-config) | 🔬 Concept | Life context integration |
-| 4 | claude-config | 🔒 Private | Meta agent memory system |
-| 3 | [zotero-config](https://github.com/junghan0611/zotero-config) | ✅ Active | AI-queryable bibliography |
-| 2 | [doomemacs-config](https://github.com/junghan0611/doomemacs-config) | ✅ Active | Org-mode as meta (context distillation) |
-| 1 | [nixos-config](https://github.com/junghan0611/nixos-config) | ✅ Active | Reproducible OS |
-
-**Domain Agents**: [family-config](https://github.com/junghan0611/family-config) (Family life AI)
-
-**Data**: [self-tracking-data-public](https://github.com/junghan0611/self-tracking-data-public) (5 years of life tracking)
+→ [agent-config](https://github.com/junghan0611/agent-config)
 
 ---
 
-## Current Projects (2025 Q1)
+### Shared Agenda — Emacs as Meeting Ground
 
-### 📐 -study: Shared Language
+Human and AI agents share the same org-agenda view. Not orchestration — a shared workshop.
 
-| Project | Status | Description |
-|---------|--------|-------------|
-| [sicm-study](https://github.com/junghan0611/sicm-study) `d86ea5b` | 🔧 Active | Internalization of Flexible Design — SICP → SICM → SDF |
+```
+05:53  Human      기상
+08:42  Agent(T)   doomemacs-config: feat: agent-shell 0.48.1 업그레이드
+09:40  Agent(T)   agent-config: notify.ts 제거 — Emacs RPC 버그 해결!
+09:52  Human      많은 것을 금새 해결
+10:33  Agent(O)   geworfen: Human/Agent/Diary 통합 + org 링크 클릭
+12:00  Human      데모 준비 완료
+13:56  Human      깃허브 프로파일 업데이트 프롬프트
+```
 
-### 🔧 -config: Infrastructure
+Four sources merge on a single time axis: **Human** (journal), **Agent(T)** (local pi), **Agent(O)** (cloud bots), **Diary** (recurring schedules). Agents read this same view via `emacsclient` — when an agent stamps a commit, it appears in the timeline. When the human writes "밥먹고 올게" (going to eat), agents keep working. The rhythm is visible.
 
-| Project | Status | Description |
-|---------|--------|-------------|
-| [homeagent-config](https://github.com/junghan0611/homeagent-config) `0cc7a75` | 🔧 Active | RPi5 + Go + Zig — HCI as Being to Being interface |
-| [orgmode-skills](https://github.com/junghan0611/orgmode-skills) `1099a4d` | 🔧 Active | Anthropic Skills for Denote-Org PKM |
-| [GLG-Mono](https://github.com/junghan0611/GLG-Mono) `de6569f` | ✅ Active | Korean programming font (100% Unicode) |
+The agent-server exposes 10 Elisp APIs (agenda, search, bibliography, dblock) through emacsclient socket. Docker containers on Oracle Cloud call the same functions that the local Emacs shows. One view, many beings.
 
----
-
-## Tech Stack
-
-- **OS**: NixOS 25.05, home-manager, i3wm
-- **Editor**: Doom Emacs — Org-mode as meta (context distillation tool)
-- **AI**: Gas Town (bd + gt), A2A Protocol, Claude Code
-- **Languages**: Go, Zig, Lisp (Elisp/Scheme/Clojure), Bash
-- **HCI**: Light, form, sound, texture — beyond UI
+→ [doomemacs-config](https://github.com/junghan0611/doomemacs-config)
 
 ---
 
-## Core Principles
+### geworfen — Thrown Into the World
 
-- **Config as Being**: Configuration as expression of existence
-- **Being to Being**: AI as partner, not tool — HCI beyond UI
-- **Shared Language**: Mathematical notation + flexible design patterns
-- **Context Distillation**: Org-mode as meta-form, 1KB toward the whole
-- **Complete Transparency**: All code, protocols, philosophy open
+> *"The thrower of the project is thrown in his own throw." — Heidegger*
 
----
+[geworfen](https://github.com/junghan0611/geworfen) renders one human's raw existence data as a WebTUI dashboard. Not a static blog — a transparent data nexus. The front door is org-agenda. Behind it: notes, bibliography, commits, health records, journal — alive on the time axis.
 
-## Inspiration
+19 days from design to deployment. Clojure + http-kit + GraalVM native-image (43MB binary). 100 visitors hitting the same date = 1 emacsclient call (cached). SF terminal aesthetics with [GLG-Mono](https://github.com/junghan0611/GLG-Mono) web font and Catppuccin theme.
 
-- **Gerald Sussman** - SICP, SICM, FDG — the intellectual lineage
-- **Sam Ritchie** ([@sritchie](https://github.com/sritchie)) - Emmy, Road to Reality
-- **Steve Yegge** ([@steveyegge](https://github.com/steveyegge)) - Beads, Vibe Coding
-- **Karl Voit** ([@novoid](https://github.com/novoid)) - Memacs
-- **Vannevar Bush** - Memex (1945)
+→ [agenda.junghanacs.com](https://agenda.junghanacs.com)
 
 ---
 
-## Stats
+### HomeAgent — On-Device AI for IoT
 
-- 📝 Org files: 3,000+
-- 📚 Zotero: 156k+ lines
-- 📊 Self-tracking: 5 years (950MB)
-- 📔 Journal: 696 daily notes
+Open-source Matter smart home hub with on-device AI agent. No cloud required.
+
+A single Go binary handles Matter device control, real-time SSE streaming, and an LLM agent. Runs on RPi5 (Yocto Linux) and RK3576 (Android) from the same codebase. Flutter app as the shell.
+
+**sLLM on ARM:** Qwen3-0.6B → LoRA fine-tune (action accuracy: 59.6% → 100%) → GGUF quantization (1,503MB → 379MB) → 4 seconds per request on ARM. Natural language to device control, offline.
+
+**3-Agent Parallel PM:** One day, 3 agents working simultaneously — Flutter UI, Go server, sLLM research — 24 commits, zero file conflicts, 163 tests passing. The human was PM.
+
+→ [homeagent-config](https://github.com/junghan0611/homeagent-config)
 
 ---
 
-**"The Room of Time and Mind: Where Human and AI Intelligence Meet"**
+### Why Clojure — Code Is Data Is Shared Understanding
+
+```clojure
+;; Is this data or code? Both.
+(and (> temperature 25) (= light "off"))
+```
+
+Homoiconicity — code and data are the same structure. When an IoT recipe is an S-expression, the AI agent reads it without parsing, transforms it without losing meaning, and verifies equivalence mathematically. This is why [durable-iot-migrate](https://github.com/junghan0611/durable-iot-migrate) chose Clojure over Go (62% code reduction, same test coverage).
+
+The lineage: Papert's **Logo** taught children to think computationally with Lisp. Sussman's **SICM** unified physics and code in Scheme. **SDF** generalized it into flexible software design. Now Clojure carries that philosophy on the JVM — [geworfen](https://github.com/junghan0611/geworfen), [dictcli](https://github.com/junghan0611/dictcli), [durable-iot-migrate](https://github.com/junghan0611/durable-iot-migrate) are built with it.
+
+[sicm-study](https://github.com/junghan0611/sicm-study) is where this journey started — the internalization of flexible design from SICP through SICM to SDF. The repo is quiet, but the philosophy lives on in every Clojure project.
+
+---
+
+### Agent CLI Toolkit
+
+Tools built for AI agents to query human life data:
+
+| Tool | Data | Scale | Language |
+|------|------|-------|----------|
+| [denotecli](https://github.com/junghan0611/denotecli) | Org-mode notes (search, outline, read) | 3,295 files | Go |
+| [dictcli](https://github.com/junghan0611/dictcli) | Personal vocabulary graph (Korean↔English↔German) | 1,004 triples | Clojure |
+| [gitcli](https://github.com/junghan0611/gitcli) | Commit history across all repos | 8,557 commits | Go |
+| [lifetract](https://github.com/junghan0611/lifetract) | Samsung Health + aTimeLogger → SQLite | 4,489 records | Go |
+| [bibcli](https://github.com/junghan0611/agent-config) | Zotero bibliography search | 8,208 entries | Go |
+
+Each tool speaks the same language: Denote IDs (YYYYMMDDTHHMMSS) for cross-referencing. Query commits by the same timestamp as journal entries and health records.
+
+---
+
+### The -config Foundation
+
+| Project | Role |
+|---------|------|
+| [nixos-config](https://github.com/junghan0611/nixos-config) | Declarative NixOS across 4 machines (laptop, NUC, Oracle ARM, RPi5) |
+| [doomemacs-config](https://github.com/junghan0611/doomemacs-config) | Emacs as shared interface — agent-server, org-agenda, Denote |
+| [zotero-config](https://github.com/junghan0611/zotero-config) | Reproducible bibliography with Korean Dewey Decimal citation keys |
+| [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | Korean monospace font — IBM Plex Mono + Sans KR, 100% Unicode |
+| [memex-kb](https://github.com/junghan0611/memex-kb) | Knowledge base transformer (Org → Google Docs/HTML) |
+| [self-tracking-data](https://github.com/junghan0611/self-tracking-data-public) | 5 years of life data, public |
+
+Cloud bots ([openclaw](https://github.com/junghan0611/nixos-config/tree/main/docker/openclaw)) run on Oracle ARM as Docker containers — 4 Telegram bots (Claude, GPT, Gemini, B-bot) with Gemini Embedding 2 memory search. This is where [botlog](https://notes.junghanacs.com) was born: agents writing org-mode notes about their own work.
+
+---
+
+### Tech Stack
+
+**Languages:** Go · Clojure · Zig · Elisp · Nix · Bash · C
+
+**AI:** Gemini Embedding 2 · LanceDB · sLLM (Qwen3, LoRA, GGUF) · Ollama · OpenRouter
+
+**Infrastructure:** NixOS 25.11 · Docker · GraalVM native-image · Yocto (scarthgap 5.0)
+
+**IoT:** Matter · Thread · Zigbee 3.0 · MQTT · OTBR · Flutter
+
+**Knowledge:** Emacs 30.2 · Org-mode · Denote · BibLaTeX · Pandoc
+
+**Protocols:** emacsclient socket · SSE · JSON-RPC 2.0 · REST · A2A
+
+---
+
+### Existence Data
+
+| | |
+|---|---|
+| **notes** | 3,295 |
+| **bibliography** | 8,208 |
+| **commits** | 8,557 |
+| **journal** | 718 days |
+| **health** | 4,489 records |
+| **garden** | 2,174 pages |
+
+---
+
+*Last updated: 2026-03-18*
