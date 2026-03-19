@@ -10,21 +10,23 @@
 
 ---
 
+I build reproducible systems where humans and AI agents work on the same timeline, from embedded devices to semantic memory infrastructure.
+
 ## The Ecosystem
 
 Built from the ground up — reproducible environment first, then agent infrastructure, then applications:
 
 ```
                   ┌─ geworfen          (existence data, live)
-Applications ────┼─ openclaw           (4 bots, botlog origin)
+Applications  ────┼─ openclaw           (4 bots, botlog origin)
                   └─ homeagent-config   (Matter · sLLM · Flutter · Yocto · Android)
 
-                  ┌─ semantic memory    (Gemini Embedding 2 · LanceDB)
-Agent Infra ─────┼─ 25 skills          (agent-config)
+                  ┌─ andenken           (Gemini Embedding 2 · LanceDB)
+Agent Infra  ─────┼─ 25 skills          (agent-config)
                   └─ CLI toolkit        (denotecli · dictcli · gitcli · lifetract · bibcli)
 
                   ┌─ doomemacs-config   (agent-server · shared agenda · fence)
-The Forge ───────┼─ nixos-config        (reproducible NixOS across 4 machines)
+The Forge  ───────┼─ nixos-config        (reproducible NixOS across 4 machines)
                   └─ zotero · GLG-Mono · memex-kb · self-tracking-data
 
 Lineage ─────────── sicm-study · durable-iot-migrate  (Logo → SICP → SICM → SDF → Clojure)
@@ -34,9 +36,9 @@ Nothing above works without the forge. NixOS guarantees the same environment on 
 
 ---
 
-### agent-config — Memory Across Sessions
+### agent-config & andenken — Memory Across Sessions
 
-When you work with multiple agents across dozens of projects, the hardest problem isn't code — it's context. Every new session starts from zero. agent-config solves this with semantic memory, 25 agent skills, and a cross-lingual search architecture.
+When you work with multiple agents across dozens of projects, the hardest problem isn't code — it's context. Every new session starts from zero. [andenken](https://github.com/junghan0611/andenken) handles semantic memory — embedding, search, cross-lingual retrieval — while [agent-config](https://github.com/junghan0611/agent-config) provides 25 skills and session configuration.
 
 **Three-Layer Cross-Lingual Search:**
 
@@ -59,13 +61,13 @@ Each layer catches what the others miss. Layer 1 alone failed to find "보편학
 
 **Stack:** Gemini Embedding 2 · LanceDB · dictcli query expansion · session→knowledge auto-fallback · org-aware 2-tier chunking
 
-→ [agent-config](https://github.com/junghan0611/agent-config)
+→ [agent-config](https://github.com/junghan0611/agent-config) · [andenken](https://github.com/junghan0611/andenken)
 
 ---
 
 ### Shared Agenda — Emacs as Meeting Ground
 
-Human and AI agents share the same org-agenda view. Not orchestration — a shared workshop.
+Human and AI agents share the same org-agenda view. Not orchestration — a shared Schmiede (forge).
 
 ```
 05:53  Human      기상
@@ -122,6 +124,8 @@ Homoiconicity — code and data are the same structure. When an IoT recipe is an
 
 The lineage: Papert's **Logo** taught children to think computationally with Lisp. Sussman's **SICM** unified physics and code in Scheme. **SDF** generalized it into flexible software design. Now Clojure carries that philosophy on the JVM — [geworfen](https://github.com/junghan0611/geworfen), [dictcli](https://github.com/junghan0611/dictcli), [durable-iot-migrate](https://github.com/junghan0611/durable-iot-migrate) are built with it.
 
+[proxycli](https://github.com/junghan0611/proxycli) proved it in practice — Python→Clojure rewrite with 92% code reduction, shipping as a GraalVM native binary.
+
 [sicm-study](https://github.com/junghan0611/sicm-study) is where this journey started — the internalization of flexible design from SICP through SICM to SDF. The repo is quiet, but the philosophy lives on in every Clojure project.
 
 ---
@@ -132,7 +136,7 @@ Tools built for AI agents to query human life data:
 
 | Tool | Data | Scale | Language |
 |------|------|-------|----------|
-| [denotecli](https://github.com/junghan0611/denotecli) | Org-mode notes (search, outline, read) | 3,295 files | Go |
+| [denotecli](https://github.com/junghan0611/denotecli) | Org-mode notes (search, outline, read) | 3,300 files | Go |
 | [dictcli](https://github.com/junghan0611/dictcli) | Personal vocabulary graph (Korean↔English↔German) | 1,004 triples | Clojure |
 | [gitcli](https://github.com/junghan0611/gitcli) | Commit history across all repos | 8,557 commits | Go |
 | [lifetract](https://github.com/junghan0611/lifetract) | Samsung Health + aTimeLogger → SQLite | 4,489 records | Go |
@@ -152,7 +156,7 @@ Agent collaboration requires a trusted computing environment and an organic tool
 
 Reproducibility is not convenience — it's the precondition for agent trust. An agent that knows its environment is deterministic can act with confidence.
 
-#### doomemacs-config — The Shared Workshop
+#### doomemacs-config — The Shared Forge
 
 [doomemacs-config](https://github.com/junghan0611/doomemacs-config) is not just an editor config. It hosts agent-server.el — the Elisp interface that agents use to read org-agenda, search Denote notes, query bibliography, and update dblocks. 10 APIs exposed via emacsclient socket.
 
@@ -203,13 +207,15 @@ Cloud bots ([openclaw](https://github.com/junghan0611/nixos-config/tree/main/doc
 
 | | |
 |---|---|
-| **notes** | 3,295 |
+| **notes** | 3,300 |
 | **bibliography** | 8,208 |
 | **commits** | 8,557 |
 | **journal** | 718 days |
 | **health** | 4,489 records |
 | **garden** | 2,174 pages |
 
+*All numbers as of 2026-03-20.*
+
 ---
 
-*Last updated: 2026-03-18*
+*Last updated: 2026-03-20*

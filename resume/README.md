@@ -46,7 +46,7 @@ Full-stack engineer with experience spanning Linux kernel research, embedded IoT
 
 - Built **agent-config**: semantic memory infrastructure with Gemini Embedding 2 + LanceDB, serving 25 agent skills
 - Designed 3-layer cross-lingual search: embedding vectors + Denote dblock graph + personal vocabulary ontology (dictcli)
-- Created 5 CLI tools for agent-queryable life data: denotecli (3,295 org files), dictcli (1,004 triples), gitcli (8,557 commits), lifetract (4,489 health records), bibcli (8,208 bibliography entries)
+- Created 5 CLI tools for agent-queryable life data: denotecli (3,300 org files), dictcli (1,004 triples), gitcli (8,557 commits), lifetract (4,489 health records), bibcli (8,208 bibliography entries)
 - Deployed 4-bot Telegram agent ecosystem (Claude, GPT, Gemini) on Oracle ARM via Docker with org-mode memory search
 
 ### Self-Development & Parenting
@@ -87,12 +87,14 @@ Full-stack engineer with experience spanning Linux kernel research, embedded IoT
 
 | Project | Description | Tech |
 |---------|-------------|------|
-| [agent-config](https://github.com/junghan0611/agent-config) | Semantic memory + 25 skills for AI agents | TS · Gemini · LanceDB |
+| [agent-config](https://github.com/junghan0611/agent-config) | 25 agent skills + configuration | TS |
+| [andenken](https://github.com/junghan0611/andenken) | Recollective semantic memory (Gemini Embedding 2 · LanceDB) | TS · GraalVM |
 | [homeagent-config](https://github.com/junghan0611/homeagent-config) | Matter smart home hub with on-device sLLM | Go · Flutter · Yocto |
 | [geworfen](https://github.com/junghan0611/geworfen) | Existence data WebTUI viewer | Clojure · GraalVM |
 | [denotecli](https://github.com/junghan0611/denotecli) | Denote-Org skills for AI agents | Go |
 | [durable-iot-migrate](https://github.com/junghan0611/durable-iot-migrate) | IoT platform migration with Temporal + Saga | Clojure |
 | [dictcli](https://github.com/junghan0611/dictcli) | Personal vocabulary graph (Korean↔English↔German) | Clojure · SQLite |
+| [proxycli](https://github.com/junghan0611/proxycli) | CLI-to-OpenAI API proxy — Clojure/GraalVM native, Python→Clojure 92% reduction | Clojure · GraalVM |
 | [nixos-config](https://github.com/junghan0611/nixos-config) | Declarative NixOS across 4 machines | Nix |
 | [doomemacs-config](https://github.com/junghan0611/doomemacs-config) | Emacs agent-server + shared org-agenda | Elisp |
 | [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | Korean monospace font, 100% Unicode | FontForge |
@@ -124,7 +126,7 @@ Full-stack engineer with experience spanning Linux kernel research, embedded IoT
 
 | Metric | Value |
 |--------|-------|
-| Commits (30 days, 2026 Q1) | 1,068 |
+| Commits (30 days, 2026 Q1) | 1,092 |
 | Active repos (30 days) | 31 |
 | Org-mode notes | 3,295 |
 | Bibliography entries | 8,208 |
@@ -136,4 +138,4 @@ Full-stack engineer with experience spanning Linux kernel research, embedded IoT
 
 ---
 
-*Last updated: 2026-03-18 · Suwon, South Korea*
+*Last updated: 2026-03-20 · Suwon, South Korea*
