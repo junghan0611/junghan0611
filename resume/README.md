@@ -8,7 +8,7 @@
 
 ## Summary
 
-Full-stack engineer with experience spanning Linux kernel research, embedded IoT product development, and AI agent infrastructure. Currently building on-device AI systems for smart home hubs and designing semantic memory architecture for multi-agent collaboration. Work across Go, Clojure, Zig, C, and Elisp — from ARM boards to GPU clusters.
+Full-stack engineer with experience spanning Linux kernel research, embedded IoT product development, and AI agent infrastructure. Currently building on-device AI systems for smart home hubs, official ACP bridge infrastructure for pi, and semantic memory architecture for multi-agent collaboration. Work across Go, Clojure, Zig, C, TypeScript, Nix, and Elisp — from ARM boards to GPU clusters.
 
 ---
 
@@ -42,11 +42,12 @@ Full-stack engineer with experience spanning Linux kernel research, embedded IoT
 - Created data pipelines: Airbyte connectors for Channel.io, Notion, JIRA → PostgreSQL JSONB
 - Deployed internal portal with Cloudflare Zero Trust
 
-#### Agent Memory & Tooling (2025.08 ~ Present)
+#### Agent Infrastructure & Tooling (2025.08 ~ Present)
 
+- Built **pi-shell-acp**: official ACP bridge provider for pi, connecting Claude Code and Codex with session persistence, explicit MCP injection, and entwurf orchestration
 - Built **agent-config**: semantic memory infrastructure with Gemini Embedding 2 + LanceDB, serving 25 agent skills
 - Designed 3-layer cross-lingual search: embedding vectors + Denote dblock graph + personal vocabulary ontology (dictcli)
-- Created 5 CLI tools for agent-queryable life data: denotecli (3,300 org files), dictcli (1,004 triples), gitcli (8,557 commits), lifetract (4,489 health records), bibcli (8,208 bibliography entries)
+- Created agent-queryable CLI tools for life data and reasoning: denotecli, dictcli, gitcli, lifetract, bibcli, and **abductcli** for quantitative abductive reasoning
 - Deployed 4-bot Telegram agent ecosystem (Claude, GPT, Gemini) on Oracle ARM via Docker with org-mode memory search
 
 ### Self-Development & Parenting
@@ -66,7 +67,7 @@ Full-stack engineer with experience spanning Linux kernel research, embedded IoT
 - Virginia Tech COSMOSS Lab exchange researcher (2019.07 ~ 2020.03)
 - Publications: [notes.junghanacs.com/notes/20250317T150522](https://notes.junghanacs.com/notes/20250317T150522)
 
-### NEMO-UX — Co-founder & CTO
+### NEMO-UX — Co-founder
 
 *2013 ~ 2017*
 
@@ -87,6 +88,7 @@ Full-stack engineer with experience spanning Linux kernel research, embedded IoT
 
 | Project | Description | Tech |
 |---------|-------------|------|
+| [pi-shell-acp](https://github.com/junghan0611/pi-shell-acp) | ACP bridge provider for pi — Claude Code/Codex, MCP, session persistence | TypeScript |
 | [agent-config](https://github.com/junghan0611/agent-config) | 25 agent skills + configuration | TS |
 | [andenken](https://github.com/junghan0611/andenken) | Recollective semantic memory (Gemini Embedding 2 · LanceDB) | TS · GraalVM |
 | [homeagent-config](https://github.com/junghan0611/homeagent-config) | Matter smart home hub with on-device sLLM | Go · Flutter · Yocto |
@@ -95,6 +97,7 @@ Full-stack engineer with experience spanning Linux kernel research, embedded IoT
 | [durable-iot-migrate](https://github.com/junghan0611/durable-iot-migrate) | IoT platform migration with Temporal + Saga | Clojure |
 | [dictcli](https://github.com/junghan0611/dictcli) | Personal vocabulary graph (Korean↔English↔German) | Clojure · SQLite |
 | [proxycli](https://github.com/junghan0611/proxycli) | CLI-to-OpenAI API proxy — Clojure/GraalVM native, Python→Clojure 92% reduction | Clojure · GraalVM |
+| [abductcli](https://github.com/junghan0611/abductcli) | Quantitative abductive reasoning engine — anomaly → signal → memo → evaluation | Clojure |
 | [nixos-config](https://github.com/junghan0611/nixos-config) | Declarative NixOS across 4 machines | Nix |
 | [doomemacs-config](https://github.com/junghan0611/doomemacs-config) | Emacs agent-server + shared org-agenda | Elisp |
 | [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | Korean monospace font, 100% Unicode | FontForge |
@@ -111,7 +114,7 @@ Full-stack engineer with experience spanning Linux kernel research, embedded IoT
 | **IoT** | Matter · Thread · Zigbee 3.0 · MQTT · OTBR · Yocto · Flutter |
 | **Infrastructure** | NixOS · Docker · GraalVM · GPU cluster (CUDA) |
 | **Knowledge** | Emacs/Org-mode · Denote · BibLaTeX · Pandoc |
-| **Protocols** | emacsclient · SSE · JSON-RPC 2.0 · REST · A2A |
+| **Protocols** | ACP · MCP · emacsclient · SSE · JSON-RPC 2.0 · REST · A2A |
 
 ---
 
@@ -128,14 +131,14 @@ Full-stack engineer with experience spanning Linux kernel research, embedded IoT
 |--------|-------|
 | Commits (30 days, 2026 Q1) | 1,092 |
 | Active repos (30 days) | 31 |
-| Org-mode notes | 3,295 |
-| Bibliography entries | 8,208 |
-| Total commits | 8,557 |
-| Daily journal | 718 days |
-| Published digital garden | 2,174 pages |
-| Health tracking records | 4,489 |
+| Org-mode notes | 3,300+ |
+| Bibliography entries | 8,200+ |
+| Total commits | 8,500+ |
+| Daily journal | 1,480+ days |
+| Published digital garden | 2,200+ pages |
+| Health tracking records | 4,400+ |
 | Agent skills built | 25 |
 
 ---
 
-*Last updated: 2026-03-20 · Suwon, South Korea*
+*Last updated: 2026-04-25 · Suwon, South Korea*

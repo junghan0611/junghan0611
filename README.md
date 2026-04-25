@@ -21,9 +21,10 @@ Built from the ground up — reproducible environment first, then agent infrastr
 Applications  ────┼─ openclaw           (4 bots, botlog origin)
                   └─ homeagent-config   (Matter · sLLM · Flutter · Yocto · Android)
 
-                  ┌─ andenken           (Gemini Embedding 2 · LanceDB)
-Agent Infra  ─────┼─ 25 skills          (agent-config)
-                  └─ CLI toolkit        (denotecli · dictcli · gitcli · lifetract · bibcli)
+                  ┌─ pi-shell-acp      (ACP bridge for pi · Claude Code · Codex)
+Agent Infra  ─────┼─ andenken           (Gemini Embedding 2 · LanceDB)
+                  ├─ 25 skills          (agent-config)
+                  └─ CLI toolkit        (denotecli · dictcli · gitcli · lifetract · bibcli · abductcli)
 
                   ┌─ doomemacs-config   (agent-server · shared agenda · fence)
 The Forge  ───────┼─ nixos-config        (reproducible NixOS across 4 machines)
@@ -33,6 +34,16 @@ Lineage ─────────── sicm-study · durable-iot-migrate  (Lo
 ```
 
 Nothing above works without the forge. NixOS guarantees the same environment on every machine. Emacs provides the shared interface where human and agent meet. Everything is layered on top of this trusted, reproducible foundation.
+
+---
+
+### pi-shell-acp — Official ACP Bridge for pi
+
+[pi-shell-acp](https://github.com/junghan0611/pi-shell-acp) connects pi to Claude Code and Codex through the official Agent Client Protocol path — the same protocol family used by ACP clients like Zed and Obsidian. Pi stays the harness; Claude Code and Codex keep their native backend identity. No OAuth proxy, no CLI transcript scraping, no backend identity replacement.
+
+The bridge owns session bootstrap (`resume > load > new`), explicit MCP injection, and **entwurf** orchestration — spawning sibling agent sessions with identity preservation instead of pretending they are worker subprocesses. It is working public code, still being proven through daily use.
+
+→ [pi-shell-acp](https://github.com/junghan0611/pi-shell-acp)
 
 ---
 
@@ -124,7 +135,7 @@ Homoiconicity — code and data are the same structure. When an IoT recipe is an
 
 The lineage: Papert's **Logo** taught children to think computationally with Lisp. Sussman's **SICM** unified physics and code in Scheme. **SDF** generalized it into flexible software design. Now Clojure carries that philosophy on the JVM — [geworfen](https://github.com/junghan0611/geworfen), [dictcli](https://github.com/junghan0611/dictcli), [durable-iot-migrate](https://github.com/junghan0611/durable-iot-migrate) are built with it.
 
-[proxycli](https://github.com/junghan0611/proxycli) proved it in practice — Python→Clojure rewrite with 92% code reduction, shipping as a GraalVM native binary.
+[proxycli](https://github.com/junghan0611/proxycli) proved it in practice — Python→Clojure rewrite with 92% code reduction, shipping as a GraalVM native binary. [abductcli](https://github.com/junghan0611/abductcli) extends the same Clojure-native CLI style into quantitative abduction: anomaly → signal → memo → evaluation, a tool for reasoning backward from surprising numbers to the hidden scale that must explain them.
 
 [sicm-study](https://github.com/junghan0611/sicm-study) is where this journey started — the internalization of flexible design from SICP through SICM to SDF. The repo is quiet, but the philosophy lives on in every Clojure project.
 
@@ -141,6 +152,7 @@ Tools built for AI agents to query human life data:
 | [gitcli](https://github.com/junghan0611/gitcli) | Commit history across all repos | 8,557 commits | Go |
 | [lifetract](https://github.com/junghan0611/lifetract) | Samsung Health + aTimeLogger → SQLite | 4,489 records | Go |
 | [bibcli](https://github.com/junghan0611/agent-config) | Zotero bibliography search | 8,208 entries | Go |
+| [abductcli](https://github.com/junghan0611/abductcli) | Quantitative abductive reasoning from anomalies to hidden scale | demo datasets | Clojure |
 
 Each tool speaks the same language: Denote IDs (YYYYMMDDTHHMMSS) for cross-referencing. Query commits by the same timestamp as journal entries and health records.
 
@@ -199,7 +211,7 @@ Cloud bots ([openclaw](https://github.com/junghan0611/nixos-config/tree/main/doc
 
 **Knowledge:** Emacs 30.2 · Org-mode · Denote · BibLaTeX · Pandoc
 
-**Protocols:** A2A · emacsclient socket · SSE · JSON-RPC 2.0 · REST
+**Protocols:** ACP · MCP · A2A · emacsclient socket · SSE · JSON-RPC 2.0 · REST
 
 ---
 
@@ -207,15 +219,15 @@ Cloud bots ([openclaw](https://github.com/junghan0611/nixos-config/tree/main/doc
 
 | | |
 |---|---|
-| **notes** | 3,300 |
-| **bibliography** | 8,208 |
-| **commits** | 8,557 |
-| **journal** | 718 days |
-| **health** | 4,489 records |
-| **garden** | 2,174 pages |
+| **notes** | 3,300+ |
+| **bibliography** | 8,200+ |
+| **commits** | 8,500+ |
+| **journal** | 1,480+ days |
+| **health** | 4,400+ records |
+| **garden** | 2,200+ pages |
 
-*All numbers as of 2026-03-20.*
+*Approximate live-system numbers as of 2026-04-25.*
 
 ---
 
-*Last updated: 2026-03-20*
+*Last updated: 2026-04-25*
