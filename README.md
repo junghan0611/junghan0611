@@ -4,13 +4,13 @@
 
 ---
 
-![geworfen v0.2 — agenda.junghanacs.com](docs/screenshot-geworfen-v0.2.png)
+![geworfen agenda — agenda.junghanacs.com](docs/screenshot-geworfen-agenda-2026-04-27.png)
 
 *[agenda.junghanacs.com](https://agenda.junghanacs.com) — one human's daily timeline, co-lived with AI agents, served raw. What you see is today's org-agenda: Human entries, Agent stamps, Diary schedules on a single time axis. Each commit link is clickable. The data is unprocessed.*
 
 ---
 
-I build reproducible systems where humans and AI agents work on the same timeline, from embedded devices to semantic memory infrastructure.
+I build reproducible systems where humans and AI agents work on the same timeline, from embedded devices and toy bodies to semantic memory infrastructure.
 
 ## The Ecosystem
 
@@ -19,7 +19,8 @@ Built from the ground up — reproducible environment first, then agent infrastr
 ```
                   ┌─ geworfen          (existence data, live)
 Applications  ────┼─ openclaw           (4 bots, botlog origin)
-                  └─ homeagent-config   (Matter · sLLM · Flutter · Yocto · Android)
+                  ├─ homeagent-config   (Matter · sLLM · Flutter · Yocto · Android)
+                  └─ legoagent-config   (Pybricks · Flutter · ESP32 toy agent)
 
                   ┌─ pi-shell-acp      (ACP bridge for pi · Claude Code · Codex)
 Agent Infra  ─────┼─ andenken           (Gemini Embedding 2 · LanceDB)
@@ -28,6 +29,7 @@ Agent Infra  ─────┼─ andenken           (Gemini Embedding 2 · Lan
 
                   ┌─ doomemacs-config   (agent-server · shared agenda · fence)
 The Forge  ───────┼─ nixos-config        (reproducible NixOS across 4 machines)
+                  ├─ openglg-config     (self-hosted server + reproducible shell)
                   └─ zotero · GLG-Mono · memex-kb · self-tracking-data
 
 Lineage ─────────── sicm-study · durable-iot-migrate  (Logo → SICP → SICM → SDF → Clojure)
@@ -124,6 +126,16 @@ A single Go binary handles Matter device control, real-time SSE streaming, and a
 
 ---
 
+### legoagent-config — Embodied Agent as Toy
+
+Starts from LEGO SPIKE / Pybricks and a phone UI, but the point is not coding education. [legoagent-config](https://github.com/junghan0611/legoagent-config) is the toy-scale sibling of HomeAgent: a physical body, direct BLE control, expandable senses through ESP32 / ESP32-CAM, and room for an external agent mind.
+
+The current loop is already proven: Android phone ↔ BLE ↔ SPIKE Prime hub, launching slot 0 and driving the body directly. Small scale, but the direction is serious — reproducible embodied-agent experiments built around play, imagination, and a child-facing interface.
+
+→ [legoagent-config](https://github.com/junghan0611/legoagent-config)
+
+---
+
 ### Why Clojure — Code Is Data Is Shared Understanding
 
 ```clojure
@@ -184,10 +196,17 @@ write: botlog + tracking    chain queries, cross-ref        final responsibility
 
 The same `agent-org-agenda-day` function that Emacs shows the human, that Docker bots on Oracle Cloud call, that geworfen serves to the web — one interface, three consumers.
 
+#### openglg-config — Server and Shell Together
+
+[openglg-config](https://github.com/junghan0611/openglg-config) is a new forkable work surface that keeps two halves in one repo: authenticated self-hosted services behind Caddy + Authelia, and a Nix + home-manager bootstrap for reproducing the operator's shell on Debian or Ubuntu.
+
+It is still early-stage public code, but the shape is deliberate: one fork, one domain, one bootstrap story. `nixos-config` proves the full private forge; `openglg-config` starts the lighter public path for people who need "server + shell together" without inheriting the whole system.
+
 #### Supporting -config Projects
 
 | Project | Role |
 |---------|------|
+| [openglg-config](https://github.com/junghan0611/openglg-config) | Self-hosted authenticated work surface plus reproducible Debian/Ubuntu shell bootstrap |
 | [zotero-config](https://github.com/junghan0611/zotero-config) | Reproducible bibliography with Korean Dewey Decimal citation keys (8,208 entries) |
 | [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | Korean monospace font — IBM Plex Mono + Sans KR, 100% Unicode, web font |
 | [memex-kb](https://github.com/junghan0611/memex-kb) | Knowledge base transformer (Org → Google Docs/HTML) |
@@ -230,4 +249,4 @@ Cloud bots ([openclaw](https://github.com/junghan0611/nixos-config/tree/main/doc
 
 ---
 
-*Last updated: 2026-04-25*
+*Last updated: 2026-04-27*

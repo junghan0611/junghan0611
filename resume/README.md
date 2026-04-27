@@ -8,7 +8,7 @@
 
 ## Summary
 
-Full-stack engineer with experience spanning Linux kernel research, embedded IoT product development, and AI agent infrastructure. Currently building on-device AI systems for smart home hubs, official ACP bridge infrastructure for pi, and semantic memory architecture for multi-agent collaboration. Work across Go, Clojure, Zig, C, TypeScript, Nix, and Elisp — from ARM boards to GPU clusters.
+Full-stack engineer with experience spanning Linux kernel research, embedded IoT product development, and AI agent infrastructure. Currently building on-device AI systems for smart home hubs, official ACP bridge infrastructure for pi, embodied toy-agent experiments, and semantic memory architecture for multi-agent collaboration. Work across Go, Clojure, Zig, C, TypeScript, Nix, and Elisp — from ARM boards to GPU clusters.
 
 ---
 
@@ -52,10 +52,11 @@ Full-stack engineer with experience spanning Linux kernel research, embedded IoT
 
 ### Self-Development & Parenting
 
-*2022 ~ 2025*
+*2022 ~ Present*
 
 - Built and published Digital Garden with 2,174 pages ([notes.junghanacs.com](https://notes.junghanacs.com))
-- Developed 8 interconnected open-source -config projects (NixOS, Doom Emacs, Zotero, knowledge base)
+- Developed 10 interconnected open-source -config projects spanning NixOS, Doom Emacs, smart home, toy agents, self-hosting, and knowledge infrastructure
+- Started **legoagent-config** (Pybricks + Flutter + ESP32 embodied toy-agent experiments) and **openglg-config** (self-hosted server + reproducible shell in one fork)
 - Created GLG-Mono: Korean programming font merging IBM Plex Mono + Sans KR with full Unicode coverage
 - 5 years of quantified self-tracking data (Samsung Health + aTimeLogger), all version-controlled
 
@@ -92,6 +93,7 @@ Full-stack engineer with experience spanning Linux kernel research, embedded IoT
 | [agent-config](https://github.com/junghan0611/agent-config) | 25 agent skills + configuration | TS |
 | [andenken](https://github.com/junghan0611/andenken) | Recollective semantic memory (Gemini Embedding 2 · LanceDB) | TS · GraalVM |
 | [homeagent-config](https://github.com/junghan0611/homeagent-config) | Matter smart home hub with on-device sLLM | Go · Flutter · Yocto |
+| [legoagent-config](https://github.com/junghan0611/legoagent-config) | Embodied toy-agent stack with Pybricks, Flutter, and ESP32 | Pybricks · Flutter · ESP32 |
 | [geworfen](https://github.com/junghan0611/geworfen) | Existence data WebTUI viewer | Clojure · GraalVM |
 | [denotecli](https://github.com/junghan0611/denotecli) | Denote-Org skills for AI agents | Go |
 | [durable-iot-migrate](https://github.com/junghan0611/durable-iot-migrate) | IoT platform migration with Temporal + Saga | Clojure |
@@ -99,6 +101,7 @@ Full-stack engineer with experience spanning Linux kernel research, embedded IoT
 | [proxycli](https://github.com/junghan0611/proxycli) | CLI-to-OpenAI API proxy — Clojure/GraalVM native, Python→Clojure 92% reduction | Clojure · GraalVM |
 | [abductcli](https://github.com/junghan0611/abductcli) | Quantitative abductive reasoning engine — anomaly → signal → memo → evaluation | Clojure |
 | [nixos-config](https://github.com/junghan0611/nixos-config) | Declarative NixOS across 4 machines | Nix |
+| [openglg-config](https://github.com/junghan0611/openglg-config) | Self-hosted authenticated work surface plus reproducible Debian/Ubuntu shell bootstrap | Docker · Nix |
 | [doomemacs-config](https://github.com/junghan0611/doomemacs-config) | Emacs agent-server + shared org-agenda | Elisp |
 | [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | Korean monospace font, 100% Unicode | FontForge |
 | [sicm-study](https://github.com/junghan0611/sicm-study) | SICP → SICM → SDF flexible design study | Scheme · Clojure |
@@ -141,4 +144,4 @@ Full-stack engineer with experience spanning Linux kernel research, embedded IoT
 
 ---
 
-*Last updated: 2026-04-25 · Suwon, South Korea*
+*Last updated: 2026-04-27 · Suwon, South Korea*
