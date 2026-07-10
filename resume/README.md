@@ -24,7 +24,7 @@ This is not "full stack" in the front-end/back-end sense. It is depth across a v
 
 Current focus: PKM-native harnesses for long-term human-AI work, and standing up agents that attach to the person who owns a domain. Hands-on across Go, Clojure, Zig, C, TypeScript, Nix, and Elisp.
 
-**Public evidence.** Agent claims are easy to fake, so each is anchored to open code: [entwurf](https://github.com/junghan0611/entwurf) for the agent loop, [homeagent-config](https://github.com/junghan0611/homeagent-config) for the embedded layer, [nixos-config](https://github.com/junghan0611/nixos-config) and [doomemacs-config](https://github.com/junghan0611/doomemacs-config) for the foundation. Company work below is closed-source; read it next to those.
+**Public evidence.** Agent claims are easy to fake, so each is anchored to open code: [entwurf](https://github.com/junghan0611/entwurf) for the agent loop, [homeagent-config](https://github.com/junghan0611/homeagent-config) for the embedded layer, [nixos-config](https://github.com/junghan0611/nixos-config) and [doomemacs-config](https://github.com/junghan0611/doomemacs-config) for the foundation. Company work below is closed-source; read it next to those. And because my own repositories can only prove so much, see *Adoption and Upstream Contributions* — an outside developer extending entwurf, and my patches merged into someone else's project.
 
 ---
 
@@ -154,6 +154,18 @@ The request I keep receiving from other teams is not "build me a dashboard." It 
 | [openglg-config](https://github.com/junghan0611/openglg-config) | Self-hosted authenticated work surface plus reproducible shell bootstrap | Docker · Nix |
 | [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | Korean monospace font, 100% Unicode | FontForge |
 | [sicm-study](https://github.com/junghan0611/sicm-study) | SICP → SICM → SDF flexible design study | Scheme · Clojure |
+
+---
+
+## Adoption and Upstream Contributions
+
+Evidence that does not depend on my own account. Each item is a third-party action, verifiable without trusting anything written here.
+
+**Others build on entwurf.** An outside developer contributed a Snowflake Cortex Code ACP backend ([entwurf#40](https://github.com/junghan0611/entwurf/pull/40) — 11 files, +885 lines), targeting an enterprise agent runtime I had not written for. It lands in 0.13.0. Someone reading the substrate found the extension boundary where I claimed it was, and used it. The package has 21 stars and 1,395 npm installs in the last 30 days.
+
+**Others merged my code.** Two patches accepted upstream into [dakra/ghostel](https://github.com/dakra/ghostel), an Emacs terminal emulator built on libghostty-vt: [#343](https://github.com/dakra/ghostel/pull/343) forwards IME-committed text and guards redraws during composition (+435), and [#510](https://github.com/dakra/ghostel/pull/510) lets Lisp IMEs compose inside read-only buffers. Both fix Korean and CJK input in a codebase I do not own — the same class of problem `memex-kb` exists to solve, met from the other side.
+
+*Counts as of 2026-07-10.*
 
 ---
 

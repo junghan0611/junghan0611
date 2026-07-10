@@ -65,6 +65,8 @@ That last clause is the whole design. No OAuth proxy, no CLI transcript scraping
 
 Shipping as [`@junghanacs/entwurf`](https://www.npmjs.com/package/@junghanacs/entwurf). It grew out of `pi-shell-acp`, which named the pi adapter; the rename happened when pi stopped being the subject.
 
+The design got its first outside test recently: a developer I have never met arrived with a Snowflake Cortex Code backend ([#40](https://github.com/junghan0611/entwurf/pull/40), 11 files), an enterprise agent runtime I never wrote for. He found the extension boundary where the architecture said it would be. That is the only review of an abstraction that counts.
+
 → [entwurf](https://github.com/junghan0611/entwurf)
 
 ---

@@ -163,9 +163,22 @@ sits next to a public repository that can be opened immediately.
 | Works at the embedded layer | `homeagent-config` |
 | Builds agent loops | `entwurf` |
 | Works on a reproducible foundation | `nixos-config`, `doomemacs-config` |
+| Others build on his work | `entwurf#40` — outside contributor, enterprise ACP backend |
+| Others accept his code | `dakra/ghostel#343`, `#510` — merged upstream |
 
 Company repositories cannot be opened. Place unverifiable company claims adjacent
 to verifiable public ones, never alone.
+
+Self-owned repositories prove capability but not reception; a reader can always
+suspect a closed loop where the author is the only judge. Keep at least one claim
+whose evidence is a **third party's action** — a merged pull request, an outside
+contribution, an install count. Those rows are the hardest to fake and the first
+a skeptical reader checks. When they go stale, replace them; do not quietly drop
+the category.
+
+Adoption figures (stars, downloads, PR line counts) are volatile. Stamp them with
+a measurement date rather than rounding them, and re-measure before any release
+of the document set.
 
 ## Canonical direction
 
