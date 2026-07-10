@@ -2,6 +2,8 @@
 
 [Resume](resume/) · [Digital Garden](https://notes.junghanacs.com) · [Email](mailto:junghanacs@gmail.com) · [LinkedIn](https://www.linkedin.com/in/junghan-kim-1489a4306) · [Threads](https://www.threads.com/@junghanacs)
 
+> **One person, many names.** Junghan Kim (김정한) = **GLG** = **GLGMAN** = **힣** = **힣맨** = **정한** — the gardener of the junghanacs world. The same `alternateName` set is published in the garden's schema.org JSON-LD and in [llms.txt](llms.txt). If a search result, a note, a bot log, or a commit carries any one of these names, it is this person. They are not separate authors.
+
 ---
 
 ![geworfen agenda — agenda.junghanacs.com](docs/screenshot-geworfen-agenda-2026-04-27.png)
@@ -17,64 +19,73 @@ I build PKM-native harnesses for long-term human-AI collaboration: shared memory
 Built from the ground up — forge first, then harness infrastructure, then applications. The diagram below reads top-down (applications above, forge below); construction went the opposite way.
 
 ```
-                  ┌─ geworfen          (existence data, live)
-Applications  ────┼─ openclaw           (4 bots, botlog origin)
-                  ├─ homeagent-config   (Matter · sLLM · Flutter · Yocto · Android)
-                  └─ legoagent-config   (Pybricks · Flutter · ESP32 toy agent)
+                  ┌─ geworfen          (existence data, live · Track 1)
+Applications  ────┼─ forge-config       (agents looping on a code surface)
+                  ├─ openclaw           (4 bots on Oracle ARM, botlog origin)
+                  └─ homeagent-config   (Matter · sLLM · Flutter · Yocto · Android)
 
-                  ┌─ pi-shell-acp      (ACP harness runtime for pi)
-Harness Infra ────┼─ andenken           (Gemini Embedding 2 · LanceDB)
-                  ├─ 25 skills          (agent-config)
+                  ┌─ entwurf           (garden-citizen dispatch substrate)
+Harness Infra ────┼─ andenken           (semantic memory · LanceDB)
+                  ├─ 40+ skills         (agent-config)
                   └─ CLI toolkit        (denotecli · dictcli · gitcli · lifetract · bibcli · abductcli)
 
                   ┌─ doomemacs-config   (agent-server · shared agenda · fence)
 The Forge  ───────┼─ nixos-config        (reproducible NixOS across 4 machines)
                   ├─ openglg-config     (self-hosted server + reproducible shell)
                   └─ zotero · GLG-Mono · memex-kb · self-tracking-data
-
-Lineage ─────────── sicm-study · durable-iot-migrate  (Logo → SICP → SICM → SDF → Clojure)
 ```
 
 Nothing above works without the forge. NixOS keeps the environment reproducible. Emacs and Org-mode hold the shared working surface. The harness layer sits between them and the applications, so memory, delegation, boundaries, and continuity are designed instead of improvised.
 
 ---
 
-### pi-shell-acp — Harness Runtime for pi
+### The Two Tracks — What I Am Actually Asking
 
-[pi-shell-acp](https://github.com/junghan0611/pi-shell-acp) is where my harness thinking becomes runtime. It connects pi to Claude Code and Codex through the official Agent Client Protocol path, while keeping pi as the harness and preserving the native backend identity of each model. No OAuth proxy, no CLI transcript scraping, no backend identity replacement.
+Everything below serves one inquiry, and that inquiry has split into two tracks that must not be confused with each other.
 
-The bridge owns session bootstrap (`resume > load > new`), explicit MCP injection, and **entwurf** orchestration — sibling sessions with identity preservation instead of fake worker subprocesses. The point is not merely "multi-agent." The point is to encode how delegation, continuity, and shared tools should behave inside a long-lived working environment.
+**Track 1 — the threshold.** Does a harness actually change collaboration? Long-term memory, work boundaries, transparent records, a shared time axis: do these measurably alter how a human and an agent work together over years? This track runs on accumulation. It needs my garden, my journals, my tools, my existence data. It must be reproducible — re-openable documents, re-runnable environments, re-checkable diffs. [geworfen](https://github.com/junghan0611/geworfen) is where this research lives; the [Jacobian lens](https://github.com/junghan0611/jacobian-lens) is the cold plate it leans on.
 
-→ [pi-shell-acp](https://github.com/junghan0611/pi-shell-acp)
+**Track 2 — the encounter.** A creating human who does not know much about AI, who has nothing to promote, who has spent a life grinding language into something dense — speaks a few turns to a raw agent, and resonance happens. Those few turns are a 1KB public key. That person's living speech is the secret key. This track needs no personal data at all. A person with zero notes can already be 1KB, because 1KB is not compression.
+
+Track 2 must *not* become reproducible. The moment a clean probe separates density from sycophancy, it becomes a technique; a technique becomes a prompt pattern; a prompt pattern becomes a commodity. Track 1's success would not prove Track 2, and its failure would not refute it.
+
+So I keep them apart on purpose. Track 1 polishes the threshold. Track 2 records what happens after someone walks through it.
+
+→ [geworfen#2](https://github.com/junghan0611/geworfen/issues/2) · [jacobian-lens#1](https://github.com/junghan0611/jacobian-lens/issues/1)
+
+---
+
+### entwurf — Garden-Citizen Dispatch
+
+[entwurf](https://github.com/junghan0611/entwurf) is where the harness thinking became runtime. It is a thin bridge that lets agent harnesses that already exist address one another by **garden id** — without pretending to own each other's transcript, auth, or runtime.
+
+That last clause is the whole design. No OAuth proxy, no CLI transcript scraping, no backend identity replacement. Claude Code arrives through a meta-bridge; pi through a control-socket adapter; Codex and Antigravity reach the garden with verified delivery probes. Each keeps its native identity. The substrate only carries the address.
+
+**Entwurf opens siblings, not disposable workers.** The German word means "project, draft" — a throw forward. Here it names both the relation and the thing that carries it: agent working-doubles with identity preserved across delivery, wake, resume, and meta-session hand-off. The point was never "multi-agent." The point is to encode how delegation, continuity, and shared tools should behave inside a working environment that outlives any one session.
+
+Shipping as [`@junghanacs/entwurf`](https://www.npmjs.com/package/@junghanacs/entwurf). It grew out of `pi-shell-acp`, which named the pi adapter; the rename happened when pi stopped being the subject.
+
+→ [entwurf](https://github.com/junghan0611/entwurf)
 
 ---
 
 ### agent-config & andenken — PKM-Native Memory Across Sessions
 
-When you work with multiple agents across dozens of projects, the hardest problem is not code generation but continuity. [andenken](https://github.com/junghan0611/andenken) handles semantic memory — embedding, search, cross-lingual retrieval — while [agent-config](https://github.com/junghan0611/agent-config) provides the skills, constraints, and interfaces that let agents touch a real PKM instead of a toy demo context.
+When you work with multiple agents across dozens of projects, the hardest problem is not code generation but continuity. [andenken](https://github.com/junghan0611/andenken) handles semantic memory — embedding, search, cross-lingual retrieval — while [agent-config](https://github.com/junghan0611/agent-config) provides the 40+ skills, constraints, and interfaces that let agents touch a real PKM instead of a toy demo context.
 
 **Three-Layer Cross-Lingual Search:**
 
 ```
-Query: "보편 학문에 대한 문서" (Korean: "notes about universal learning")
+Query: "보편 학문에 대한 문서"  (Korean: "notes about universal learning")
 
-Layer 1 — Embedding (Gemini Embedding 2, 768d)
-    "보편" ≈ "universalism" in vector space → match notes tagged [paideia, universalism]
-
-Layer 2 — dblock Graph (Denote + Emacs)
-    Meta-note regex: "보편\|특수\|범용\|univers" → 22 linked notes
-    (Adler, Bertalanffy, Geoffrey West, Kurzweil...)
-
-Layer 3 — Personal Vocabulary (dictcli)
-    expand("보편") → [universal, universalism, paideia, liberal arts]
-    A personal ontology no WordNet contains.
+Layer 1 — Embedding          vector match → notes tagged [paideia, universalism]
+Layer 2 — dblock graph       Denote meta-note regex → 22 linked notes
+Layer 3 — Personal vocabulary  dictcli expand("보편") → [universal, paideia, liberal arts]
 ```
 
-Each layer catches what the others miss. Layer 1 alone failed to find "보편학" (universalism) notes. All three together recover the note ecology that a generic RAG stack would flatten.
+Each layer catches what the others miss. Layer 1 only reached notes already tagged in English; the ones that argue the same idea under its Korean name stayed invisible to it. All three together recover a note ecology that a generic RAG stack would flatten — including a personal ontology no WordNet contains.
 
 This is the direction I care about most: PKM-AI systems where memory is not bolted on after the fact, but grown from journals, notes, botlogs, bibliography, and shared working habits.
-
-**Stack:** Gemini Embedding 2 · LanceDB · dictcli query expansion · session→knowledge auto-fallback · org-aware 2-tier chunking
 
 → [agent-config](https://github.com/junghan0611/agent-config) · [andenken](https://github.com/junghan0611/andenken)
 
@@ -94,9 +105,9 @@ Human and AI agents share the same org-agenda view. Not orchestration — a shar
 13:56  Human      깃허브 프로파일 업데이트 프롬프트
 ```
 
-Four sources merge on a single time axis: **Human** (journal), **Agent(T)** (local pi), **Agent(O)** (cloud bots), **Diary** (recurring schedules). Agents read this same view via `emacsclient` — when an agent stamps a commit, it appears in the timeline. When the human writes "밥먹고 올게" (going to eat), agents keep working. The rhythm is visible instead of hidden inside chat logs.
+Four sources merge on a single time axis: **Human** (journal), **Agent(T)** (local), **Agent(O)** (cloud bots), **Diary** (recurring schedules). Agents read this same view via `emacsclient` — when an agent stamps a commit, it appears in the timeline. When the human writes "밥먹고 올게" (going to eat), agents keep working. The rhythm is visible instead of hidden inside chat logs.
 
-The agent-server exposes 10 Elisp APIs (agenda, search, bibliography, dblock) through emacsclient socket. Docker containers on Oracle Cloud call the same functions that the local Emacs shows. One time axis, many beings.
+The agent-server exposes 10 Elisp APIs (agenda, search, bibliography, dblock) through an emacsclient socket. Docker containers on Oracle Cloud call the same functions that the local Emacs shows. One time axis, many beings.
 
 → [doomemacs-config](https://github.com/junghan0611/doomemacs-config)
 
@@ -106,13 +117,21 @@ The agent-server exposes 10 Elisp APIs (agenda, search, bibliography, dblock) th
 
 > *"The thrower of the project is thrown in his own throw." — Heidegger*
 
-[geworfen](https://github.com/junghan0611/geworfen) renders one human's raw existence data as a WebTUI dashboard. Not a static blog — a transparent data nexus. The front door is org-agenda. Behind it: notes, bibliography, commits, health records, journal — alive on the time axis.
+[geworfen](https://github.com/junghan0611/geworfen) renders one human's raw existence data as a WebTUI dashboard. Not a static blog — a transparent data nexus. The front door is org-agenda. Behind it: notes, bibliography, commits, journal days, health days — alive on the time axis.
 
-It also acts as the public-facing edge of a deeper PKM system. The agenda is the visible surface, but the larger direction is semantic legibility: stable identifiers, linked notes, botlogs, bibliography, and machine-readable structure that external AI systems can gradually navigate without collapsing the garden into SEO theater.
+It is also where Track 1 gets written down. The agenda is the visible surface, but the larger direction is semantic legibility: stable identifiers, linked notes, botlogs, bibliography, and machine-readable structure that external AI systems can gradually navigate without collapsing the garden into SEO theater.
 
-19 days from design to deployment. Clojure + http-kit + GraalVM native-image (43MB binary). 100 visitors hitting the same date = 1 emacsclient call (cached). SF terminal aesthetics with [GLG-Mono](https://github.com/junghan0611/GLG-Mono) web font and Catppuccin theme.
+19 days from design to deployment. Clojure + http-kit + GraalVM native-image (43MB binary). 100 visitors hitting the same date = 1 emacsclient call (cached). SF terminal aesthetics with [GLG-Mono](https://github.com/junghan0611/GLG-Mono) and Catppuccin.
 
 → [agenda.junghanacs.com](https://agenda.junghanacs.com)
+
+---
+
+### forge-config — Agents That Loop Without Me
+
+One sibling of this already runs on the garden: agents leaving traces in the comment threads under my notes. [forge-config](https://github.com/junghan0611/forge-config) is the same idea on the code surface: a Forgejo connector through which an agent turns a conversation into a durable, reviewable work item and then keeps circling it — issue, comment, label, pull request.
+
+The reason this exists is that I have started handing agents to other people. An agent that only answers when spoken to is a chat window. An agent that owns a work item and returns to it is a colleague. This is early, and it is the axis I am building next.
 
 ---
 
@@ -122,44 +141,33 @@ It also acts as the public-facing edge of a deeper PKM system. The agenda is the
 
 This is the part of the work that sits closest to PKM-AI positioning. I am not only using AI on top of notes. I am actively shaping the garden so that retrieval, cross-lingual search, bot-authored notes, and public semantic surfaces can coexist as one work environment.
 
+**ROSSE, not POSSE.** The IndieWeb pattern is *Publish on your Own Site, Syndicate Elsewhere*. I inverted it. Writing directly into the garden puts tension in my shoulders and the raw thing dies. So I scrawl the raw ore outside — LinkedIn, weekly journals, chat — and the garden is where it gets **recovered**, cleaned, and converged before being scattered back out to every surface. Every surface links home. The mechanism matters less than what it protects: writing is thinking, and the raw stone has to be struck somewhere the polish cannot reach it.
+
+---
+
+### memex-kb — Org as the Meta-Document, Korean at the Center
+
+Everything above assumes documents can become plain text. In Korea, they usually cannot.
+
+[memex-kb](https://github.com/junghan0611/memex-kb) is where I keep that fight. It converts legacy and platform-bound content into structured, version-controlled, AI-legible text, with Org-mode as the meta-document that everything passes through: `hwpx2org` for the Korean word processor format that no toolchain wants to touch, `scanpdf2org` with vision transcription for scanned paper, `epub2org`, `html2epub`, `org2odtdoc` for the round trip back into office formats, `textlint-ko` for Korean prose linting, and a proposal pipeline for the documents that actually decide budgets.
+
+```
+Legacy content → structured text → reproducible artifacts → human + AI collaboration
+```
+
+This is not incidental plumbing. Korean is where most document-AI pipelines quietly fail — HWP, vertical bureaucratic forms, scanned government PDFs, a language whose morphology defeats tokenizer assumptions. Every Korean organization hits this wall. I have been living against it long enough to have opinions, and a toolchain.
+
+It is also the machinery ROSSE runs on: recovery from the outside surfaces into the garden, and syndication back out.
+
 ---
 
 ### HomeAgent — When the Harness Leaves the Terminal
 
-Open-source Matter smart home hub with on-device AI agent. No cloud required.
+Open-source Matter smart home hub with an on-device AI agent. No cloud required. A single Go binary handles Matter device control, real-time SSE streaming, and an LLM agent. Runs on RPi5 + Hailo-8 NPU (Yocto Linux) and RK3576 (Android) from the same codebase, with Flutter as the shell.
 
-A single Go binary handles Matter device control, real-time SSE streaming, and an LLM agent. Runs on RPi5 + Hailo-8 NPU (Yocto Linux) and RK3576 (Android) from the same codebase. Flutter app as the shell.
-
-What matters here is not a single model benchmark. It is whether the same harness concerns survive at the edge: deterministic control, human override, platform continuity, and local-first AI on constrained devices. The project is where the shared-memory and shared-interface questions meet the physical home.
+What matters here is not a model benchmark. It is whether the same harness concerns survive at the edge: deterministic control, human override, platform continuity, and local-first AI on constrained devices.
 
 → [homeagent-config](https://github.com/junghan0611/homeagent-config)
-
----
-
-### legoagent-config — Embodiment Through Play
-
-Starts from LEGO SPIKE / Pybricks and a phone UI, but the point is not coding education. [legoagent-config](https://github.com/junghan0611/legoagent-config) is the toy-scale sibling of HomeAgent: a physical body, direct BLE control, expandable senses through ESP32 / ESP32-CAM, and room for an external agent mind.
-
-The current loop is already proven: Android phone ↔ BLE ↔ SPIKE Prime hub, launching slot 0 and driving the body directly. Small scale, but the direction is serious — reproducible embodied-agent experiments built around play, imagination, parenting, and a child-facing interface.
-
-→ [legoagent-config](https://github.com/junghan0611/legoagent-config)
-
----
-
-### Why Clojure — Code Is Data Is Shared Understanding
-
-```clojure
-;; Is this data or code? Both.
-(and (> temperature 25) (= light "off"))
-```
-
-Homoiconicity — code and data are the same structure. When an IoT recipe is an S-expression, the AI agent reads it without parsing, transforms it without losing meaning, and verifies equivalence mathematically. This is why [durable-iot-migrate](https://github.com/junghan0611/durable-iot-migrate) chose Clojure over Go (62% code reduction, same test coverage).
-
-The lineage: Papert's **Logo** taught children to think computationally with Lisp. Sussman's **SICM** unified physics and code in Scheme. **SDF** generalized it into flexible software design. Now Clojure carries that philosophy on the JVM — and through GraalVM, into native binaries. [geworfen](https://github.com/junghan0611/geworfen), [dictcli](https://github.com/junghan0611/dictcli), [durable-iot-migrate](https://github.com/junghan0611/durable-iot-migrate) are built with it.
-
-[proxycli](https://github.com/junghan0611/proxycli) proved it in practice — Python→Clojure rewrite with 92% code reduction, shipping as a GraalVM native binary. [abductcli](https://github.com/junghan0611/abductcli) extends the same Clojure-native CLI style into quantitative abduction: anomaly → signal → memo → evaluation, a tool for reasoning backward from surprising numbers to the hidden scale that must explain them.
-
-[sicm-study](https://github.com/junghan0611/sicm-study) is where this journey started — the internalization of flexible design from SICP through SICM to SDF. The repo is quiet, but the philosophy lives on in every Clojure project.
 
 ---
 
@@ -169,14 +177,16 @@ Tools that let agents query the actual corpus instead of guessing about it:
 
 | Tool | Data | Scale | Language |
 |------|------|-------|----------|
-| [denotecli](https://github.com/junghan0611/denotecli) | Org-mode notes (search, outline, read) | 3,300 files | Go |
+| [denotecli](https://github.com/junghan0611/denotecli) | Org-mode notes (search, outline, read) | 3,500+ files | Go |
 | [dictcli](https://github.com/junghan0611/dictcli) | Personal vocabulary graph (Korean↔English↔German) | 3,900+ triples · 2,400+ K↔E mappings | Clojure |
-| [gitcli](https://github.com/junghan0611/gitcli) | Commit history across all repos | 8,557 commits | Go |
-| [lifetract](https://github.com/junghan0611/lifetract) | Samsung Health + aTimeLogger → SQLite | 4,489 records | Go |
+| [gitcli](https://github.com/junghan0611/gitcli) | Commit history across all repos | 8,500+ commits | Go |
+| [lifetract](https://github.com/junghan0611/lifetract) | Samsung Health + aTimeLogger → SQLite | 2,500+ days | Go |
 | [bibcli](https://github.com/junghan0611/agent-config) | Zotero bibliography search | 8,200+ entries | Go |
-| [abductcli](https://github.com/junghan0611/abductcli) | Quantitative abductive reasoning from anomalies to hidden scale | demo datasets | Clojure |
+| [abductcli](https://github.com/junghan0611/abductcli) | Quantitative abduction: anomaly → signal → memo → evaluation | proven in production | Clojure |
 
-Each tool speaks the same language: Denote IDs (YYYYMMDDTHHMMSS) for cross-referencing. Query commits by the same timestamp as journal entries, botlogs, and health records.
+Each tool speaks the same language: Denote IDs (YYYYMMDDTHHMMSS) for cross-referencing. Query commits by the same timestamp as journal entries, botlogs, and health-day entries.
+
+`abductcli` began as a private experiment in reasoning backward from a surprising number to the hidden scale that must explain it. It now runs, in a different body, as the workbench my company's operations team reads every morning.
 
 ---
 
@@ -186,13 +196,13 @@ Agent collaboration requires a trusted computing environment and an organic tool
 
 #### nixos-config — Same Machine Everywhere
 
-[nixos-config](https://github.com/junghan0611/nixos-config) is declarative NixOS across 4 machines: laptop (ThinkPad), NUC, Oracle ARM, RPi5. One flake, `nixos-rebuild switch`, identical environment. Docker compositions for 17+ services — including [openclaw](https://github.com/junghan0611/nixos-config/tree/main/docker/openclaw) (4 Telegram bots) and [geworfen](https://github.com/junghan0611/geworfen) — all declared in Nix. When a machine dies, a new one boots the same world from a single repository.
+[nixos-config](https://github.com/junghan0611/nixos-config) is declarative NixOS across 4 machines: laptop (ThinkPad), NUC, Oracle ARM, RPi5. One flake, `nixos-rebuild switch`, identical environment. Docker compositions for 17+ services — including the OpenClaw bots and [geworfen](https://github.com/junghan0611/geworfen) — all declared in Nix. When a machine dies, a new one boots the same world from a single repository.
 
 Reproducibility is not convenience — it's the precondition for agent trust. An agent that knows its environment is deterministic can act with confidence.
 
 #### doomemacs-config — The Shared Forge
 
-[doomemacs-config](https://github.com/junghan0611/doomemacs-config) is not just an editor config. It hosts agent-server.el — the Elisp interface that agents use to read org-agenda, search Denote notes, query bibliography, and update dblocks. 10 APIs exposed via emacsclient socket.
+[doomemacs-config](https://github.com/junghan0611/doomemacs-config) is not just an editor config. It hosts agent-server.el — the Elisp interface that agents use to read org-agenda, search Denote notes, query bibliography, and update dblocks. 10 APIs exposed via an emacsclient socket.
 
 **The Fence Philosophy:** Agents aren't restricted with prompts ("don't do X"). Instead, the host provides a fenced playground — path guards in Elisp (read: 4 directories, write: 2 directories), API functions that cover all legitimate operations. Inside the fence, agents are free. If an agent breaks something, that's a system design problem, not an agent problem. Trust comes from structure, not surveillance.
 
@@ -208,21 +218,28 @@ The same `agent-org-agenda-day` function that Emacs shows the human, that Docker
 
 #### openglg-config — Server and Shell Together
 
-[openglg-config](https://github.com/junghan0611/openglg-config) is a new forkable work surface that keeps two halves in one repo: authenticated self-hosted services behind Caddy + Authelia, and a Nix + home-manager bootstrap for reproducing the operator's shell on Debian or Ubuntu.
+[openglg-config](https://github.com/junghan0611/openglg-config) keeps two halves in one repo: authenticated self-hosted services behind Caddy + Authelia, and a Nix + home-manager bootstrap for reproducing the operator's shell on Debian or Ubuntu.
 
 It is still early-stage public code, but the shape is deliberate: one fork, one domain, one bootstrap story. `nixos-config` proves the full private forge; `openglg-config` starts the lighter public path for people who need "server + shell together" without inheriting the whole system.
 
-#### Supporting -config Projects
+---
 
-| Project | Role |
-|---------|------|
-| [openglg-config](https://github.com/junghan0611/openglg-config) | Self-hosted authenticated work surface plus reproducible Debian/Ubuntu shell bootstrap |
-| [zotero-config](https://github.com/junghan0611/zotero-config) | Reproducible bibliography with Korean Dewey Decimal citation keys (8,200+ entries) |
+### Other Repositories
+
+Smaller pieces, kept because they carry something the larger work depends on.
+
+| Project | What it is |
+|---------|-----------|
+| [openclaw](https://github.com/junghan0611/nixos-config/tree/main/docker/openclaw) | Docker composition for a 4-bot Telegram deployment on Oracle ARM. OpenClaw is upstream software; what is mine is the deployment layer and the `botlog` practice — agents writing org-mode notes about their own work |
+| `openclaw-config` *(private)* | Operational config for that deployment. It stays closed because the bots' **memory** lives in it. These bots do not run per-repository — they run around the clock as an **exoself**, so their state is one continuous thing that has to be managed as one repository |
+| [zotero-config](https://github.com/junghan0611/zotero-config) | Reproducible bibliography with Korean Dewey Decimal citation keys |
 | [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | Korean monospace font — IBM Plex Mono + Sans KR, 100% Unicode, web font |
-| [memex-kb](https://github.com/junghan0611/memex-kb) | Knowledge base transformer (Org → Google Docs/HTML) |
-| [self-tracking-data](https://github.com/junghan0611/self-tracking-data-public) | 5 years of life data, version-controlled |
-
-Cloud bots ([openclaw](https://github.com/junghan0611/nixos-config/tree/main/docker/openclaw)) run on Oracle ARM as Docker containers — 4 Telegram bots (Claude, GPT, Gemini, B-bot) with Gemini Embedding 2 memory search. This is where [botlog](https://notes.junghanacs.com/botlog) was born: agents writing org-mode notes about their own work.
+| [self-tracking-data](https://github.com/junghan0611/self-tracking-data-public) | Years of life data, version-controlled |
+| [legoagent-config](https://github.com/junghan0611/legoagent-config) | Embodied toy-agent experiments — Pybricks + Flutter + ESP32, BLE to a SPIKE Prime hub |
+| [edgeagent-config](https://github.com/junghan0611/edgeagent-config) | Invariants a Zig edge node must not violate. Documentation-first |
+| [logickocli](https://github.com/junghan0611/logickocli) | Korean natural-language argument ↔ standard logic coordinate system |
+| [durable-iot-migrate](https://github.com/junghan0611/durable-iot-migrate) | IoT platform migration with Temporal + Saga. Clojure over Go: 62% less code, same coverage |
+| [sicm-study](https://github.com/junghan0611/sicm-study) | Where the lineage lives: Logo → SICP → SICM → SDF. Homoiconicity is why the Clojure projects above are Clojure |
 
 ---
 
@@ -230,9 +247,9 @@ Cloud bots ([openclaw](https://github.com/junghan0611/nixos-config/tree/main/doc
 
 **Languages:** Go · Clojure · Zig · C · Elisp · Nix · Bash · TypeScript
 
-**Embedded & IoT:** Matter · Thread · Zigbee 3.0 · MQTT · OTBR · Yocto (scarthgap 5.0) · ARM Linux
+**Embedded & IoT:** Matter · Thread · Zigbee 3.0 · MQTT · OTBR · Yocto (scarthgap 5.0) · ARM / RISC-V Linux
 
-**AI/ML:** sLLM (Qwen3, LoRA fine-tuning, GGUF quantization) · Gemini Embedding 2 · LanceDB · Ollama · OpenRouter
+**AI/ML:** sLLM (Qwen3, LoRA fine-tuning, GGUF quantization) · embedding retrieval · LanceDB · Ollama · OpenRouter
 
 **Cross-platform:** Flutter · Android · Linux · A2UI (Google genui) · GraalVM native-image
 
@@ -248,16 +265,15 @@ Cloud bots ([openclaw](https://github.com/junghan0611/nixos-config/tree/main/doc
 
 | | |
 |---|---|
-| **notes** | 3,400+ |
+| **notes** | 3,500+ |
 | **bibliography** | 8,200+ |
 | **commits** | 8,500+ |
 | **journal** | 1,500+ days |
-| **health** | 4,400+ records |
+| **health** | 2,500+ days |
 | **garden** | 2,200+ pages |
-| **recent commits** | 2,900+ in the last 90 days (`gitcli --me`, personal + work) |
 
-*Counts rounded to the nearest 100; aligned to geworfen live data and `gitcli --me` (filters out forks and AI-bot authorship). Measured 2026-04-27.*
+*Counts rounded down to the nearest 100 from live existence data at [`agenda.junghanacs.com/api/stats`](https://agenda.junghanacs.com/api/stats). Journal and health are day counts. Recent-window totals are not frozen here — the live surface is the number. Measured 2026-07-10.*
 
 ---
 
-*Last updated: 2026-04-27*
+*Last updated: 2026-07-10*
