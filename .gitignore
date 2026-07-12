@@ -1,3 +1,7 @@
 # Handoff file — not published on the profile
 NEXT.md
 NEXT--*.md
+
+# Company-specific and third-party private material (referrers, job postings)
+PRIVATE.md
+apply/PRIVATE.md

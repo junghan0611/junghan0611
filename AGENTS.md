@@ -11,6 +11,30 @@ This repo holds three coordinated identity documents plus a glossary.
 - `llms.txt` — LLM-facing identity. Mirrored *from* the garden. See below.
 - `VOCABULARY.md` — canonical glossary. Single source of truth for load-bearing terms.
 
+`apply/` is a separate surface and is **not** an identity document. See below.
+
+## `apply/` — job-application surface
+
+`apply/README.md` (competency statement) and `apply/portfolio.md` (project detail)
+are a **role-targeted cut** of the identity set, for AX-transformation and agent-platform
+positions. They are public and reusable across employers.
+
+Three rules govern this directory, and they invert the ones above.
+
+1. **Korean, deliberately.** The Korean hiring market reads these. The English-only
+   language policy below applies to the four identity documents *only* — it does not
+   apply to `apply/`. Do not "fix" the Korean here; that is not drift, it is the point.
+2. **`apply/PRIVATE.md` is never committed.** It holds referrer names, job postings,
+   application routes, and closed company facts. It is gitignored. Keep it that way.
+   Company-identifying material belongs there, not in the two public files.
+3. **Claims must trace back.** Every large claim in `apply/` restates something the
+   identity documents already establish, and carries the same public evidence link.
+   When a figure changes, update the identity documents first, then mirror it here.
+   The verifiability pairing rule and the numbers policy below both apply.
+
+The résumé stays comprehensive; `apply/` is where the target-specific cut lives. Do
+not let a job posting reshape `resume/README.md`.
+
 ### Where each document is authored
 
 `README.md`, `resume/README.md`, and `VOCABULARY.md` are authored here. This repo
