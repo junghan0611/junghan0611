@@ -111,8 +111,8 @@ and always has been: `events.jsonl` is gitignored.
 - **A commit is found by its sha, not by its repo's name.** The stamp's URL is recorded
   as written, but the *entity* is whatever commit that sha actually names, in whichever
   clone holds it.
-- The output is deterministic: same inputs and same `--as-of` produce the same bytes, on any
-  machine, under any system timezone. There is no wall clock anywhere in the output.
+- The output is deterministic: the same disk and the same `--as-of` produce the same bytes,
+  under any system timezone. There is no wall clock anywhere in the output.
 
 ```bash
 # the check that matters
@@ -120,6 +120,38 @@ TZ=UTC       python3 timeline/collect.py --as-of 2026-07-14 --out /tmp/a.jsonl >
 TZ=Asia/Seoul python3 timeline/collect.py --as-of 2026-07-14 --out /tmp/b.jsonl > /tmp/b.json
 cmp /tmp/a.jsonl /tmp/b.jsonl && cmp /tmp/a.json /tmp/b.json
 ```
+
+## A FULL is local, and it says so
+
+Determinism stops at the disk, and that is not a defect to be engineered away. **`--as-of`
+fixes the upper bound in time; it does not freeze the local refs.** Two machines running
+this exact code against the same `--as-of` will disagree: one holds a clone the other
+never made, one carries a branch that was never pushed, one can expand a short sha the
+other cannot. Every one of those FULLs is telling the truth about the disk it read.
+
+So the manifest carries what it takes to tell two snapshots apart instead of silently
+substituting one for the other:
+
+```json
+"device": "thinkpad",
+"code_sha256":   "fc6aed78…",   // the collector that produced it
+"events_sha256": "655332…",     // exactly the bytes written to events.jsonl
+"registries":    ["domains.json", "domains.local.json"]
+```
+
+Two traps follow, and both are easy to walk into:
+
+- **`uncloned_repos` does not catch everything.** It names repos with *no clone here at
+  all*. A repo cloned on both machines, where one holds a local branch the other never
+  fetched, loses those commits **silently** — the repo is present, so nothing complains.
+  Comparing two FULLs means comparing sha sets, not reading the audit.
+- **`event_id` is not a merge key.** It is derived from `entity_id`, and the same agenda
+  stamp becomes `git:…@<full sha>` on a machine that can expand the prefix and
+  `git:…@short:<prefix>` on one that cannot. Merging two FULLs on `event_id` therefore
+  *duplicates* exactly the events that the two machines disagree about — the ones you were
+  merging to reconcile. A union FULL has to key on native identity (git: full sha; agenda:
+  the stamp's `native_id`; note: Denote id + `time_kind` + time coordinate) and reconcile
+  resolved against unresolved entities afterwards.
 
 ## Known source defects
 

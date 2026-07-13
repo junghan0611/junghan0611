@@ -11,6 +11,7 @@ guessed.
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
 import time
@@ -18,10 +19,10 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from collect import (KST, Reject, Repos, _event, check, duplicate_ids,  # noqa: E402
-                     forge_id_from_remote, in_range, load_registry, make_event_id,
-                     normalize_git_ts, parse_agenda_ts, parse_denote_id, parse_kst,
-                     parse_lastmod, sort_key, time_component)
+from collect import (KST, Reject, Repos, _event, check, device_name,  # noqa: E402
+                     duplicate_ids, forge_id_from_remote, in_range, load_registry,
+                     make_event_id, normalize_git_ts, parse_agenda_ts, parse_denote_id,
+                     parse_kst, parse_lastmod, sha256, sort_key, time_component)
 
 FAILED: list[str] = []
 
@@ -323,6 +324,22 @@ def test_sort_is_total():
        sorted([inst, day], key=sort_key)[0] is day)
 
 
+def test_a_snapshot_can_name_itself():
+    """Two machines, same code, same --as-of, different FULLs — one holds a clone the other
+    lacks, one has a branch that was never pushed. Both are honest. The manifest therefore
+    has to carry enough to tell them apart, or one will quietly stand in for the other."""
+    a = [{"event_id": "1", "x": 1}, {"event_id": "2", "x": 2}]
+    b = [{"event_id": "1", "x": 1}, {"event_id": "2", "x": 3}]     # one event differs
+    body = lambda evs: "".join(json.dumps(e, sort_keys=True) + "\n" for e in evs)
+
+    ok("the same events fingerprint the same",
+       sha256(body(a).encode()) == sha256(body(a).encode()))
+    ok("one differing event changes the fingerprint — a FULL cannot be swapped unnoticed",
+       sha256(body(a).encode()) != sha256(body(b).encode()))
+    ok("the machine names itself, and it is never blank",
+       isinstance(device_name(), str) and device_name().strip() != "")
+
+
 def test_the_registry_can_be_read_from_two_files():
     """The public table cannot name every repo. The FULL still has to see them, so the
     registry is read from a committed file and a gitignored one — and the run must say
@@ -393,6 +410,7 @@ def main() -> int:
               test_remote_identity, test_a_commit_is_found_by_sha_not_by_name,
               test_clones_that_disagree_about_a_prefix, test_tz_determinism,
               test_query_never_reads_the_clock, test_sort_is_total,
+              test_a_snapshot_can_name_itself,
               test_the_registry_can_be_read_from_two_files,
               test_the_registry_reports_both_of_its_gaps):
         print(f"\n{t.__name__}")

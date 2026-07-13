@@ -23,7 +23,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 SCHEMA_VERSION = "1"
-COLLECTOR_VERSION = "0.2.0"
+COLLECTOR_VERSION = "0.3.0"
 
 HOME = Path.home()
 ORG = HOME / "org"
@@ -172,6 +172,25 @@ def forge_id_from_remote(url: str) -> str | None:
     if len(parts) < 2:
         return None
     return f"{host}/{parts[-2]}/{parts[-1]}"
+
+
+def sha256(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def device_name() -> str:
+    """Which machine collected this.
+
+    A FULL is bounded by the disk it was read from, so the disk is part of what the FULL
+    *is*. Two machines run the same code against the same `--as-of` and disagree — one
+    holds a clone the other lacks, one has a local branch that was never pushed — and
+    both are telling the truth. A snapshot that does not say where it was taken cannot be
+    compared with another one; it can only be mistaken for it."""
+    f = HOME / ".current-device"
+    if f.exists() and f.read_text().strip():
+        return f.read_text().strip()
+    import socket
+    return socket.gethostname()
 
 
 def load_registry(files: list[Path] | None = None) -> tuple[dict, list[str]]:
@@ -653,8 +672,15 @@ def main() -> int:
     entities = {e["entity_id"] for e in events}
     rejected = [r for n in ("git", "note", "agenda") for r in sources[n].rejected]
 
+    # The snapshot has to be able to name itself. Two machines run this code against the
+    # same --as-of and produce different FULLs — different clones, unpushed branches — and
+    # neither is wrong. `--as-of` fixes the upper bound in time; it does not freeze the
+    # local refs. So the fingerprint below is what lets two snapshots be *compared* rather
+    # than silently substituted for one another.
+    body = "".join(json.dumps(e, ensure_ascii=False, sort_keys=True) + "\n" for e in events)
+
     # No wall clock anywhere in the output: the same inputs and the same --as-of must
-    # produce the same bytes, on any machine, under any TZ.
+    # produce the same bytes, under any TZ.
     manifest = {
         "schema_version": SCHEMA_VERSION,
         "collector_version": COLLECTOR_VERSION,
@@ -662,6 +688,9 @@ def main() -> int:
         "from": frm.isoformat(),
         "as_of": as_of.isoformat(),
         "as_of_is": "exclusive upper bound",
+        "device": device_name(),
+        "code_sha256": sha256(Path(__file__).read_bytes()),
+        "events_sha256": sha256(body.encode()),
         "counts": {"events": len(events), "entities": len(entities)},
         "registries": repos.registries,
         "sources": [sources[n].report() for n in ("git", "note", "agenda")],
@@ -684,9 +713,7 @@ def main() -> int:
     }
 
     if args.out:
-        with open(args.out, "w") as fh:
-            for e in events:
-                fh.write(json.dumps(e, ensure_ascii=False, sort_keys=True) + "\n")
+        Path(args.out).write_text(body)     # exactly the bytes events_sha256 covers
         log(f"wrote {len(events)} events -> {args.out}")
 
     json.dump({"manifest": manifest, "audit": audit}, sys.stdout,
