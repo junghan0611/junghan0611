@@ -507,8 +507,7 @@ def collect_agenda(repos: Repos, frm: datetime, as_of: datetime,
             # LOCAL FULL records what the source said; only the ENTITY is normalized to
             # the commit the sha actually names.
             ref = {"kind": "url", "value": m.group(0)}
-            named = f"github.com/{m.group(1)}/{m.group(2)}"
-            domain, layer = repos.domain_layer(named)
+            named = fid = f"github.com/{m.group(1)}/{m.group(2)}"
             cr = commit_ref(s["title"])
             if cr:
                 short = cr[1]
@@ -517,11 +516,14 @@ def collect_agenda(repos: Repos, frm: datetime, as_of: datetime,
                     continue
                 if short in found:
                     full, home = found[short]
-                    entity = f"git:{home}@{full}"          # joins the commit itself
-                    domain, layer = repos.domain_layer(home)
+                    entity, fid = f"git:{home}@{full}", home   # joins the commit itself
                 else:
-                    entity = f"git:{named}@short:{short}"  # honest: not resolved here
+                    entity = f"git:{named}@short:{short}"      # honestly unresolved
                     src.unresolved_short += 1
+            # Ask the domain table only about the repo we actually landed on. Asking it
+            # about the name in the URL too would count long-dead names — a repo's maiden
+            # name, an owner it left years ago — as repos missing from the table.
+            domain, layer = repos.domain_layer(fid)
         events.append(_event(
             source="agenda", entity_id=entity, time_kind="stamped", tp=tp,
             domain=domain, layer=layer, title=s["title"], tags=s["tags"], ref=ref,
