@@ -1,10 +1,50 @@
 {
-  "_note": "forge id -> domain/layer. Repos absent here collect as 'unmapped'; that is a gap in this table, not a claim about the repo.",
+  "_note": "forge id -> domain/layer. This table is the registry of the repos this axis reads COMMITS from — commits are the record that is complete, and the registry is drawn around them, not around agenda stamps. A repo listed here with no clone on this disk is named in the audit as `uncloned_repos`, so a hole in the FULL cannot pass for a stretch of doing nothing. A clone on disk that is absent here collects as 'unmapped' and is counted in `unmapped_repos` — a gap in this table, not a claim about the repo. domain/layer 'unmapped' means observed and registered but not yet classified. Stamp-only repos are deliberately NOT registered: a stamp is secondary evidence, it carries whatever name the URL had that day, and stamping only began 2026-02-27. One observed repo lives on an internal company host and is deliberately not named here.",
   "repos": {
+    "github.com/jhkim2goqual/airbyte-channelio": {
+      "domain": "unmapped",
+      "layer": "unmapped"
+    },
+    "github.com/jhkim2goqual/cube-res-v5-embedding": {
+      "domain": "unmapped",
+      "layer": "unmapped"
+    },
+    "github.com/jhkim2goqual/hejhub-nano": {
+      "domain": "embedded",
+      "layer": "product"
+    },
+    "github.com/jhkim2goqual/hejmain-appsmith": {
+      "domain": "unmapped",
+      "layer": "unmapped"
+    },
     "github.com/jhkim2goqual/lineageos-beyondx": {
       "domain": "unmapped",
       "layer": "unmapped",
       "external_owner": true
+    },
+    "github.com/jhkim2goqual/mqtt-relay-tuya": {
+      "domain": "embedded",
+      "layer": "product"
+    },
+    "github.com/jhkim2goqual/notion-embedding": {
+      "domain": "memory",
+      "layer": "product"
+    },
+    "github.com/jhkim2goqual/reranker-server": {
+      "domain": "memory",
+      "layer": "product"
+    },
+    "github.com/jhkim2goqual/tech-docs-kb": {
+      "domain": "unmapped",
+      "layer": "unmapped"
+    },
+    "github.com/jhkim2goqual/tuya-zigbee2mqtt": {
+      "domain": "embedded",
+      "layer": "product"
+    },
+    "github.com/junghan0611/.doom.d.simple": {
+      "domain": "infra",
+      "layer": "forge"
     },
     "github.com/junghan0611/GLG-Mono": {
       "domain": "garden",
@@ -22,6 +62,27 @@
       "domain": "memory",
       "layer": "product"
     },
+    "github.com/junghan0611/andrej-karpathy-skills": {
+      "domain": "unmapped",
+      "layer": "unmapped",
+      "external_owner": true
+    },
+    "github.com/junghan0611/butlercli": {
+      "domain": "agent",
+      "layer": "product"
+    },
+    "github.com/junghan0611/claude-code-openai-wrapper": {
+      "domain": "agent",
+      "layer": "forge"
+    },
+    "github.com/junghan0611/claude-config": {
+      "domain": "agent",
+      "layer": "forge"
+    },
+    "github.com/junghan0611/cos": {
+      "domain": "agent",
+      "layer": "product"
+    },
     "github.com/junghan0611/denotecli": {
       "domain": "agent",
       "layer": "product"
@@ -29,6 +90,11 @@
     "github.com/junghan0611/dictcli": {
       "domain": "agent",
       "layer": "product"
+    },
+    "github.com/junghan0611/doom-themes": {
+      "domain": "unmapped",
+      "layer": "unmapped",
+      "external_owner": true
     },
     "github.com/junghan0611/doomemacs-config": {
       "domain": "infra",
@@ -42,11 +108,11 @@
       "domain": "agent",
       "layer": "forge"
     },
-    "github.com/junghan0611/efrit": {
-      "domain": "agent",
-      "layer": "product"
-    },
     "github.com/junghan0611/elfeed-offline": {
+      "domain": "infra",
+      "layer": "forge"
+    },
+    "github.com/junghan0611/emacs-fulllab-config": {
       "domain": "infra",
       "layer": "forge"
     },
@@ -78,9 +144,17 @@
       "domain": "agent",
       "layer": "product"
     },
+    "github.com/junghan0611/glueclaw": {
+      "domain": "unmapped",
+      "layer": "unmapped"
+    },
     "github.com/junghan0611/gogcli": {
       "domain": "agent",
       "layer": "product"
+    },
+    "github.com/junghan0611/hawaii-trip-2025": {
+      "domain": "unmapped",
+      "layer": "unmapped"
     },
     "github.com/junghan0611/homeagent-config": {
       "domain": "embedded",
@@ -90,6 +164,10 @@
       "domain": "garden",
       "layer": "product"
     },
+    "github.com/junghan0611/i-am-emacs": {
+      "domain": "unmapped",
+      "layer": "unmapped"
+    },
     "github.com/junghan0611/jacobian-lens": {
       "domain": "research",
       "layer": "product"
@@ -97,6 +175,10 @@
     "github.com/junghan0611/junghan0611": {
       "domain": "garden",
       "layer": "product"
+    },
+    "github.com/junghan0611/koprfrdr": {
+      "domain": "unmapped",
+      "layer": "unmapped"
     },
     "github.com/junghan0611/legoagent-config": {
       "domain": "embedded",
@@ -118,6 +200,10 @@
       "domain": "memory",
       "layer": "product"
     },
+    "github.com/junghan0611/naver-saiculture": {
+      "domain": "unmapped",
+      "layer": "unmapped"
+    },
     "github.com/junghan0611/nixos-config": {
       "domain": "infra",
       "layer": "forge"
@@ -126,9 +212,30 @@
       "domain": "infra",
       "layer": "forge"
     },
+    "github.com/junghan0611/openclaw-config": {
+      "domain": "agent",
+      "layer": "forge"
+    },
     "github.com/junghan0611/openglg-config": {
       "domain": "agent",
       "layer": "forge"
+    },
+    "github.com/junghan0611/org-20250624": {
+      "domain": "garden",
+      "layer": "product"
+    },
+    "github.com/junghan0611/ox-epub": {
+      "domain": "unmapped",
+      "layer": "unmapped",
+      "external_owner": true
+    },
+    "github.com/junghan0611/password-store": {
+      "domain": "infra",
+      "layer": "forge"
+    },
+    "github.com/junghan0611/pi-share-hf": {
+      "domain": "unmapped",
+      "layer": "unmapped"
     },
     "github.com/junghan0611/pi-telegram": {
       "domain": "agent",
@@ -138,22 +245,62 @@
       "domain": "agent",
       "layer": "product"
     },
+    "github.com/junghan0611/self-tracking-data": {
+      "domain": "memory",
+      "layer": "product"
+    },
+    "github.com/junghan0611/self-tracking-data-public": {
+      "domain": "memory",
+      "layer": "product"
+    },
     "github.com/junghan0611/sicm-study": {
       "domain": "unmapped",
       "layer": "unmapped"
+    },
+    "github.com/junghan0611/term-keys": {
+      "domain": "unmapped",
+      "layer": "unmapped",
+      "external_owner": true
+    },
+    "github.com/junghan0611/tuya-cube-tracker2": {
+      "domain": "embedded",
+      "layer": "product"
+    },
+    "github.com/junghan0611/tuyahome": {
+      "domain": "embedded",
+      "layer": "product"
     },
     "github.com/junghan0611/zotero-config": {
       "domain": "infra",
       "layer": "forge"
     },
-    "github.com/junghanacs/junghanacs.github.io": {
+    "github.com/teamgoqual/hej-kip": {
+      "domain": "infra",
+      "layer": "product"
+    },
+    "github.com/teamgoqual/hej-nixos-cluster": {
+      "domain": "infra",
+      "layer": "forge"
+    },
+    "github.com/teamgoqual/iitp88-npu-mobilint": {
+      "domain": "research",
+      "layer": "product"
+    },
+    "github.com/teamgoqual/incidentcli": {
+      "domain": "agent",
+      "layer": "product"
+    },
+    "github.com/teamgoqual/product-security-lab": {
       "domain": "unmapped",
       "layer": "unmapped"
     },
-    "github.com/ofosos/ox-epub": {
-      "domain": "unmapped",
-      "layer": "unmapped",
-      "external_owner": true
+    "github.com/teamgoqual/sks-hub-zig": {
+      "domain": "embedded",
+      "layer": "product"
+    },
+    "github.com/teamgoqual/voscli": {
+      "domain": "agent",
+      "layer": "product"
     }
   }
 }

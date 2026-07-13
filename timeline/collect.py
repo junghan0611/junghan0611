@@ -30,6 +30,7 @@ ORG = HOME / "org"
 AGENDA_DIR = ORG / "botlog/agenda"
 ROOTS = [HOME / "repos/gh", HOME / "repos/work"]
 DOMAINS_FILE = Path(__file__).parent / "domains.json"
+DOMAINS_LOCAL = Path(__file__).parent / "domains.local.json"   # gitignored; see load_registry
 
 KST = timezone(timedelta(hours=9), "KST")
 AUTHORS = ("junghan", "jhkim2")
@@ -173,6 +174,32 @@ def forge_id_from_remote(url: str) -> str | None:
     return f"{host}/{parts[-2]}/{parts[-1]}"
 
 
+def load_registry(files: list[Path] | None = None) -> tuple[dict, list[str]]:
+    """The registry, read from one file or two, later winning over earlier.
+
+    `domains.json` is committed; `domains.local.json` is not. Some repos cannot be named in
+    a public table — a client's, a colleague's, an internal host's.
+
+    Be exact about what the second file buys, because the temptation is to claim more. It
+    does not decide what may be published, filter an event, or scrub a name: every clone on
+    disk is walked either way, and a repo absent from the registry still lands in the FULL,
+    under its real name, marked `unmapped`. What the overlay preserves is the *domain and
+    layer* of those repos — drop it and this year's unmapped commits go from 2% to 11%, and
+    a slice by domain stops describing the work it is supposed to describe. The disclosure
+    boundary is elsewhere and always has been: `events.jsonl` is gitignored.
+
+    Which registries a run actually read is declared in the manifest, so a FULL collected
+    with the overlay can never be mistaken for one collected without it."""
+    out: dict = {}
+    used: list[str] = []
+    for f in (files if files is not None else [DOMAINS_FILE, DOMAINS_LOCAL]):
+        if not f.exists():
+            continue
+        out.update(json.loads(f.read_text())["repos"])
+        used.append(f.name)
+    return out, used
+
+
 class Repos:
     """Where the clones are, and which domain each repo belongs to.
 
@@ -184,8 +211,7 @@ class Repos:
         self.clones: list[tuple[str, Path]] = []
         self.dirs: dict[str, Path] = {}
         self.unmapped: set[str] = set()
-        self.domains: dict = (json.loads(DOMAINS_FILE.read_text())["repos"]
-                              if DOMAINS_FILE.exists() else {})
+        self.domains, self.registries = load_registry()
         for root in ROOTS:
             if not root.is_dir():
                 continue
@@ -204,6 +230,24 @@ class Repos:
             self.unmapped.add(fid)
             return "unmapped", "unmapped"
         return d.get("domain", "unmapped"), d.get("layer", "unmapped")
+
+    def uncloned(self) -> list[str]:
+        """Named in the registry, absent from this disk. The registry names the repos this
+        axis reads commits from, so one listed here with no clone is a hole in the FULL:
+        the commits happened, this machine simply cannot read them. Reported by name,
+        because the alternative is a gap that looks exactly like a stretch of doing
+        nothing."""
+        return sorted(set(self.domains) - set(self.dirs))
+
+    def unregistered_clones(self) -> list[str]:
+        """On this disk, missing from the registry. This is the drift alarm: a repo whose
+        commits are entering the axis with no domain because nobody has said what it is.
+
+        Kept apart from `unmapped` on purpose. That set also holds forge ids seen only in a
+        stamp's URL — a repo this disk does not carry — which is expected and does not go
+        away. Counting the two together would leave a number that is never zero, and an
+        alarm that never falls silent is one nobody reads."""
+        return sorted(set(self.dirs) - set(self.domains))
 
 
 class Source:
@@ -619,6 +663,7 @@ def main() -> int:
         "as_of": as_of.isoformat(),
         "as_of_is": "exclusive upper bound",
         "counts": {"events": len(events), "entities": len(entities)},
+        "registries": repos.registries,
         "sources": [sources[n].report() for n in ("git", "note", "agenda")],
     }
     audit = {
@@ -633,7 +678,9 @@ def main() -> int:
             ({"reason": r["reason"], "where": r["where"]} for r in rejected),
             key=lambda r: (r["reason"], r["where"]))[:10],
         "unresolved_short_sha": sources["agenda"].unresolved_short,
-        "unmapped_repos": len(repos.unmapped),
+        "unmapped_repos": sorted(repos.unmapped),
+        "unregistered_clones": repos.unregistered_clones(),
+        "uncloned_repos": repos.uncloned(),
     }
 
     if args.out:

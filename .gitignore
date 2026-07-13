@@ -8,3 +8,6 @@ apply/PRIVATE.md
 __pycache__/
 *.pyc
 events*.jsonl
+
+# Registry entries the public table cannot name (client, colleague, internal host)
+timeline/domains.local.json

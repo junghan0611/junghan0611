@@ -45,6 +45,51 @@ It is bounded by what is on this disk. **Not** included: repos never cloned here
 branches never fetched, and objects already pruned as unreachable. A commit seen in more
 than one clone is counted once — dedup is by sha.
 
+## The agenda is not a second copy of git
+
+Commits are the record that is complete. A commit exists because work was written down at
+the moment it happened, and it exists whether or not anyone chose to mark it afterwards.
+
+Agenda stamps are not that. **The first stamp in the whole corpus is 2026-02-27** — before
+that date the practice did not exist — and even after it, a stamp is written when an agent
+marks a session worth marking, not once per commit. So the two sources are asymmetric on
+purpose: git is the measure, the agenda is a sparse commentary laid over it. A month with
+no stamps is not a month with no work, and an unstamped repo is not an idle one.
+
+This is why `domains.json` is drawn around the repos that hold **commits**, and why a repo
+known only from a stamp is left out of it. A stamp's URL carries whatever name the repo had
+*that day*; the commit it names is found by sha, in whichever clone actually holds it, and
+inherits that repo's domain. Registering the old name as if it were a second repo would put
+a ghost in the registry and, worse, make the audit cry about a missing clone forever.
+
+## The registry, and the one thing it cannot carry
+
+`domains.json` is the registry: the repos this axis reads commits from, each with a domain
+and a layer. It can disagree with the disk in two directions, and the audit names both.
+
+- `unregistered_clones` — a repo on disk that the table does not know. Its commits are in
+  the FULL, but with no domain, so a repo cannot slip into the axis unclassified and
+  unnoticed. This one is meant to sit at zero.
+- `uncloned_repos` — a repo the table names that this disk does not hold. Its commits
+  cannot be read at all, and an unread repo leaves a gap that looks exactly like a stretch
+  of doing nothing.
+
+(`unmapped_repos` is the wider list: every forge id that ended up with no domain, including
+ones known only from a stamp's URL because the repo is not on this disk. It does not fall
+to zero, which is why the drift alarm above is kept separate from it.)
+
+A few repos cannot be *named* in a committed public file — a client's, a colleague's, an
+internal host's. They are read from `domains.local.json`, which is gitignored, merged after
+the public table, and declared in the manifest under `registries`.
+
+Be exact about what that second file buys, because the temptation is to claim more. It does
+not decide what may be published, it filters no event, it scrubs no name: every clone is
+walked either way, and a repo missing from the registry still lands in the FULL under its
+real name, marked `unmapped`. What the overlay preserves is those repos' **domain and
+layer** — drop it and this year's unmapped commits go from 2% to 11%, so a slice by domain
+stops describing the work it is meant to describe. The disclosure boundary is elsewhere,
+and always has been: `events.jsonl` is gitignored.
+
 ## The time contract
 
 - Canonical timezone is `Asia/Seoul`. Every instant on the wire is RFC3339 with `+09:00`.

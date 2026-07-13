@@ -18,10 +18,10 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from collect import (KST, Reject, _event, check, duplicate_ids,  # noqa: E402
-                     forge_id_from_remote, in_range, make_event_id, normalize_git_ts,
-                     parse_agenda_ts, parse_denote_id, parse_kst, parse_lastmod,
-                     sort_key, time_component)
+from collect import (KST, Reject, Repos, _event, check, duplicate_ids,  # noqa: E402
+                     forge_id_from_remote, in_range, load_registry, make_event_id,
+                     normalize_git_ts, parse_agenda_ts, parse_denote_id, parse_kst,
+                     parse_lastmod, sort_key, time_component)
 
 FAILED: list[str] = []
 
@@ -323,12 +323,78 @@ def test_sort_is_total():
        sorted([inst, day], key=sort_key)[0] is day)
 
 
+def test_the_registry_can_be_read_from_two_files():
+    """The public table cannot name every repo. The FULL still has to see them, so the
+    registry is read from a committed file and a gitignored one — and the run must say
+    which, or a thinner FULL could pass for the same FULL."""
+    import json as _json
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        pub, loc = Path(td) / "domains.json", Path(td) / "domains.local.json"
+        pub.write_text(_json.dumps({"repos": {
+            "github.com/me/open": {"domain": "garden", "layer": "product"},
+            "github.com/me/both": {"domain": "unmapped", "layer": "unmapped"}}}))
+        loc.write_text(_json.dumps({"repos": {
+            "github.com/me/both": {"domain": "infra", "layer": "forge"},
+            "github.com/client/secret": {"domain": "embedded", "layer": "product"}}}))
+
+        only_public, used = load_registry([pub])
+        ok("without the overlay the public table stands alone",
+           set(only_public) == {"github.com/me/open", "github.com/me/both"})
+        ok("and the manifest names the one registry it read", used == ["domains.json"])
+
+        merged, used = load_registry([pub, loc])
+        ok("a repo the public table cannot name still reaches the FULL",
+           merged["github.com/client/secret"]["domain"] == "embedded")
+        ok("the overlay wins where the two disagree",
+           merged["github.com/me/both"]["domain"] == "infra")
+        ok("the public entries survive untouched",
+           merged["github.com/me/open"]["domain"] == "garden")
+        ok("a FULL collected with the overlay cannot be mistaken for one without",
+           used == ["domains.json", "domains.local.json"])
+
+        loc.unlink()
+        _, used = load_registry([pub, loc])
+        ok("a missing overlay is simply absent, never an error",
+           used == ["domains.json"])
+
+
+def test_the_registry_reports_both_of_its_gaps():
+    """domains.json is the list of repos this axis means to observe. It can disagree with
+    the disk in two directions, and each means something different."""
+    r = Repos.__new__(Repos)
+    r.unmapped = set()
+    r.dirs = {"github.com/a/here": "/repos/here", "github.com/a/stranger": "/repos/x"}
+    r.domains = {"github.com/a/here": {"domain": "infra", "layer": "forge"},
+                 "github.com/a/elsewhere": {"domain": "agent", "layer": "product"}}
+
+    ok("a registered repo with no clone here is named — the work happened, this disk "
+       "just cannot read it", r.uncloned() == ["github.com/a/elsewhere"])
+    ok("a repo that is both registered and cloned is not a gap",
+       "github.com/a/here" not in r.uncloned())
+    ok("a cloned repo missing from the registry collects as unmapped, not as a guess",
+       r.domain_layer("github.com/a/stranger") == ("unmapped", "unmapped"))
+    ok("...and it is named, so a new repo cannot enter the axis unclassified and unseen",
+       r.unregistered_clones() == ["github.com/a/stranger"])
+
+    # A stamp can name a repo this disk does not hold. That forge id gets no domain either,
+    # but it is not drift and it will not go away — so it must not sit in the alarm that is
+    # supposed to read zero.
+    r.domain_layer("github.com/a/only-ever-stamped")
+    ok("a repo known only from a stamp does not raise the drift alarm",
+       r.unregistered_clones() == ["github.com/a/stranger"])
+    ok("...though it is still reported as having no domain",
+       "github.com/a/only-ever-stamped" in r.unmapped)
+
+
 def main() -> int:
     for t in (test_time, test_range, test_identity, test_ambiguity_is_rejected,
               test_agenda_occurrence, test_stamp_identity_ignores_the_query_window,
               test_remote_identity, test_a_commit_is_found_by_sha_not_by_name,
               test_clones_that_disagree_about_a_prefix, test_tz_determinism,
-              test_query_never_reads_the_clock, test_sort_is_total):
+              test_query_never_reads_the_clock, test_sort_is_total,
+              test_the_registry_can_be_read_from_two_files,
+              test_the_registry_reports_both_of_its_gaps):
         print(f"\n{t.__name__}")
         t()
     print()
