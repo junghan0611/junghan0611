@@ -144,8 +144,17 @@ things must be settled first, and neither should be guessed at:
   the night.
 
 Depth 0 also depends on data the collector cannot reach: aTimeLogger lives on a phone and
-must be exported into `self-tracking-data`. **If the export is stale, depth 0 is stale, and
-it must say so rather than presenting an old bottom as the present.**
+is exported by hand. **If the export is stale, depth 0 is stale, and it must say so rather
+than presenting an old bottom as the present.** The export is an `.atl2bkp` file — XML,
+epoch **seconds**, `<category>` → `<log>` → `<interval><from><to>` — and *not* the sqlite
+`database.db3` that `lifetract` reads today. Reaching depth 0 means writing that importer,
+not assuming the tool already has it.
+
+**Do not automate that export away.** The temptation is to treat the manual step as
+friction and replace it with a background sync. That would delete the finding. The point
+this axis exists to demonstrate is that a person deliberately manages his own attention on
+a time axis — the hand-logging is not a defect in the pipeline, it *is* the thesis. An
+axis that harvests a life automatically is measuring a different thing entirely.
 
 **SNS is not a source.** By the operator's ROSSE principle the raw material lands in the
 garden first; anything worth collecting is already there. Do not add a social adapter.
