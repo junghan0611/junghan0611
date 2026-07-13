@@ -11,7 +11,8 @@ This repo holds three coordinated identity documents plus a glossary.
 - `llms.txt` — LLM-facing identity. Mirrored *from* the garden. See below.
 - `VOCABULARY.md` — canonical glossary. Single source of truth for load-bearing terms.
 
-`apply/` is a separate surface and is **not** an identity document. See below.
+`apply/` and `timeline/` are separate surfaces and are **not** identity documents.
+See below.
 
 ## `apply/` — job-application surface
 
@@ -56,6 +57,86 @@ will follow — it will not.
 `VOCABULARY.md` remains authoritative for term *definitions* in both places. When
 `llms.txt` and `VOCABULARY.md` disagree about what a term means, `VOCABULARY.md`
 wins and `llms.txt` gets corrected.
+
+## `timeline/` — the observatory
+
+`timeline/` is the data layer the identity documents will eventually cite: a
+normalized, KST-anchored event log of work that actually happened, collected from
+git commits, Denote notes, and agent agenda stamps. Its argument is one sentence —
+**you can attach any number of agents, but you cannot manufacture time already
+spent.**
+
+The KST contract, the collector's known defects, and the run commands live in
+`timeline/README.md`. The current step lives in the gitignored `NEXT.md`. What
+follows is only what a new session must not re-derive.
+
+### The pillar rule — trunk, not completeness
+
+**The axis does not claim global completeness or reconstruct every missing
+historical minute and commit.** It holds the pillars and the main trunk. Within the
+current clones, it still reads every locally visible non-merge author commit across
+`--all`. Repositories were started and abandoned, commits were made and thrown away,
+and whole tools stopped being used. What remains observable in the present source
+surfaces is what the axis can record. It does not reconstruct discarded history
+unless its absence changes a pillar.
+
+**A gap is not automatically a defect.** Source unreadability and an unregistered
+clone are defects; retired or rewritten history that does not move a pillar is an
+accepted boundary. Do not spend a session recovering a handful of missing commits.
+Name the boundary and move on.
+
+### Measure, trace, output — the three sources are not peers
+
+| Source | Role |
+|---|---|
+| **git commit** | **The measure.** Locally visible, non-merge commits attributed to the configured author identities, across every ref the clone holds. |
+| agenda stamp | **A trace** the operator and the agents left. Sparse by design: the first stamp is 2026-02-27, and not every commit gets one. |
+| Denote note | **Output.** Catches work that leaves no commit — notably repairs to existing notes, which create no new file. |
+
+On a representative day, 45 commits carried 20 stamps. **That ratio is normal.**
+Reading stamp sparsity as a hole in the axis inverts the hierarchy: a stamp is
+evidence *about* a commit, never the measure of one. Likewise, a stamp naming a
+commit this disk cannot resolve is not a defect — it means the repository was
+retired or was never cloned here.
+
+### `domain` is repo context, not activity
+
+`domain` and `layer` answer **"what kind of repository did this event land in?"**
+They do not answer **"what was actually being worked on at that moment."** A
+repository hosts different kinds of work across its life; the label is a stable fact
+about the repo, not a judgement about the commit.
+
+Do not fix this by teaching the collector to classify each commit's meaning — that
+rebuilds the disclosure checkpoint this work already tore out once. If a work-track
+view is wanted, derive it downstream as a projection, never in the collector.
+
+### Snapshots are machine-local
+
+`--as-of` bounds time; it does not freeze local ref state. The collector walks
+`--all`, so **unpushed local branches enter the axis** — deliberately, so the record
+does not degrade into "only the work that succeeded."
+
+It follows that **two machines legitimately produce different FULLs, and that is
+correct.** Never force the numbers to agree: that would mean changing how the
+operator actually commits in order to flatter a table. An axis that makes the person
+conform to it is already lying.
+
+Every quoted figure carries its snapshot — `device`, `code_sha256`, `events_sha256`.
+A number without those three is not citable.
+
+### Known holes — investigated, accepted, do not re-litigate
+
+- **Retired tools whose commits are not on this disk.** `pi-skills` is archived;
+  a few private repos are no longer cloned. Their stamps survive and name them;
+  their commits do not enter the axis.
+- **Rewritten histories.** Some clones exist but no longer contain the commit a
+  stamp names — the repository was re-initialized or force-pushed.
+- **`pi-shell-acp` is the former name of `entwurf`.** GitHub still redirects it.
+  This rename is precisely why commit identity is keyed on the full SHA and never on
+  a repository name.
+
+The full list, including private repository names, lives in the gitignored
+`NEXT.md`. **Do not copy those names into this file — this repository is public.**
 
 ## Language policy — STRICT
 
@@ -251,3 +332,7 @@ the rounding rules above.
 - Do not commit `NEXT.md`. This is a public profile repo; the handoff file names
   private work repositories, customer SDK coordinates, and unreleased product
   facts. It is gitignored — keep it that way.
+- Do not treat an agenda stamp as the measure of work, or its absence as a hole.
+  The commit is the measure; the stamp is a trace. See `timeline/`.
+- Do not chase missing commits, and do not force two machines' snapshots to agree.
+  The axis holds the trunk, not every minute.
