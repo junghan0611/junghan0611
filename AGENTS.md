@@ -61,10 +61,10 @@ wins and `llms.txt` gets corrected.
 ## `timeline/` — the observatory
 
 `timeline/` is the data layer the identity documents will eventually cite: a
-normalized, KST-anchored event log of work that actually happened, collected from
-git commits, Denote notes, and agent agenda stamps. Its argument is one sentence —
-**you can attach any number of agents, but you cannot manufacture time already
-spent.**
+normalized, KST-anchored event log of a day at four depths — the time blocks the
+operator logs by hand, his own journal headings, the agents' agenda stamps, and the
+commits and notes themselves. Its argument is one sentence — **you can attach any
+number of agents, but you cannot manufacture time already spent.**
 
 The KST contract, the collector's known defects, and the run commands live in
 `timeline/README.md`. The current step lives in the gitignored `NEXT.md`. What
@@ -145,6 +145,16 @@ That is the general rule, and it is the direction of this whole file:
 > the agenda own parsers `collect.py` still duplicates; depth 0 is the first source where
 > it stopped. When a skill is missing something the axis needs, the fix belongs in that
 > skill — file it, do not work around it with a private parser.
+
+**Expect every skill to have a hole here, and do not read it as a defect in the skill.**
+The skills were built before this axis existed, so none of them was written against a time
+contract — fixed KST, half-open ranges, an honest answer about staleness. The observatory
+is the first thing that asks them for one, which is exactly why consuming a skill surfaces
+a gap: `lifetract` computes its dates from `$TZ`, and under `TZ=UTC` it files the same
+blocks on different days. That is not a bug report so much as a retrofit list, and it will
+grow as the collector shrinks toward `gitcli`, `denotecli` and the agenda. Coordinate the
+set from here: name the gap, fix it in the skill that owns it, and never route around it
+with a private parser — that is how the checkpoint this work already tore out gets rebuilt.
 
 Consuming the skill also settled three problems that were never ours: a block is an
 interval and events are moments; sleep crosses midnight nearly every night, so some rule
