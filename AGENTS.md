@@ -70,6 +70,45 @@ The KST contract, the collector's known defects, and the run commands live in
 `timeline/README.md`. The current step lives in the gitignored `NEXT.md`. What
 follows is only what a new session must not re-derive.
 
+### Where the time axis comes from — know this before touching anything
+
+**`timeline/` did not invent this axis.** The axis already exists as the operator's
+org-agenda, it is read every day in Emacs, and it is already published at
+`agenda.junghanacs.com`. The collector produces a normalized, machine-readable
+*projection* of the same underlying time axis. An agent that does not know where the
+axis lives will re-derive it wrongly.
+
+| On disk | What it is | In the agenda view |
+|---|---|---|
+| git clones under `~/repos` | commits — the measure | — |
+| `~/org/botlog/agenda/*.org` | agent stamps; device stamp files are named `…__agenda_<device>.org`, and the directory also contains non-device agenda files | `Agent(T)`, `Agent(O)`, … |
+| `~/org/journal/*.org` | the operator's **own timestamped headings** | `Human` |
+| `~/org/**/*.org` (Denote) | notes — output | — |
+
+Three things follow, and each has already been gotten wrong once.
+
+1. **Of the existing Human/Agent agenda lanes, the collector currently reads Agent
+   stamps but not Human journal headings.** The operator's own voice at a timestamp
+   is therefore not collected. That is why a day can look empty in the projection
+   while the operator was actually recording something (illness, a hospital visit,
+   an intent).
+2. **An agenda stamp knows which machine stamped it**, from its filename. That is
+   *not* the same as the manifest's `device`, which records the machine that ran the
+   collection. A stamp made on one machine is routinely collected on another.
+3. **Do not reimplement "show me today's axis."** Use the Emacs skill and open
+   org-agenda for the date. `timeline/` exists to make the axis queryable in bulk and
+   verifiable by reference, not to replace the view the operator already uses.
+
+**Disclosure is already solved upstream — do not rebuild it here.** The journal is
+exported to the public garden in full; anything the operator does not want published
+is marked `:noexport:` in org. That mechanism already works. A second checkpoint
+inside the collector is exactly the wall this work tore out once already.
+
+`punchout` writes a daily summary heading into the journal, tagged `:PUNCHOUT:` —
+commit count, per-repo breakdown, a prose timeline, and coarse health figures. **It
+is a hand-made projection of this same axis**, and it is the closest thing to a
+first rendering that already exists. Read it before designing one.
+
 ### The pillar rule — trunk, not completeness
 
 **The axis does not claim global completeness or reconstruct every missing
@@ -85,13 +124,20 @@ clone are defects; retired or rewritten history that does not move a pillar is a
 accepted boundary. Do not spend a session recovering a handful of missing commits.
 Name the boundary and move on.
 
-### Measure, trace, output — the three sources are not peers
+**But an empty day in the axis is not evidence of an empty day.** While journal
+headings go uncollected, a day showing zero events may be a day whose only record is
+the operator's own voice — illness, a hospital visit, a thought. Do not read that
+silence as rest, and do not present it as one. Check the journal before saying a day
+was empty.
 
-| Source | Role |
-|---|---|
-| **git commit** | **The measure.** Locally visible, non-merge commits attributed to the configured author identities, across every ref the clone holds. |
-| agenda stamp | **A trace** the operator and the agents left. Sparse by design: the first stamp is 2026-02-27, and not every commit gets one. |
-| Denote note | **Output.** Catches work that leaves no commit — notably repairs to existing notes, which create no new file. |
+### Measure, trace, output, voice — the sources are not peers
+
+| Source | Role | Collected? |
+|---|---|---|
+| **git commit** | **The measure.** Locally visible, non-merge commits attributed to the configured author identities, across every ref the clone holds. | yes |
+| agenda stamp | **A trace** the operator and the agents left. Sparse by design: the first stamp is 2026-02-27, and not every commit gets one. | yes |
+| Denote note | **Output.** Catches work that leaves no commit — notably repairs to existing notes, which create no new file. | yes |
+| journal heading | **The operator's own voice**, at a timestamp. Not an artifact trace — a message. Carries the constraints the other three cannot see: the body, the family, the commute, the intent. | **not yet** |
 
 On a representative day, 45 commits carried 20 stamps. **That ratio is normal.**
 Reading stamp sparsity as a hole in the axis inverts the hierarchy: a stamp is
