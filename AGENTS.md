@@ -87,11 +87,12 @@ axis lives will re-derive it wrongly.
 
 Three things follow, and each has already been gotten wrong once.
 
-1. **Of the existing Human/Agent agenda lanes, the collector currently reads Agent
-   stamps but not Human journal headings.** The operator's own voice at a timestamp
-   is therefore not collected. That is why a day can look empty in the projection
-   while the operator was actually recording something (illness, a hospital visit,
-   an intent).
+1. **Both agenda lanes are now collected.** Agent stamps and the Human journal
+   headings both enter the axis, and a heading becomes an event on exactly the
+   condition that puts it in org-agenda: an active timestamp attached to it. Before
+   the journal adapter a day could look empty in the projection while the operator was
+   recording illness or an intent — 2026-07-11 held two headings and zero events. Do
+   not reintroduce that gap by reading only the artifact sources.
 2. **An agenda stamp knows which machine stamped it**, from its filename. That is
    *not* the same as the manifest's `device`, which records the machine that ran the
    collection. A stamp made on one machine is routinely collected on another.
@@ -124,11 +125,11 @@ clone are defects; retired or rewritten history that does not move a pillar is a
 accepted boundary. Do not spend a session recovering a handful of missing commits.
 Name the boundary and move on.
 
-**But an empty day in the axis is not evidence of an empty day.** While journal
-headings go uncollected, a day showing zero events may be a day whose only record is
-the operator's own voice — illness, a hospital visit, a thought. Do not read that
-silence as rest, and do not present it as one. Check the journal before saying a day
-was empty.
+**But an empty day in the axis is still not evidence of an empty day.** The journal
+adapter closed the largest version of this hole — the operator's own voice is now on
+the axis — but the axis still sees only what was written down. A day with no commit,
+no note, no stamp and no heading is a day nobody recorded, which is not the same as a
+day nobody worked. Do not read that silence as rest, and do not present it as one.
 
 ### Measure, trace, output, voice — the sources are not peers
 
@@ -137,7 +138,14 @@ was empty.
 | **git commit** | **The measure.** Locally visible, non-merge commits attributed to the configured author identities, across every ref the clone holds. | yes |
 | agenda stamp | **A trace** the operator and the agents left. Sparse by design: the first stamp is 2026-02-27, and not every commit gets one. | yes |
 | Denote note | **Output.** Catches work that leaves no commit — notably repairs to existing notes, which create no new file. | yes |
-| journal heading | **The operator's own voice**, at a timestamp. Not an artifact trace — a message. Carries the constraints the other three cannot see: the body, the family, the commute, the intent. | **not yet** |
+| journal heading | **The operator's own voice**, at a timestamp. Not an artifact trace — a message. Carries the constraints the other three cannot see: the body, the family, the commute, the intent. | yes |
+
+The journal heading is the one source that is not a repository event, and it is given
+**no `domain` and no `layer`** — `null`, not `unmapped`. `unmapped` means "a repo
+nobody has classified yet"; a heading lands in no repo at all. Filing the operator's
+own voice under a repo label would bend every slice by domain. The practice of
+timestamping headings began in **2026** — earlier journals are prose, and their
+absence from the axis is the record, not a defect to repair.
 
 On a representative day, 45 commits carried 20 stamps. **That ratio is normal.**
 Reading stamp sparsity as a hole in the axis inverts the hierarchy: a stamp is

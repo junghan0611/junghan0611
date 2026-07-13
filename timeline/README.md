@@ -8,6 +8,7 @@ one axis:
 | `git` | every ref (`--all`) in the clones under `~/repos/gh`, `~/repos/work` | `authored` — one per commit |
 | `note` | Denote `.org` files under `~/org` | `created`, `modified` — up to two per note |
 | `agenda` | `~/org/botlog/agenda/*.org` | `stamped` — one per stamp |
+| `journal` | timestamped headings in `~/org/journal/*.org` | `logged` — one per heading |
 
 ```
 collect.py  →  events.jsonl (LOCAL FULL)  →  query.py  →  a slice
@@ -62,6 +63,42 @@ known only from a stamp is left out of it. A stamp's URL carries whatever name t
 inherits that repo's domain. Registering the old name as if it were a second repo would put
 a ghost in the registry and, worse, make the audit cry about a missing clone forever.
 
+## The journal is the human lane, and it was missing
+
+The other three sources are traces an artifact left behind — a commit, a note, a stamp.
+A journal heading is not that. It is the operator's own message at a minute, and it
+carries what no artifact can: the body, the family, the commute, the intent.
+
+**2026-07-11 is why this source exists.** The axis reported zero events for that
+Saturday. The journal held two headings — `16:42 장염 복통` (gastroenteritis) and
+`18:26 인간 환멸` (disillusionment with people). A day is not empty because nothing
+was committed.
+
+A heading becomes an event **exactly when an active timestamp is attached to it** —
+which is the same condition that makes it appear in the operator's org-agenda. That is
+not a rule invented here; the agenda view *is* the axis, and this reads the lane it
+already shows.
+
+Attached means the first line of the heading's body that is neither blank, a drawer,
+nor a planning line (`CLOSED:` / `SCHEDULED:` / `DEADLINE:` — 53 finished headings hide
+their timestamp behind one). Nothing else in the body counts, and `#+begin_…` blocks are
+not read at all. Scanning the whole body for any `<…>` would collect the dates the
+operator merely *wrote about* — a plan for next week, a quoted agenda — as if they were
+the moment the heading happened.
+
+Identity is `(file, heading text, time, occurrence)`, with the **workflow state and the
+tags stripped out**. A `TODO` becomes `DONE`; a refile adds `:REFILED:`; an archive adds
+`:ARCHIVE:`. Those are built to change, and what happened at 16:42 is not — keying on
+them would retire one event and mint another in its place, for the same reason the line
+number is kept out of the id.
+
+The heading gets **no `domain` and no `layer`**: `null`, not `unmapped`. See the registry
+section below for why that distinction is load-bearing.
+
+Timestamping headings is a **2026 practice**. Of ~10,500 journal headings, about 1,230
+carry one and nearly all of them are this year. Earlier journals are prose, and their
+silence is the record — not a defect to go repair.
+
 ## The registry, and the one thing it cannot carry
 
 `domains.json` is the registry: the repos this axis reads commits from, each with a domain
@@ -77,6 +114,11 @@ and a layer. It can disagree with the disk in two directions, and the audit name
 (`unmapped_repos` is the wider list: every forge id that ended up with no domain, including
 ones known only from a stamp's URL because the repo is not on this disk. It does not fall
 to zero, which is why the drift alarm above is kept separate from it.)
+
+**`unmapped` is not `null`.** `unmapped` is a claim about a repository — one nobody has
+classified yet. `null` is what the journal source carries, and it says the question does
+not apply: a heading lands in no repository at all. Collapse the two and the operator's
+own voice joins the unclassified repos in every slice by domain.
 
 `domains.json` names only the repos the forge reports as **public**. Everything else —
 private, archived, no longer there — is registered in `domains.local.json`, which is
@@ -118,7 +160,7 @@ gitignored. The audit names repos — in `unmapped_repos`, `unregistered_clones`
   timestamp is rejected, never assumed. A commit written at 20:00 UTC belongs to the *next*
   day in Seoul, and hundreds of commits carry `+0000`.
 - Denote identifiers and agenda stamps are KST-local by construction.
-- `time_kind` ∈ `authored | created | modified | stamped | tracked`.
+- `time_kind` ∈ `authored | created | modified | stamped | logged | tracked`.
 - `ts_precision` ∈ `second | minute | day`.
 - **A day-only time has no instant.** It carries `ts: null` and lives on `date_kst`.
   Writing `00:00` would fabricate a coordinate that a naive consumer reads as fact.

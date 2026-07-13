@@ -23,7 +23,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 SCHEMA_VERSION = "1"
-COLLECTOR_VERSION = "0.3.0"
+COLLECTOR_VERSION = "0.4.0"
 
 HOME = Path.home()
 ORG = HOME / "org"
@@ -600,9 +600,148 @@ def collect_agenda(repos: Repos, frm: datetime, as_of: datetime,
     return events
 
 
+# ------------------------------------------------------------------------- journal
+
+JOURNAL_DIR = ORG / "journal"
+JOURNAL_HEAD = re.compile(r"^(\*+)\s+(.*?)\s*$")
+JOURNAL_TAGS = re.compile(r"\s+:([A-Za-z0-9_@#%:]+):$")
+JOURNAL_TS = re.compile(r"^<(\d{4}-\d{2}-\d{2}) \w{2,3}(?: (\d{2}:\d{2}))?[^>]*>")
+DRAWER = re.compile(r"^:[A-Za-z][A-Za-z0-9_-]*:$")
+PLANNING = re.compile(r"^(?:CLOSED|SCHEDULED|DEADLINE):")
+PRIORITY = re.compile(r"^\[#[A-Z]\]\s*")
+TODO_STATES = {"TODO", "DONE", "NEXT", "WAIT", "HOLD", "IDEA", "KILL", "PROJ", "STRT",
+               "LOOP"}
+
+
+def parse_journal_ts(day: str, hhmm: str | None) -> dict:
+    if hhmm:
+        return parse_agenda_ts(day, hhmm)
+    y, mo, d = (int(x) for x in day.split("-"))
+    return _tp(None, date(y, mo, d).isoformat(), "day")
+
+
+def stable_title(title: str) -> str:
+    """What is left of a heading once the parts built to change are taken off.
+
+    A workflow state and a tag are *designed* to move: a TODO becomes DONE, a refile adds
+    `:REFILED:`, an archive adds `:ARCHIVE:`. What happened at 16:42 does not move. Keying
+    identity on a state would make today's entry a different event tomorrow — the same
+    reason the line number is kept out of the id."""
+    t = JOURNAL_TAGS.sub("", title).strip()
+    parts = t.split(maxsplit=1)
+    if parts and parts[0] in TODO_STATES:
+        t = parts[1] if len(parts) > 1 else ""
+    return PRIORITY.sub("", t).strip()
+
+
+def attached_line(body: list[str]) -> str | None:
+    """The first line of a heading's body that is neither blank, a drawer, nor a planning
+    line. Only that line may carry the heading's timestamp.
+
+    Scanning the whole body for any `<...>` instead would collect the dates the operator
+    merely *wrote about* — a quoted date, a plan for next week — as the moment the heading
+    happened."""
+    drawer = False
+    for line in body:
+        s = line.strip()
+        if not s:
+            continue
+        if drawer:
+            drawer = s.upper() != ":END:"
+            continue
+        if DRAWER.match(s):
+            drawer = True
+            continue
+        if PLANNING.match(s):
+            continue                        # CLOSED:/SCHEDULED:/DEADLINE: sit before it
+        return s
+    return None
+
+
+def read_journal(src: Source) -> list[dict]:
+    """Every timestamped journal heading, in source order, before any window is applied.
+
+    A heading becomes an event exactly when an ACTIVE timestamp is attached to it — which
+    is the same condition that makes it appear in the operator's org-agenda. That is not a
+    coincidence to be improved on: the agenda view is the axis, and this reads the lane it
+    already shows. Headings without one are not events and are not defects; the practice of
+    timestamping them began in 2026, and the years before it are prose.
+
+    Occurrence is counted over ALL of them, so a heading's identity cannot change with the
+    range someone asked for — the same discipline the agenda source uses."""
+    entries: list[dict] = []
+    occurrence: dict = {}
+    for f in sorted(JOURNAL_DIR.glob("*.org")):
+        if not DENOTE_RE.match(f.name):
+            continue                        # templates are not records
+        rel = str(f.relative_to(ORG))
+        lines = f.read_text(errors="replace").splitlines()
+        heads: list[tuple[int, int, str]] = []
+        in_block = False
+        for lineno, line in enumerate(lines, 1):
+            low = line.strip().lower()
+            if low.startswith("#+begin"):
+                in_block = True
+            elif low.startswith("#+end"):
+                in_block = False
+            elif not in_block:
+                hm = JOURNAL_HEAD.match(line)
+                if hm:
+                    heads.append((lineno, len(hm.group(1)), hm.group(2)))
+        for n, (lineno, level, title) in enumerate(heads):
+            if level == 1:
+                continue                    # the day heading; its children carry the times
+            end = heads[n + 1][0] if n + 1 < len(heads) else len(lines) + 1
+            first = attached_line(lines[lineno:end - 1])
+            tm = JOURNAL_TS.match(first) if first else None
+            if not tm:
+                continue
+            try:
+                tp = parse_journal_ts(*tm.groups())
+            except (ValueError, Reject):
+                src.reject("unparseable_journal_timestamp", f"{rel}:{lineno}")
+                continue
+            stable = stable_title(title)
+            key = (rel, stable, time_component(tp))
+            occurrence[key] = occurrence.get(key, 0) + 1
+            tg = JOURNAL_TAGS.search(title)
+            entries.append({
+                "rel": rel, "line": lineno, "title": title,
+                "tags": [t for t in (tg.group(1).split(":") if tg else []) if t],
+                "tp": tp,
+                "native": _h(rel, stable, time_component(tp), str(occurrence[key]))})
+    return entries
+
+
+def collect_journal(repos: Repos, frm: datetime, as_of: datetime,
+                    src: Source) -> list[dict]:
+    """The operator's own voice, at a timestamp — the lane of the agenda the collector
+    could not see.
+
+    The other three sources are traces an artifact left behind: a commit, a note, a stamp.
+    A journal heading is none of those. It is a message, and it carries what no artifact
+    can — the body, the family, the commute, the intent. A Saturday with no commits is not
+    an empty day; it is a day whose only record is this.
+
+    It is given NO domain. `domain` answers "what kind of repository did this land in",
+    and a heading lands in no repository. Filing it under `garden` would invent one, and
+    filing it under `unmapped` — which means "a repo nobody has classified yet" — would put
+    it in the same bucket as real repos and quietly bend every slice by domain. `null` is
+    the honest answer to a question that does not apply."""
+    if not JOURNAL_DIR.is_dir():
+        src.unreadable(f"{JOURNAL_DIR} not found")
+        return []
+    return [_event(
+        source="journal", entity_id=f"journal:{e['native']}", time_kind="logged",
+        tp=e["tp"], domain=None, layer=None, title=e["title"], tags=e["tags"],
+        ref={"kind": "org", "value": f"{e['rel']}::{e['line']}"},
+        native_id=e["native"], locator=f"{e['rel']}:{e['line']}")
+        for e in read_journal(src) if in_range(e["tp"], frm, as_of)]
+
+
 # ------------------------------------------------------------------------ contract
 
-TIME_KINDS = {"authored", "created", "modified", "stamped", "tracked"}
+TIME_KINDS = {"authored", "created", "modified", "stamped", "tracked", "logged"}
 PRECISIONS = {"second", "minute", "day"}
 
 
@@ -656,10 +795,11 @@ def main() -> int:
     as_of = parse_kst(f"{as_of_day}T00:00:00+09:00")
 
     repos = Repos()
-    sources = {n: Source(n) for n in ("git", "note", "agenda")}
+    collectors = (("git", collect_git), ("note", collect_notes),
+                  ("agenda", collect_agenda), ("journal", collect_journal))
+    sources = {n: Source(n) for n, _ in collectors}
     events: list[dict] = []
-    for name, fn in (("git", collect_git), ("note", collect_notes),
-                     ("agenda", collect_agenda)):
+    for name, fn in collectors:
         src = sources[name]
         evs = fn(repos, frm, as_of, src)
         src.done(len(evs))
@@ -676,7 +816,7 @@ def main() -> int:
 
     events.sort(key=sort_key)
     entities = {e["entity_id"] for e in events}
-    rejected = [r for n in ("git", "note", "agenda") for r in sources[n].rejected]
+    rejected = [r for n, _ in collectors for r in sources[n].rejected]
 
     # The snapshot has to be able to name itself. Two machines run this code against the
     # same --as-of and produce different FULLs — different clones, unpushed branches — and
@@ -699,7 +839,7 @@ def main() -> int:
         "events_sha256": sha256(body.encode()),
         "counts": {"events": len(events), "entities": len(entities)},
         "registries": repos.registries,
-        "sources": [sources[n].report() for n in ("git", "note", "agenda")],
+        "sources": [sources[n].report() for n, _ in collectors],
     }
     audit = {
         "events_by_source": tally(e["source"] for e in events),

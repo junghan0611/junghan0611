@@ -168,6 +168,110 @@ def test_stamp_identity_ignores_the_query_window():
        len(set(ids)) == 3)
 
 
+JOURNAL_FIXTURE = """\
+* 2026-07-11 Saturday
+:PROPERTIES:
+:CUSTOM_ID: h-2026-07-11
+:END:
+** 16:42 장염 복통
+<2026-07-11 Sat 16:42>
+** 18:26 인간 환멸
+<2026-07-11 Sat 18:26>
+some prose about the day
+* 2026-07-12 Sunday
+** DONE 13:45 식사 후
+CLOSED: [2026-07-13 Mon 06:35]
+<2026-07-12 Sun 13:45>
+** a heading that only talks about a date
+I wrote about <2026-07-12 Sun 09:00> but nothing happened at 09:00.
+** quoting the agenda
+#+begin_quote
+<2026-07-12 Sun 10:00>
+#+end_quote
+** 20:00 same minute
+<2026-07-12 Sun 20:00>
+** 20:00 same minute
+<2026-07-12 Sun 20:00>
+"""
+
+
+def journal_events(body: str = JOURNAL_FIXTURE):
+    import tempfile
+
+    import collect
+    with tempfile.TemporaryDirectory() as tmp:
+        # The locator must read as a path from ~/org, so the fixture mirrors the real
+        # layout instead of the collector being loosened to accept a stray directory.
+        jdir = Path(tmp) / "journal"
+        jdir.mkdir()
+        (jdir / "20260706T000000--2026-07-06__journal_week27.org").write_text(body)
+        (jdir / "templates.org").write_text("** 09:00 template\n<2026-07-12 Sun 09:00>\n")
+        keep_org, keep_j = collect.ORG, collect.JOURNAL_DIR
+        try:
+            collect.ORG, collect.JOURNAL_DIR = Path(tmp), jdir
+            src = collect.Source("journal")
+            frm, as_of = parse_kst("2026-01-01T00:00:00+09:00"), parse_kst(
+                "2027-01-01T00:00:00+09:00")
+            return collect.collect_journal(Repos.__new__(Repos), frm, as_of, src), src
+        finally:
+            collect.ORG, collect.JOURNAL_DIR = keep_org, keep_j
+
+
+def test_journal_reads_the_lane_the_agenda_shows():
+    """A heading is an event exactly when an ACTIVE timestamp is attached to it — the same
+    condition that puts it in the operator's org-agenda.
+
+    Two ways to get this wrong, and both are in the fixture. Scanning the body for any
+    `<...>` collects the dates the operator merely wrote ABOUT, and reading inside a
+    `#+begin_quote` collects the agenda he was quoting. Neither happened at that minute."""
+    events, _ = journal_events()
+    titles = [e["title"] for e in events]
+    ok("the Saturday the axis called empty has two events",
+       [e["title"] for e in events if e["date_kst"] == "2026-07-11"]
+       == ["16:42 장염 복통", "18:26 인간 환멸"])
+    ok("a date merely written about is not an event",
+       not any("only talks about" in t for t in titles))
+    ok("a timestamp inside a quote block is not an event",
+       not any("quoting" in t for t in titles))
+    ok("a planning line does not hide the timestamp behind it",
+       "DONE 13:45 식사 후" in titles, "the 53 DONE headings")
+    ok("templates are not records", not any("template" in t for t in titles))
+    ok("every journal event passes the contract", not [e for e in events if check(e)])
+
+
+def test_journal_identity_holds_still_while_the_heading_moves():
+    """A workflow state and a tag are built to change; what happened at 16:42 is not.
+
+    If identity keyed on them, marking a TODO done — or refiling it — would silently
+    retire one event and mint another in its place, which is exactly the drift the line
+    number was kept out of the id to avoid."""
+    import collect
+    plain = collect.stable_title("16:42 장염 복통")
+    ok("a TODO state is not part of what happened",
+       collect.stable_title("TODO 16:42 장염 복통") == plain)
+    ok("neither is finishing it",
+       collect.stable_title("DONE 16:42 장염 복통") == plain)
+    ok("neither is a refile or an archive",
+       collect.stable_title("DONE [#A] 16:42 장염 복통  :REFILED:ARCHIVE:") == plain)
+    events, _ = journal_events()
+    same_minute = [e for e in events if e["title"] == "20:00 same minute"]
+    ok("two headings at the same minute are two events",
+       len(same_minute) == 2
+       and same_minute[0]["entity_id"] != same_minute[1]["entity_id"])
+
+
+def test_journal_has_no_domain():
+    """`domain` answers "what kind of repository did this land in". A heading lands in no
+    repository, and `unmapped` does not mean "no repo" — it means "a repo nobody has
+    classified yet". Filing the operator's own voice under it would put it in the same
+    bucket as real repos and bend every slice by domain."""
+    events, _ = journal_events()
+    ok("no journal event claims a domain",
+       all(e["domain"] is None and e["layer"] is None for e in events))
+    ok("so a domain slice cannot swallow the human lane",
+       not [e for e in events if e["domain"] == "unmapped"])
+
+
 def test_remote_identity():
     ok("ssh remote -> forge id",
        forge_id_from_remote("git@github.com:junghan0611/notes.git")
@@ -407,6 +511,9 @@ def test_the_registry_reports_both_of_its_gaps():
 def main() -> int:
     for t in (test_time, test_range, test_identity, test_ambiguity_is_rejected,
               test_agenda_occurrence, test_stamp_identity_ignores_the_query_window,
+              test_journal_reads_the_lane_the_agenda_shows,
+              test_journal_identity_holds_still_while_the_heading_moves,
+              test_journal_has_no_domain,
               test_remote_identity, test_a_commit_is_found_by_sha_not_by_name,
               test_clones_that_disagree_about_a_prefix, test_tz_determinism,
               test_query_never_reads_the_clock, test_sort_is_total,
