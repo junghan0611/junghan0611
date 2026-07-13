@@ -138,17 +138,26 @@ things must be settled first, and neither should be guessed at:
 
 - **A block is an interval, not an instant.** `start` and `finish`, with a duration. The
   event contract today carries one `ts`. `time_kind: tracked` is already reserved for it.
-- **Blocks cross midnight.** A sleep block runs 21:57 → 06:07. `date_kst` currently
-  assumes an event sits on one day. Decide which day a spanning block belongs to, in the
-  open, and write it into the contract — do not let a slice quietly drop or double-count
-  the night.
+- **Blocks cross midnight**, and 12% of them do — sleep runs 21:14 → 05:48 nearly every
+  night, so this is the common case, not an edge. `date_kst` currently assumes an event
+  sits on one day. Decide which day a spanning block belongs to, in the open, and write it
+  into the contract — do not let a slice quietly drop or double-count the night.
+  `lifetract` already answers this one way: it files the whole block on the day it
+  **starts**. Follow that precedent or overturn it deliberately, but do not invent a third
+  answer by accident.
 
 Depth 0 also depends on data the collector cannot reach: aTimeLogger lives on a phone and
-is exported by hand. **If the export is stale, depth 0 is stale, and it must say so rather
-than presenting an old bottom as the present.** The export is an `.atl2bkp` file — XML,
-epoch **seconds**, `<category>` → `<log>` → `<interval><from><to>` — and *not* the sqlite
-`database.db3` that `lifetract` reads today. Reaching depth 0 means writing that importer,
-not assuming the tool already has it.
+is exported by hand into `self-tracking-data`. **If the export is stale, depth 0 is stale,
+and it must say so rather than presenting an old bottom as the present.** The app exports
+two files. Take the **`database.db3`** — sqlite, table `time_interval2`, epoch seconds —
+which is what `lifetract` already imports. The `.atl2bkp` is the same data as XML, nothing
+reads it, and its interval `comment` fields carry family names in plain text; it does not
+belong in a repository.
+
+**The comments are the disclosure boundary of depth 0.** 150 blocks carry one, and a
+comment says who was there and what it was. The FULL is gitignored and may hold them, but
+no projection may put a block's comment on a public surface. A duration and a category can
+go out; the comment cannot.
 
 **Do not automate that export away.** The temptation is to treat the manual step as
 friction and replace it with a background sync. That would delete the finding. The point
