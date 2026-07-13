@@ -61,8 +61,11 @@ than one clone is counted once — dedup is by sha.
   `authored` event *and* every agenda stamp written about it. So `--count events` and
   `--count entities` answer different questions and the caller must say which.
 - Git entities keep the **full sha**. An agenda stamp carries a 7-char prefix; it joins the
-  commit only when the local clone expands that prefix to exactly one full sha. Ambiguous →
+  commit only when a local clone expands that prefix to exactly one full sha. Ambiguous →
   rejected. Not expandable → kept as `git:<repo>@short:<prefix>`, honestly unresolved.
+- **A commit is found by its sha, not by its repo's name.** The stamp's URL is recorded
+  as written, but the *entity* is whatever commit that sha actually names, in whichever
+  clone holds it.
 - The output is deterministic: same inputs and same `--as-of` produce the same bytes, on any
   machine, under any system timezone. There is no wall clock anywhere in the output.
 
@@ -82,13 +85,25 @@ material *today*; if the files are fixed, the numbers should change:
   points at two places is not a coordinate, so *both* sides are rejected and reported.
 - **Unparseable `#+hugo_lastmod`.** A few dozen notes carry a lastmod no format matches.
   The note's `created` event still lands; only the `modified` event is dropped.
-- **Unresolvable short shas.** An agenda stamp whose repo was never cloned here has no
-  local object to expand its 7-char prefix against. It stays unresolved rather than being
+- **Unresolvable short shas.** An agenda stamp whose commit is on no clone here has no local
+  object to expand its 7-char prefix against. It stays unresolved rather than being
   force-joined to a guess.
 
-`repo_aliases` in `collect.py` records confirmed repo **renames**. This is an identity fact,
-not a naming policy: without it, stamps written under a repo's old name split away from the
-commits now living under its new one.
+## Why the join is by sha and not by name
+
+A repo name is not a stable identifier, and this axis spans years of them changing. Names
+lie in three ways, and the third is the dangerous one:
+
+- a repo is **renamed** (`garden` → `garden_v5`);
+- it **moves to another owner** (`junghanacs/andenken` → `junghan0611/andenken`);
+- its old name is **handed to a different repo** — `garden` is freed, then reused for what
+  used to be `notes`. Now one string means two repos, and only the era tells them apart.
+
+A table of old→new names survives the first, cannot express the second, and is actively
+*wrong* about the third: it would quietly drag the new `garden` onto the old one's identity.
+So there is no such table. A stamp's URL is kept exactly as written, and the commit it names
+is found by asking the clones which one holds that sha. A commit does not change when its
+repo is renamed, sold, or replaced.
 
 ## Deliberately not here
 

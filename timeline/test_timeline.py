@@ -18,7 +18,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from collect import (KST, AMBIGUOUS, Reject, _event, check, duplicate_ids,  # noqa: E402
+from collect import (KST, Reject, _event, check, duplicate_ids,  # noqa: E402
                      forge_id_from_remote, in_range, make_event_id, normalize_git_ts,
                      parse_agenda_ts, parse_denote_id, parse_kst, parse_lastmod,
                      sort_key, time_component)
@@ -126,9 +126,6 @@ def test_ambiguity_is_rejected():
     ok("a Denote id naming two notes is flagged — both sides, not a coin toss",
        dupes == {"20260712T143005"})
     ok("an id naming exactly one note is untouched", "20260101T000000" not in dupes)
-    # AMBIGUOUS is a sentinel, not a string: it can never be mistaken for a real sha.
-    ok("the ambiguous marker cannot pass as a sha",
-       not isinstance(AMBIGUOUS, str))
 
 
 def test_agenda_occurrence():
@@ -145,6 +142,31 @@ def test_agenda_occurrence():
     ok("so their event ids differ", e1 != e2)
 
 
+def test_stamp_identity_ignores_the_query_window():
+    """A stamp's id must not depend on which range someone happened to ask for. Counting
+    occurrence only among the stamps that survived the filter made the SECOND of two
+    identical stamps become the first — and silently change its id."""
+    import tempfile
+
+    import collect
+
+    body = ("**** did a thing\n<2026-07-12 Sun 14:30>\n"
+            "**** did a thing\n<2026-07-12 Sun 14:30>\n"
+            "**** later thing\n<2026-07-13 Mon 09:00>\n")
+    with tempfile.TemporaryDirectory() as tmp:
+        (Path(tmp) / "a.org").write_text(body)
+        keep = collect.AGENDA_DIR
+        try:
+            collect.AGENDA_DIR = Path(tmp)
+            src = collect.Source("agenda")
+            ids = [s["native"] for s in collect.read_stamps(src)]
+        finally:
+            collect.AGENDA_DIR = keep
+    ok("two identical stamps get two identities", ids[0] != ids[1] and len(ids) == 3)
+    ok("occurrence is counted before any window, so a narrow query cannot renumber it",
+       len(set(ids)) == 3)
+
+
 def test_remote_identity():
     ok("ssh remote -> forge id",
        forge_id_from_remote("git@github.com:junghan0611/notes.git")
@@ -152,11 +174,66 @@ def test_remote_identity():
     ok("https remote -> forge id",
        forge_id_from_remote("https://github.com/junghan0611/notes")
        == "github.com/junghan0611/notes")
-    ok("a confirmed rename lands on the current identity",
-       forge_id_from_remote("git@github.com:junghan0611/pi-shell-acp.git")
-       == "github.com/junghan0611/entwurf")
     ok("an unparseable remote yields no identity",
        forge_id_from_remote("/home/junghan/some/local/dir") is None)
+
+
+def test_a_commit_is_found_by_sha_not_by_name():
+    """The join must survive the three ways a name lies: the repo is renamed, it moves to
+    another owner, and — the silent one — its old name is handed to a DIFFERENT repo. A
+    stamp written years ago still names the commit correctly, because a sha is content."""
+    import subprocess
+    import tempfile
+    from collect import Repos, commit_ref, resolve_shas
+
+    with tempfile.TemporaryDirectory() as tmp:
+        run = lambda *a: subprocess.run(["git", "-C", tmp, *a], capture_output=True,
+                                        text=True, check=True)
+        run("init", "-q", "-b", "main")
+        run("config", "user.email", "t@t")
+        run("config", "user.name", "junghan")
+        run("commit", "-q", "--allow-empty", "-m", "the commit that outlives its name")
+        full = run("rev-parse", "HEAD").stdout.strip()
+
+        repos = Repos.__new__(Repos)          # the clone now answers to its NEW name
+        repos.clones = [("github.com/junghan0611/garden_v5", Path(tmp))]
+        repos.dirs = {"github.com/junghan0611/garden_v5": Path(tmp)}
+
+        found, ambiguous = resolve_shas(repos, [full[:7]])
+        ok("a stamp written under the OLD name still finds the commit",
+           found.get(full[:7]) == (full, "github.com/junghan0611/garden_v5"),
+           "old name in the URL, current repo in the entity")
+        ok("nothing is ambiguous here", not ambiguous)
+
+        missing, _ = resolve_shas(repos, ["deadbee"])
+        ok("a commit that is not on this disk stays unresolved, never invented",
+           "deadbee" not in missing)
+
+    ok("a commit URL yields (named repo, short sha)",
+       commit_ref("x [[https://github.com/junghanacs/andenken/commit/68b10f2][68b10f2]]")
+       == ("github.com/junghanacs/andenken", "68b10f2"))
+    ok("a release stamp is not a commit stamp",
+       commit_ref("v1 https://github.com/junghan0611/entwurf/releases/tag/v1") is None)
+
+
+def test_clones_that_disagree_about_a_prefix():
+    """Two clones can expand the same 7-char prefix to two different commits. Taking the
+    first one would be the same silent corruption as the name-based join, in a new hat."""
+    from collect import merge_hits
+
+    a, b = "github.com/o/a", "github.com/o/b"
+    x = "45ac17609fc750d81c527fc9350d79057659d004"
+    y = "45ac176ffffffffffffffffffffffffffffffff0"
+
+    ok("one commit, mirrored in two clones, is still one commit",
+       merge_hits([(a, x), (b, x)], False) == ("resolved", (x, a)),
+       "first clone in sorted order names it — the same choice the git source makes")
+    ok("two clones expanding one prefix to two commits is ambiguous, not a race",
+       merge_hits([(a, x), (b, y)], False) == ("ambiguous", None))
+    ok("a prefix nobody holds stays unresolved",
+       merge_hits([], False) == ("unresolved", None))
+    ok("git calling a prefix ambiguous inside one clone is still ambiguous",
+       merge_hits([(a, x)], True) == ("ambiguous", None))
 
 
 def test_tz_determinism():
@@ -248,7 +325,9 @@ def test_sort_is_total():
 
 def main() -> int:
     for t in (test_time, test_range, test_identity, test_ambiguity_is_rejected,
-              test_agenda_occurrence, test_remote_identity, test_tz_determinism,
+              test_agenda_occurrence, test_stamp_identity_ignores_the_query_window,
+              test_remote_identity, test_a_commit_is_found_by_sha_not_by_name,
+              test_clones_that_disagree_about_a_prefix, test_tz_determinism,
               test_query_never_reads_the_clock, test_sort_is_total):
         print(f"\n{t.__name__}")
         t()

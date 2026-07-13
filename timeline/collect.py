@@ -34,15 +34,6 @@ DOMAINS_FILE = Path(__file__).parent / "domains.json"
 KST = timezone(timedelta(hours=9), "KST")
 AUTHORS = ("junghan", "jhkim2")
 
-# A rename is a fact about identity, not a naming policy. 279 agenda stamps carry a
-# repo's old name while its clone now answers to the new one; without this line the same
-# commit lands on two coordinates and the time axis splits in half. Only confirmed
-# renames that actually appear in the data belong here — this is a two-column fact, not
-# a framework.
-REPO_ALIASES = {"pi-shell-acp": "entwurf"}
-
-AMBIGUOUS = object()
-
 log = lambda *a: print(*a, file=sys.stderr)  # noqa: E731
 
 
@@ -167,10 +158,6 @@ _SSH_REMOTE = re.compile(r"^(?:ssh://)?git@([^:/]+)[:/](.+)$")
 _URL_REMOTE = re.compile(r"^[a-z+]+://(?:[^@/]+@)?([^/]+)/(.+)$")
 
 
-def canonical_repo(name: str) -> str:
-    return REPO_ALIASES.get(name, name)
-
-
 def forge_id_from_remote(url: str) -> str | None:
     """`git@github.com:owner/repo.git` -> `github.com/owner/repo`. A folder name is not
     a repo name — `notes/` on disk is `notes.junghanacs.com` on the forge — so identity
@@ -183,7 +170,7 @@ def forge_id_from_remote(url: str) -> str | None:
     parts = [p for p in m.group(2).split("/") if p]
     if len(parts) < 2:
         return None
-    return f"{host}/{parts[-2]}/{canonical_repo(parts[-1])}"
+    return f"{host}/{parts[-2]}/{parts[-1]}"
 
 
 class Repos:
@@ -387,37 +374,13 @@ GITHUB_REF = re.compile(
 SHA_RE = re.compile(r"^[0-9a-f]{7,40}$")
 
 
-def expand_sha(repos: Repos, fid: str, short: str, cache: dict):
-    """Short sha -> full sha through the LOCAL clone, offline. It refuses to guess: an
-    ambiguous prefix is rejected, an unknown one stays unresolved. Both answers are
-    honest; a fabricated join is not."""
-    key = (fid, short)
-    if key not in cache:
-        d, out = repos.dirs.get(fid), None
-        if d:
-            r = subprocess.run(
-                ["git", "-C", str(d), "rev-parse", "--verify", "--quiet",
-                 f"{short}^{{commit}}"], capture_output=True, text=True)
-            if r.returncode == 0 and r.stdout.strip():
-                out = r.stdout.strip()
-            elif "ambiguous" in r.stderr.lower():
-                out = AMBIGUOUS
-        cache[key] = out
-    return cache[key]
+def read_stamps(src: Source) -> list[dict]:
+    """Every stamp in the agenda, in sorted source order, before any window is applied.
 
-
-def collect_agenda(repos: Repos, frm: datetime, as_of: datetime,
-                   src: Source) -> list[dict]:
-    """A stamp naming a commit is a second event ABOUT that commit, not a copy of it —
-    so it joins the commit's entity when the sha resolves, and keeps its own identity
-    when it does not."""
-    if not AGENDA_DIR.is_dir():
-        src.unreadable(f"{AGENDA_DIR} not found")
-        return []
-    events: list[dict] = []
-    cache: dict = {}
+    The window comes later on purpose. Occurrence is counted here, over ALL stamps, so a
+    stamp's identity cannot change depending on which range someone asked for."""
+    stamps: list[dict] = []
     occurrence: dict = {}
-    src.unresolved_short = 0
     for f in sorted(AGENDA_DIR.glob("*.org")):
         head = None
         for lineno, line in enumerate(f.read_text(errors="replace").splitlines(), 1):
@@ -438,42 +401,131 @@ def collect_agenda(repos: Repos, frm: datetime, as_of: datetime,
             except (ValueError, Reject):
                 src.reject("unparseable_agenda_timestamp", f"{f.name}:{at}")
                 continue
-            if not in_range(tp, frm, as_of):
-                continue
-            # Two stamps can share a file, a title AND a minute (23 pairs do). So the
-            # stamp's own identity is (file, title, time, occurrence) walked in sorted
-            # source order — never the commit it names, and never the line it sits on.
-            # Keying on the commit sha collapsed two real stamps into one.
+            # Two stamps can share a file, a title AND a minute (23 pairs do). So a
+            # stamp's own identity is (file, title, time, occurrence) — never the commit
+            # it names, and never the line it sits on. Keying on the commit sha collapsed
+            # two real stamps into one.
             key = (f.name, title, time_component(tp))
             occurrence[key] = occurrence.get(key, 0) + 1
-            native = _h(f.name, title, time_component(tp), str(occurrence[key]))
+            stamps.append({"file": f.name, "line": at, "title": title, "tags": tags,
+                           "tp": tp,
+                           "native": _h(f.name, title, time_component(tp),
+                                        str(occurrence[key]))})
+    return stamps
 
-            entity, ref, extra = f"agenda:{native}", None, {}
-            domain, layer = "agent", "product"
-            m = GITHUB_REF.search(title)
-            if m:
-                owner, repo, kind, tail = m.groups()
-                current = canonical_repo(repo)
-                fid = f"github.com/{owner}/{current}"
-                domain, layer = repos.domain_layer(fid)
-                ref = {"kind": "url",
-                       "value": f"https://github.com/{owner}/{current}/{kind}/{tail}"}
-                if current != repo:
-                    extra["native_ref"] = m.group(0)   # the pre-rename string, auditable
-                if kind == "commit" and SHA_RE.match(tail):
-                    full = expand_sha(repos, fid, tail, cache)
-                    if full is AMBIGUOUS:
-                        src.reject("ambiguous_short_sha", f"{fid}@{tail}")
-                        continue
-                    if full:
-                        entity = f"git:{fid}@{full}"          # joins the commit itself
-                    else:
-                        entity = f"git:{fid}@short:{tail}"    # honest: not resolved here
-                        src.unresolved_short += 1
-            events.append(_event(
-                source="agenda", entity_id=entity, time_kind="stamped", tp=tp,
-                domain=domain, layer=layer, title=title, tags=tags, ref=ref,
-                native_id=native, locator=f"{f.name}:{at}", extra=extra))
+
+def commit_ref(title: str) -> tuple[str, str] | None:
+    """(forge id as the stamp wrote it, short sha) for a stamp that names a commit."""
+    m = GITHUB_REF.search(title)
+    if not m or m.group(3) != "commit" or not SHA_RE.match(m.group(4)):
+        return None
+    return f"github.com/{m.group(1)}/{m.group(2)}", m.group(4)
+
+
+def merge_hits(hits: list[tuple[str, str]], ambiguous_in_a_clone: bool) -> tuple[str, tuple | None]:
+    """Decide one short prefix from what every clone said about it.
+
+    `hits` is (forge id, full sha) for each clone that resolved the prefix, in sorted
+    clone order. The same commit sitting in several clones is not ambiguity — it is one
+    commit, and the first clone in sorted order names it, which is exactly the choice the
+    git source makes when it dedups by sha. But a prefix that expands to DIFFERENT full
+    shas in different clones is genuinely ambiguous, and taking the first one would be
+    the same silent corruption we just removed from the name-based join, wearing a
+    different hat."""
+    if ambiguous_in_a_clone:
+        return "ambiguous", None
+    fulls = {full for _, full in hits}
+    if not fulls:
+        return "unresolved", None
+    if len(fulls) > 1:
+        return "ambiguous", None
+    full = fulls.pop()
+    return "resolved", (full, next(fid for fid, f in hits if f == full))
+
+
+def resolve_shas(repos: Repos, shorts: list[str]) -> tuple[dict, set]:
+    """short prefix -> (full sha, the forge id of the clone that holds it).
+
+    Identity by CONTENT, not by name. A commit is unchanged when its repo is renamed,
+    when it moves to another owner, and — the dangerous one — when its old name is later
+    handed to a DIFFERENT repo. A name-based join breaks on all three, and it breaks
+    silently, which is the worst way to break. The sha does not care.
+
+    EVERY clone is asked about EVERY prefix. Stopping at the first hit would be faster and
+    would quietly pick a winner whenever two clones disagree about what a 7-char prefix
+    means. Offline, and it refuses to guess: disagreement is rejected, absence stays
+    unresolved."""
+    if not shorts:
+        return {}, set()
+    hits: dict[str, list[tuple[str, str]]] = {s: [] for s in shorts}
+    clone_ambiguous: set[str] = set()
+    payload = "\n".join(shorts) + "\n"
+    for fid, d in sorted(repos.clones):
+        r = subprocess.run(["git", "-C", str(d), "cat-file", "--batch-check"],
+                           input=payload, capture_output=True, text=True)
+        # One output line per input line, in order: "<full sha> commit <size>", or
+        # "<input> missing", or "<input> ambiguous".
+        for short, line in zip(shorts, r.stdout.splitlines()):
+            parts = line.split()
+            if len(parts) == 3 and parts[1] == "commit":
+                hits[short].append((fid, parts[0]))
+            elif len(parts) >= 2 and parts[1] == "ambiguous":
+                clone_ambiguous.add(short)
+
+    found: dict[str, tuple[str, str]] = {}
+    ambiguous: set[str] = set()
+    for short in shorts:
+        status, value = merge_hits(hits[short], short in clone_ambiguous)
+        if status == "resolved":
+            found[short] = value
+        elif status == "ambiguous":
+            ambiguous.add(short)
+    return found, ambiguous
+
+
+def collect_agenda(repos: Repos, frm: datetime, as_of: datetime,
+                   src: Source) -> list[dict]:
+    """A stamp naming a commit is a second event ABOUT that commit, not a copy of it — so
+    it joins the commit's entity when the sha resolves, and keeps an identity of its own
+    when it does not."""
+    if not AGENDA_DIR.is_dir():
+        src.unreadable(f"{AGENDA_DIR} not found")
+        return []
+    src.unresolved_short = 0
+    stamps = [s for s in read_stamps(src) if in_range(s["tp"], frm, as_of)]
+    found, ambiguous = resolve_shas(
+        repos, sorted({cr[1] for s in stamps if (cr := commit_ref(s["title"]))}))
+
+    events: list[dict] = []
+    for s in stamps:
+        tp, native = s["tp"], s["native"]
+        entity, ref = f"agenda:{native}", None
+        domain, layer = "agent", "product"
+        m = GITHUB_REF.search(s["title"])
+        if m:
+            # The ref is kept exactly as the stamp wrote it, old repo name and all. The
+            # LOCAL FULL records what the source said; only the ENTITY is normalized to
+            # the commit the sha actually names.
+            ref = {"kind": "url", "value": m.group(0)}
+            named = f"github.com/{m.group(1)}/{m.group(2)}"
+            domain, layer = repos.domain_layer(named)
+            cr = commit_ref(s["title"])
+            if cr:
+                short = cr[1]
+                if short in ambiguous:
+                    src.reject("ambiguous_short_sha", short)
+                    continue
+                if short in found:
+                    full, home = found[short]
+                    entity = f"git:{home}@{full}"          # joins the commit itself
+                    domain, layer = repos.domain_layer(home)
+                else:
+                    entity = f"git:{named}@short:{short}"  # honest: not resolved here
+                    src.unresolved_short += 1
+        events.append(_event(
+            source="agenda", entity_id=entity, time_kind="stamped", tp=tp,
+            domain=domain, layer=layer, title=s["title"], tags=s["tags"], ref=ref,
+            native_id=native, locator=f"{s['file']}:{s['line']}"))
     return events
 
 
@@ -566,7 +618,6 @@ def main() -> int:
         "as_of_is": "exclusive upper bound",
         "counts": {"events": len(events), "entities": len(entities)},
         "sources": [sources[n].report() for n in ("git", "note", "agenda")],
-        "repo_aliases": dict(sorted(REPO_ALIASES.items())),
     }
     audit = {
         "events_by_source": tally(e["source"] for e in events),
