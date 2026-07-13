@@ -9,5 +9,5 @@ __pycache__/
 *.pyc
 events*.jsonl
 
-# Registry entries the public table cannot name (client, colleague, internal host)
+# Registry entries for repos the forge does not report as public
 timeline/domains.local.json

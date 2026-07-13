@@ -78,17 +78,37 @@ and a layer. It can disagree with the disk in two directions, and the audit name
 ones known only from a stamp's URL because the repo is not on this disk. It does not fall
 to zero, which is why the drift alarm above is kept separate from it.)
 
-A few repos cannot be *named* in a committed public file — a client's, a colleague's, an
-internal host's. They are read from `domains.local.json`, which is gitignored, merged after
-the public table, and declared in the manifest under `registries`.
+`domains.json` names only the repos the forge reports as **public**. Everything else —
+private, archived, no longer there — is registered in `domains.local.json`, which is
+gitignored, merged after the public table, and declared in the manifest under `registries`.
+The line is drawn on visibility because that is a fact the repo itself knows; a table drawn
+instead on what an author feels able to say out loud is a table that drifts.
 
 Be exact about what that second file buys, because the temptation is to claim more. It does
 not decide what may be published, it filters no event, it scrubs no name: every clone is
 walked either way, and a repo missing from the registry still lands in the FULL under its
 real name, marked `unmapped`. What the overlay preserves is those repos' **domain and
 layer** — drop it and this year's unmapped commits go from 2% to 11%, so a slice by domain
-stops describing the work it is meant to describe. The disclosure boundary is elsewhere,
-and always has been: `events.jsonl` is gitignored.
+stops describing the work it is meant to describe.
+
+## Repo names are not the secret, and the history keeps them
+
+`95807a5` committed a public table that named 40 repos which are not public, 17 of them
+under work accounts. `d87dae8` caught it and redrew the table on forge visibility. That
+redraw fixed the rule going forward; it did not remove the names from the history, and it
+was never going to — `95807a5` is an ancestor of `main` in a public repo, and the names are
+one `git show` away.
+
+**That is a decision, not an oversight.** A repo's name carries almost nothing on its own,
+and rewriting a pushed history to unpublish a list of names would also erase the commit
+that records the mistake being caught — in an axis whose whole claim is that the record is
+the measure, that is the more expensive loss. Anyone who rediscovers those names and
+reaches for a force-push should stop at this paragraph.
+
+So be clear about where the boundary actually runs. It protects the **payload, not the
+roster**: `events.jsonl` holds the titles and refs of commits and notes, and it is
+gitignored. The audit names repos — in `unmapped_repos`, `unregistered_clones`,
+`uncloned_repos`, drawn from both registries — and it is not gitignored, on purpose.
 
 ## The time contract
 

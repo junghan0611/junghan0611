@@ -196,16 +196,22 @@ def device_name() -> str:
 def load_registry(files: list[Path] | None = None) -> tuple[dict, list[str]]:
     """The registry, read from one file or two, later winning over earlier.
 
-    `domains.json` is committed; `domains.local.json` is not. Some repos cannot be named in
-    a public table — a client's, a colleague's, an internal host's.
+    `domains.json` is committed and names only repos the forge reports as public;
+    `domains.local.json` is not committed and holds the rest. The line is drawn on
+    visibility — a fact the repo itself knows — so that what goes in the public table cannot
+    drift with anyone's judgement about a name.
 
     Be exact about what the second file buys, because the temptation is to claim more. It
     does not decide what may be published, filter an event, or scrub a name: every clone on
     disk is walked either way, and a repo absent from the registry still lands in the FULL,
     under its real name, marked `unmapped`. What the overlay preserves is the *domain and
     layer* of those repos — drop it and this year's unmapped commits go from 2% to 11%, and
-    a slice by domain stops describing the work it is supposed to describe. The disclosure
-    boundary is elsewhere and always has been: `events.jsonl` is gitignored.
+    a slice by domain stops describing the work it is supposed to describe.
+
+    It is not a secrecy mechanism, and the audit is the proof: `unmapped_repos`,
+    `unregistered_clones` and `uncloned_repos` name repos from both files, and the audit is
+    not gitignored. What is gitignored is `events.jsonl`, which carries the titles and refs.
+    Repo names are deliberately not treated as the secret here; see the README.
 
     Which registries a run actually read is declared in the manifest, so a FULL collected
     with the overlay can never be mistaken for one collected without it."""
