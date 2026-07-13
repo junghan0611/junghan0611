@@ -110,6 +110,46 @@ commit count, per-repo breakdown, a prose timeline, and coarse health figures. *
 is a hand-made projection of this same axis**, and it is the closest thing to a
 first rendering that already exists. Read it before designing one.
 
+### The depth axis — 0, 1, 2, 3
+
+The sources are not a flat list to be finished. They are **zoom levels on one day**, and
+the operator named them:
+
+| depth | what it shows | source | whose record |
+|---|---|---|---|
+| **0** | the life as lived — sleep, family, rest, reading, work blocks | aTimeLogger (`lifetract`) | the operator's **intent** |
+| **1** | when the operator marked something, and what he said | journal headings | the operator's **intent** |
+| **2** | what the agents did, and when | agenda stamps | an **artifact's trace** |
+| **3** | the detail: every commit, every note | git, Denote | an **artifact's trace** |
+
+Read the right-hand column before adding anything. **Depths 0 and 1 are deliberate acts
+of recording; depths 2 and 3 are residue.** Time-logging is not telemetry the operator
+happens to leak — it is the Lyubishchev/Drucker discipline of knowing where the time
+actually goes, performed on purpose, and it is prior to any output the other depths can
+show. A harness that reads only the residue can describe what got produced and nothing
+about the life that produced it.
+
+This is the instrument of **Track 1 (PKM-AI harness research)**, not decoration for a
+résumé. The question is whether a shared, reproducible record changes how a human and
+agents work together over years; the depth axis is how that record is read.
+
+**Depth 0 is not yet collected, and it is a new *shape*, not merely a new source.** Two
+things must be settled first, and neither should be guessed at:
+
+- **A block is an interval, not an instant.** `start` and `finish`, with a duration. The
+  event contract today carries one `ts`. `time_kind: tracked` is already reserved for it.
+- **Blocks cross midnight.** A sleep block runs 21:57 → 06:07. `date_kst` currently
+  assumes an event sits on one day. Decide which day a spanning block belongs to, in the
+  open, and write it into the contract — do not let a slice quietly drop or double-count
+  the night.
+
+Depth 0 also depends on data the collector cannot reach: aTimeLogger lives on a phone and
+must be exported into `self-tracking-data`. **If the export is stale, depth 0 is stale, and
+it must say so rather than presenting an old bottom as the present.**
+
+**SNS is not a source.** By the operator's ROSSE principle the raw material lands in the
+garden first; anything worth collecting is already there. Do not add a social adapter.
+
 ### The pillar rule — trunk, not completeness
 
 **The axis does not claim global completeness or reconstruct every missing
@@ -139,6 +179,7 @@ day nobody worked. Do not read that silence as rest, and do not present it as on
 | agenda stamp | **A trace** the operator and the agents left. Sparse by design: the first stamp is 2026-02-27, and not every commit gets one. | yes |
 | Denote note | **Output.** Catches work that leaves no commit — notably repairs to existing notes, which create no new file. | yes |
 | journal heading | **The operator's own voice**, at a timestamp. Not an artifact trace — a message. Carries the constraints the other three cannot see: the body, the family, the commute, the intent. | yes |
+| time block | **The life as lived**, on purpose. Sleep, family, rest, reading, work — logged by hand, in the Lyubishchev sense. Depth 0. | not yet |
 
 The journal heading is the one source that is not a repository event, and it is given
 **no `domain` and no `layer`** — `null`, not `unmapped`. `unmapped` means "a repo
