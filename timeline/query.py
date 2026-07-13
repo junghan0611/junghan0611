@@ -25,7 +25,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from collect import parse_kst, sort_key  # noqa: E402
+from collect import SOURCES, parse_kst, sort_key  # noqa: E402
 
 
 def _midnight(day: str) -> datetime:
@@ -81,7 +81,7 @@ def main() -> int:
     # business asking the operating system what day it is.
     ap.add_argument("--day", metavar="YYYY-MM-DD")
     ap.add_argument("--month", metavar="YYYY-MM")
-    ap.add_argument("--source", action="append", choices=("git", "note", "agenda"))
+    ap.add_argument("--source", action="append", choices=SOURCES)
     ap.add_argument("--domain", action="append")
     ap.add_argument("--layer", action="append")
     ap.add_argument("--time-kind", action="append", dest="time_kind")

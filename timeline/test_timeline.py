@@ -272,6 +272,84 @@ def test_journal_has_no_domain():
        not [e for e in events if e["domain"] == "unmapped"])
 
 
+FAKE_LIFETRACT = """#!/bin/sh
+cat <<'JSON'
+[{"date": "2026-07-12", "categories": [{"name": "\\uc218\\uba74", "minutes": 514},
+                                       {"name": "\\uac00\\uc871", "minutes": 636.4}]},
+ {"date": "2026-07-11", "categories": [{"name": "\\uc218\\uba74", "minutes": 0}]}]
+JSON
+"""
+
+
+def timelog_events(tool: str | None):
+    import collect
+    keep = os.environ.get("LIFETRACT")
+    try:
+        if tool:
+            os.environ["LIFETRACT"] = tool
+        else:
+            os.environ["LIFETRACT"] = "/nonexistent/lifetract"
+        src = collect.Source("timelog")
+        frm, as_of = parse_kst("2026-01-01T00:00:00+09:00"), parse_kst(
+            "2026-07-14T00:00:00+09:00")
+        return collect.collect_timelog(Repos.__new__(Repos), frm, as_of, src), src
+    finally:
+        os.environ.pop("LIFETRACT", None)
+        if keep:
+            os.environ["LIFETRACT"] = keep
+
+
+def test_depth_zero_is_a_span_not_a_moment():
+    """A time block lasted nine hours. Giving it an instant would be the same fabrication
+    as writing 00:00 for a day-only note — so the day is the coordinate and `duration_min`
+    carries the length."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        tool = Path(tmp) / "lifetract"
+        tool.write_text(FAKE_LIFETRACT)
+        tool.chmod(0o755)
+        events, src = timelog_events(str(tool))
+    by = {(e["date_kst"], e["title"]): e for e in events}
+    sleep = by[("2026-07-12", "수면")]
+    ok("a block carries how long it lasted", sleep["duration_min"] == 514.0)
+    ok("and no invented instant", sleep["ts"] is None and sleep["ts_precision"] == "day")
+    ok("it is tracked, not authored", sleep["time_kind"] == "tracked")
+    ok("a block claims no repository domain",
+       sleep["domain"] is None and sleep["layer"] is None)
+    ok("each (day, category) is its own entity",
+       len({e["entity_id"] for e in events}) == 2)
+    ok("a zero-length block is rejected, not carried",
+       len(events) == 2 and any(r["reason"] == "empty_time_block" for r in src.rejected))
+    ok("every depth-0 event passes the contract", not [e for e in events if check(e)])
+
+
+def test_a_missing_skill_is_a_hole_not_a_zero():
+    """If lifetract is gone the source must say `unreadable`. A depth-0 hole that reports
+    itself as zero minutes is a lie about a life, and it is exactly the failure the Source
+    contract exists to prevent."""
+    events, src = timelog_events(None)
+    ok("no events", events == [])
+    ok("and the FULL says the source could not be read", src.status == "unreadable")
+
+
+def test_the_collector_does_not_own_the_time_log():
+    """The blocks live in a sqlite file that `lifetract` already owns, and the collector
+    consumes the skill instead of opening it. That is not a preference — parsing it here
+    would duplicate a parser AND inherit three problems that belong to the skill: the
+    interval shape, the midnight rule, and the comments that name who was there.
+
+    This test is the guard. The day someone 'optimizes' the subprocess away by opening the
+    database directly, it fails. It looks for the import, not for the word — the docstring
+    above is allowed to say why the database is not ours."""
+    import inspect
+
+    import collect
+    src = inspect.getsource(collect)
+    ok("the collector never opens the database itself",
+       "import sqlite3" not in src and "sqlite3." not in src)
+    ok("the time log is read through the skill", "lifetract" in src)
+
+
 def test_remote_identity():
     ok("ssh remote -> forge id",
        forge_id_from_remote("git@github.com:junghan0611/notes.git")
@@ -514,6 +592,9 @@ def main() -> int:
               test_journal_reads_the_lane_the_agenda_shows,
               test_journal_identity_holds_still_while_the_heading_moves,
               test_journal_has_no_domain,
+              test_depth_zero_is_a_span_not_a_moment,
+              test_a_missing_skill_is_a_hole_not_a_zero,
+              test_the_collector_does_not_own_the_time_log,
               test_remote_identity, test_a_commit_is_found_by_sha_not_by_name,
               test_clones_that_disagree_about_a_prefix, test_tz_determinism,
               test_query_never_reads_the_clock, test_sort_is_total,

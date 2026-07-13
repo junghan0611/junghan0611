@@ -1,14 +1,19 @@
 # timeline — the KST time axis, collected once and queried many times
 
-Nothing here is new data. Three surfaces that already exist are read and normalized onto
-one axis:
+Nothing here is new data. Surfaces that already exist are read and normalized onto one
+axis, at four depths of the same day:
 
-| source | what it reads | events it produces |
-|---|---|---|
-| `git` | every ref (`--all`) in the clones under `~/repos/gh`, `~/repos/work` | `authored` — one per commit |
-| `note` | Denote `.org` files under `~/org` | `created`, `modified` — up to two per note |
-| `agenda` | `~/org/botlog/agenda/*.org` | `stamped` — one per stamp |
-| `journal` | timestamped headings in `~/org/journal/*.org` | `logged` — one per heading |
+| depth | source | what it reads | events it produces |
+|---|---|---|---|
+| 0 | `timelog` | the hand-logged time blocks, **through the `lifetract` skill** | `tracked` — one per (day, category) |
+| 1 | `journal` | timestamped headings in `~/org/journal/*.org` | `logged` — one per heading |
+| 2 | `agenda` | `~/org/botlog/agenda/*.org` | `stamped` — one per stamp |
+| 3 | `note` | Denote `.org` files under `~/org` | `created`, `modified` — up to two per note |
+| 3 | `git` | every ref (`--all`) in the clones under `~/repos/gh`, `~/repos/work` | `authored` — one per commit |
+
+The depths are zoom levels on one day, not a priority order. **0 and 1 are records the
+operator made on purpose; 2 and 3 are residue left by artifacts.** A harness that reads
+only the residue can say what was produced and nothing about the life that produced it.
 
 ```
 collect.py  →  events.jsonl (LOCAL FULL)  →  query.py  →  a slice
@@ -62,6 +67,40 @@ known only from a stamp is left out of it. A stamp's URL carries whatever name t
 *that day*; the commit it names is found by sha, in whichever clone actually holds it, and
 inherits that repo's domain. Registering the old name as if it were a second repo would put
 a ghost in the registry and, worse, make the audit cry about a missing clone forever.
+
+## Depth 0 is consumed, not parsed
+
+The time blocks live in a sqlite database that the `lifetract` skill already owns. The
+collector does not open it. It shells out to the skill and takes what it reports — a day's
+minutes per category — and a test fails if anyone ever "optimizes" that subprocess into a
+direct database read.
+
+This is not tidiness. Parsing the file here would have copied a parser that exists **and**
+inherited three problems that belong to the skill, not to this axis:
+
+- a block is an **interval** (`start`/`finish`), and events here are moments;
+- sleep **crosses midnight** almost every night, so some rule has to say which day owns it;
+- 150 blocks carry a **comment naming who was there** — a family member, a place.
+
+Consuming the skill answers all three at once. `lifetract` reports minutes already filed
+under the day the block *started*, and it never hands over the comments. So the event is a
+span with a day for a coordinate: `2026-07-12 · 수면 · 514분`, `ts: null`,
+`duration_min: 514.0`. Writing an instant for a nine-hour block would be the same
+fabrication as writing `00:00` for a day-only note.
+
+Two things follow that are easy to get wrong.
+
+- **`$TZ` is pinned for the child process.** The skill reads it: run the collector under
+  `TZ=UTC` and the same blocks land on different days — one day lost 220 minutes in the
+  check. The canonical zone is this axis's contract, so the collector states it instead of
+  letting a shell decide which day a night belonged to.
+- **A missing skill is a hole, not a zero.** If `lifetract` is not found the source reports
+  `unreadable` and the FULL says so. It does not fall back to the database. A depth-0 gap
+  that shows up as zero minutes is a lie about a life.
+
+The direction is that the collector keeps shrinking toward the skills — `gitcli`,
+`denotecli` and the agenda already own parsers this file still duplicates. Depth 0 is the
+first source where it stopped duplicating.
 
 ## The journal is the human lane, and it was missing
 
@@ -161,6 +200,8 @@ gitignored. The audit names repos — in `unmapped_repos`, `unregistered_clones`
   day in Seoul, and hundreds of commits carry `+0000`.
 - Denote identifiers and agenda stamps are KST-local by construction.
 - `time_kind` ∈ `authored | created | modified | stamped | logged | tracked`.
+- `duration_min` is how long it lasted, and only a span carries one. Every other event is
+  null: a commit does not take twenty minutes, it is the point where twenty minutes landed.
 - `ts_precision` ∈ `second | minute | day`.
 - **A day-only time has no instant.** It carries `ts: null` and lives on `date_kst`.
   Writing `00:00` would fabricate a coordinate that a naive consumer reads as fact.

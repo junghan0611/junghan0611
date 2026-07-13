@@ -117,7 +117,7 @@ the operator named them:
 
 | depth | what it shows | source | whose record |
 |---|---|---|---|
-| **0** | the life as lived — sleep, family, rest, reading, work blocks | aTimeLogger (`lifetract`) | the operator's **intent** |
+| **0** | the life as lived — sleep, family, rest, reading, work blocks | aTimeLogger, via the `lifetract` skill | the operator's **intent** |
 | **1** | when the operator marked something, and what he said | journal headings | the operator's **intent** |
 | **2** | what the agents did, and when | agenda stamps | an **artifact's trace** |
 | **3** | the detail: every commit, every note | git, Denote | an **artifact's trace** |
@@ -133,18 +133,35 @@ This is the instrument of **Track 1 (PKM-AI harness research)**, not decoration 
 résumé. The question is whether a shared, reproducible record changes how a human and
 agents work together over years; the depth axis is how that record is read.
 
-**Depth 0 is not yet collected, and it is a new *shape*, not merely a new source.** Two
-things must be settled first, and neither should be guessed at:
+**Depth 0 is collected, and the collector does not parse it.** The blocks sit in a sqlite
+database the `lifetract` skill owns; the collector shells out to the skill and takes a
+day's minutes per category. A test fails if anyone turns that subprocess into a direct
+database read.
 
-- **A block is an interval, not an instant.** `start` and `finish`, with a duration. The
-  event contract today carries one `ts`. `time_kind: tracked` is already reserved for it.
-- **Blocks cross midnight**, and 12% of them do — sleep runs 21:14 → 05:48 nearly every
-  night, so this is the common case, not an edge. `date_kst` currently assumes an event
-  sits on one day. Decide which day a spanning block belongs to, in the open, and write it
-  into the contract — do not let a slice quietly drop or double-count the night.
-  `lifetract` already answers this one way: it files the whole block on the day it
-  **starts**. Follow that precedent or overturn it deliberately, but do not invent a third
-  answer by accident.
+That is the general rule, and it is the direction of this whole file:
+
+> **A source another skill already owns is consumed through that skill, never re-parsed
+> here.** The collector is meant to *shrink* toward the skills. `gitcli`, `denotecli` and
+> the agenda own parsers `collect.py` still duplicates; depth 0 is the first source where
+> it stopped. When a skill is missing something the axis needs, the fix belongs in that
+> skill — file it, do not work around it with a private parser.
+
+Consuming the skill also settled three problems that were never ours: a block is an
+interval and events are moments; sleep crosses midnight nearly every night, so some rule
+must say which day owns it; and 150 blocks carry a comment naming who was there.
+`lifetract` reports minutes already filed under the day the block **started**, and never
+hands over the comments. The event is therefore a span with a day for a coordinate —
+`ts: null`, `duration_min: 514.0` — because writing an instant for a nine-hour block
+fabricates a coordinate exactly the way `00:00` on a day-only note does.
+
+Two failure modes are guarded and must stay guarded:
+
+- **`$TZ` is pinned for the child.** The skill reads it, and under `TZ=UTC` the same blocks
+  land on different days — one day lost 220 minutes. A shell must not get to decide which
+  day a night belonged to.
+- **A missing skill is a hole, not a zero.** No `lifetract` means the source reports
+  `unreadable`, loudly. It never falls back to the database. A depth-0 gap presented as
+  zero minutes is a lie about a life.
 
 Depth 0 also depends on data the collector cannot reach: aTimeLogger lives on a phone and
 is exported by hand into `self-tracking-data`. **If the export is stale, depth 0 is stale,
@@ -197,7 +214,7 @@ day nobody worked. Do not read that silence as rest, and do not present it as on
 | agenda stamp | **A trace** the operator and the agents left. Sparse by design: the first stamp is 2026-02-27, and not every commit gets one. | yes |
 | Denote note | **Output.** Catches work that leaves no commit — notably repairs to existing notes, which create no new file. | yes |
 | journal heading | **The operator's own voice**, at a timestamp. Not an artifact trace — a message. Carries the constraints the other three cannot see: the body, the family, the commute, the intent. | yes |
-| time block | **The life as lived**, on purpose. Sleep, family, rest, reading, work — logged by hand, in the Lyubishchev sense. Depth 0. | not yet |
+| time block | **The life as lived**, on purpose. Sleep, family, rest, reading, work — logged by hand, in the Lyubishchev sense. Depth 0, read through `lifetract`. | yes |
 
 The journal heading is the one source that is not a repository event, and it is given
 **no `domain` and no `layer`** — `null`, not `unmapped`. `unmapped` means "a repo

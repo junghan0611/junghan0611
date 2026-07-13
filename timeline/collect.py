@@ -3,8 +3,10 @@
 
     python3 timeline/collect.py --out events.jsonl
 
-Three sources, no network, nothing invented: git repos under ~/repos, Denote notes
-under ~/org, and the agent agenda under ~/org/botlog/agenda.
+Five sources, no network, nothing invented — read at four depths of the same day:
+git repos under ~/repos and Denote notes under ~/org (depth 3), the agent agenda under
+~/org/botlog/agenda (2), the operator's own journal headings (1), and the time blocks he
+logs by hand, read through the `lifetract` skill rather than parsed here (0).
 
 This is the LOCAL FULL. Titles and refs are kept exactly as they read on this machine.
 What may be published is a separate and *later* question that deliberately does not live
@@ -16,14 +18,22 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
+import shutil
 import subprocess
 import sys
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 SCHEMA_VERSION = "1"
-COLLECTOR_VERSION = "0.4.0"
+COLLECTOR_VERSION = "0.5.0"
+
+# The sources, in depth order: 0 the life as lived, 1 the operator's own marks, 2 the
+# agents' traces, 3 the detail. `query.py` reads this list rather than keeping its own —
+# a second copy went stale the moment a source was added, and `--source journal` was
+# rejected by a filter that had never heard of it.
+SOURCES = ("timelog", "journal", "agenda", "note", "git")
 
 HOME = Path.home()
 ORG = HOME / "org"
@@ -306,7 +316,8 @@ class Source:
 
 def _event(source: str, entity_id: str, time_kind: str, tp: dict, domain: str, layer: str,
            title: str, ref: dict | None, native_id: str, locator: str,
-           tags: list[str] | None = None, extra: dict | None = None) -> dict:
+           tags: list[str] | None = None, extra: dict | None = None,
+           duration_min: float | None = None) -> dict:
     prov = {"adapter": source, "collector_version": COLLECTOR_VERSION,
             "native_id": native_id, "locator": locator, **(extra or {})}
     return {
@@ -317,6 +328,10 @@ def _event(source: str, entity_id: str, time_kind: str, tp: dict, domain: str, l
         "ts": tp["ts"], "date_kst": tp["date_kst"], "ts_precision": tp["ts_precision"],
         "source": source, "domain": domain, "layer": layer,
         "title": title, "tags": tags or [],
+        # How long it lasted, when the source measures a span rather than a moment. Every
+        # other event is an instant and carries null — a commit does not take 20 minutes,
+        # it is a point where 20 minutes of work landed.
+        "duration_min": duration_min,
         "ref": ref, "provenance": prov,
     }
 
@@ -739,6 +754,93 @@ def collect_journal(repos: Repos, frm: datetime, as_of: datetime,
         for e in read_journal(src) if in_range(e["tp"], frm, as_of)]
 
 
+# ------------------------------------------------------------------------- timelog
+
+
+def lifetract_bin() -> Path | None:
+    """The skill that owns the time log.
+
+    `$LIFETRACT`, when set, is the whole answer — an explicit path that quietly falls back
+    to some other binary is worse than one that fails. Otherwise: the harness skill dirs,
+    then PATH."""
+    if (env := os.environ.get("LIFETRACT")):
+        p = Path(env)
+        return p if p.is_file() and os.access(p, os.X_OK) else None
+    cands = [HOME / ".claude/skills/lifetract/lifetract",
+             HOME / ".pi/agent/skills/pi-skills/lifetract/lifetract"]
+    if (w := shutil.which("lifetract")):
+        cands.append(Path(w))
+    return next((c for c in cands if c.is_file() and os.access(c, os.X_OK)), None)
+
+
+def collect_timelog(repos: Repos, frm: datetime, as_of: datetime,
+                    src: Source) -> list[dict]:
+    """Depth 0 — the day as it was lived. The one source this collector does not parse.
+
+    The blocks sit in a sqlite file that `lifetract` already owns. Opening it here would
+    duplicate a parser that exists, and it would drag in three problems that are not ours:
+    a block is an interval, sleep crosses midnight almost every night, and 150 blocks carry
+    a comment naming who was there. Consuming the skill answers all three at once —
+    lifetract reports a day's minutes per category, already filed under the day the block
+    started, with no comment attached. The collector is supposed to shrink toward the
+    skills; this is the first source where it actually does.
+
+    So an event here is a span, not a moment: `2026-07-12, 수면, 514분`. `duration_min`
+    carries it, `ts` is null, and the day is the coordinate — writing an instant for a
+    block that lasted nine hours would be the same fabrication as writing 00:00 for a
+    day-only note.
+
+    If the tool is missing the source says `unreadable`. It does NOT quietly reach past it
+    into the database: a depth-0 hole must be visible, not filled by a shortcut."""
+    tool = lifetract_bin()
+    if tool is None:
+        src.unreadable("lifetract not found; set $LIFETRACT")
+        return []
+    # --days is relative to today, so ask for a window that reaches `frm` and let the
+    # range filter below do the deciding. The extra days change nothing: the same --as-of
+    # yields the same events tomorrow.
+    days = (datetime.now(KST).date() - frm.date()).days + 2
+    # TZ is pinned for the child, because the skill reads it: run under TZ=UTC and it
+    # files the same blocks on different days (a day lost 220 minutes in the check). The
+    # canonical zone is this axis's contract, so the collector states it rather than
+    # letting the caller's shell decide what day a night belonged to. The skill should not
+    # depend on $TZ at all — that is a bug for every consumer, and it is filed as one.
+    r = subprocess.run([str(tool), "time", "--days", str(days)],
+                       capture_output=True, text=True,
+                       env={**os.environ, "TZ": "Asia/Seoul"})
+    if r.returncode != 0:
+        src.unreadable(f"lifetract time failed: {r.stderr.strip()[:200]}")
+        return []
+    try:
+        payload = json.loads(r.stdout or "[]")
+    except json.JSONDecodeError:
+        src.unreadable("lifetract time returned no JSON")
+        return []
+
+    events = []
+    for day in payload:
+        try:
+            d = date.fromisoformat(day["date"]).isoformat()
+        except (KeyError, TypeError, ValueError):
+            src.reject("bad_lifetract_day", str(day)[:60])
+            continue
+        tp = _tp(None, d, "day")
+        if not in_range(tp, frm, as_of):
+            continue
+        for c in sorted(day.get("categories", []), key=lambda c: c["name"]):
+            minutes = round(float(c["minutes"]), 1)
+            if minutes <= 0:
+                src.reject("empty_time_block", f"{d}:{c['name']}")
+                continue
+            events.append(_event(
+                source="timelog", entity_id=f"timelog:{d}:{c['name']}",
+                time_kind="tracked", tp=tp, domain=None, layer=None,
+                title=c["name"], tags=[], duration_min=minutes,
+                ref={"kind": "lifetract", "value": f"read {d}"},
+                native_id=f"{d}:{c['name']}", locator=f"lifetract read {d}"))
+    return events
+
+
 # ------------------------------------------------------------------------ contract
 
 TIME_KINDS = {"authored", "created", "modified", "stamped", "tracked", "logged"}
@@ -796,7 +898,8 @@ def main() -> int:
 
     repos = Repos()
     collectors = (("git", collect_git), ("note", collect_notes),
-                  ("agenda", collect_agenda), ("journal", collect_journal))
+                  ("agenda", collect_agenda), ("journal", collect_journal),
+                  ("timelog", collect_timelog))
     sources = {n: Source(n) for n, _ in collectors}
     events: list[dict] = []
     for name, fn in collectors:
