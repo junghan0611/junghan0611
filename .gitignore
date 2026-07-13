@@ -5,3 +5,6 @@ NEXT--*.md
 # Company-specific and third-party private material (referrers, job postings)
 PRIVATE.md
 apply/PRIVATE.md
+__pycache__/
+*.pyc
+events*.jsonl
