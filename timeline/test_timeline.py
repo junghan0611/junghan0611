@@ -16,7 +16,7 @@ import os
 import re
 import sys
 import time
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -1244,6 +1244,183 @@ def test_a_title_cannot_close_the_script_tag():
     ok("and the title is still carried, escaped", "\\u003c/script" in html)
 
 
+def refuses(fn) -> bool:
+    """The collector rejects a record with `Reject`; a consumer refuses a whole FULL by
+    leaving, and says why on stderr. `raises` above only knows the first kind."""
+    import contextlib
+    import io
+
+    try:
+        with contextlib.redirect_stderr(io.StringIO()):
+            fn()
+    except SystemExit as e:
+        return e.code == 2
+    return False
+
+
+def _projection_pair(evs: list[dict]) -> tuple[bytes, dict]:
+    """A FULL and the snapshot that describes it, in the shape `project.py` reads: the pair
+    fingerprint the viewer checks, plus the citation fields the projection prints."""
+    raw = collect.events_bytes(evs)
+    names = ("git", "note", "agenda", "journal", "timelog")
+    sources = [{"name": n, "status": "ok", "accepted": sum(e["source"] == n for e in evs),
+                "rejected": 0, "errors": []} for n in names]
+    sources[-1]["tool"] = {"repo": "lifetract", "src_tree": "b" * 40,
+                           "vcs_revision": "c" * 40, "sha256": "d" * 64}
+    return raw, {"manifest": {
+        "schema_version": "1", "as_of": "2026-07-14T00:00:00+09:00",
+        "collector_version": collect.COLLECTOR_VERSION,
+        "events_sha256": collect.sha256(raw),
+        "content_sha256": collect.sha256(collect.content_bytes(evs)),
+        "code_sha256": "a" * 64,
+        "counts": {"events": len(evs), "entities": len({e["entity_id"] for e in evs})},
+        "sources": sources}}
+
+
+def _write_pair(tmp: Path, evs: list[dict]) -> tuple[str, str]:
+    raw, snap = _projection_pair(evs)
+    (tmp / "events.jsonl").write_bytes(raw)
+    (tmp / "snapshot.json").write_text(json.dumps(snap))
+    return str(tmp / "events.jsonl"), str(tmp / "snapshot.json")
+
+
+def test_the_projection_refuses_a_pair_it_cannot_verify():
+    """The one file allowed to leave this disk is the one that must be surest of what it is
+    describing. Verification is not re-derived here — `view.verify` owns the pair contract —
+    and a refusal writes nothing: a projection that half-wrote a public page before noticing
+    the snapshot was not its own would publish numbers nobody can trace."""
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).parent))
+    import project
+
+    with tempfile.TemporaryDirectory() as d:
+        tmp = Path(d)
+        evs = [_fake_event(s) for s in ("git", "note", "agenda", "journal", "timelog")]
+        ev_file, snap_file = _write_pair(tmp, evs)
+        out = tmp / "projection.md"
+
+        # The events say one thing; the snapshot fingerprints another.
+        snapshot = json.loads(Path(snap_file).read_text())
+        snapshot["manifest"]["events_sha256"] = "0" * 64
+        Path(snap_file).write_text(json.dumps(snapshot))
+        ok("a projection of a FULL the snapshot does not fingerprint is refused",
+           refuses(lambda: project.read(ev_file, snap_file)))
+        ok("and nothing is written on the way out", not out.exists())
+
+        # An unreadable source is not a FULL, and a partial axis may not be published as one.
+        snapshot["manifest"]["events_sha256"] = collect.sha256(Path(ev_file).read_bytes())
+        snapshot["manifest"]["sources"][0]["status"] = "unreadable"
+        Path(snap_file).write_text(json.dumps(snapshot))
+        ok("a snapshot with a dead source cannot be projected",
+           refuses(lambda: project.read(ev_file, snap_file)))
+
+
+def test_no_title_ref_or_locator_reaches_the_projection():
+    """The FULL is local because it carries what the operator wrote and where it was read
+    from. The projection is public because it carries neither. That is not a filter applied
+    at the end — the aggregator never holds a commit message, a note title, a journal
+    heading, or a locator, so there is nothing to forget to strip. The one title that does
+    leave is depth 0's, and there it is a lifetract category (`수면`), which is the thing the
+    axis is arguing with."""
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).parent))
+    import project
+
+    with tempfile.TemporaryDirectory() as d:
+        tmp = Path(d)
+        evs = [_fake_event(s) for s in ("git", "note", "agenda", "journal", "timelog")]
+        for e in evs:
+            if e["source"] != "timelog":
+                e["title"] = f"SECRET-{e['source']}-title"
+                e["ref"] = {"kind": "org", "value": f"SECRET-{e['source']}.org"}
+                e["provenance"]["locator"] = f"SECRET-{e['source']}.org:42"
+        ev_file, snap_file = _write_pair(tmp, evs)
+        events, snapshot = project.read(ev_file, snap_file)
+        agg = project.aggregate(events, date(2026, 1, 1), date(2026, 7, 14))
+        text = "\n".join(project.body(agg, snapshot["manifest"], "md")
+                         + project.body(agg, snapshot["manifest"], "org"))
+
+    ok("no title the operator wrote leaves in the projection", "SECRET" not in text)
+    ok("no ref and no locator leave either",
+       ".org" not in text and ":42" not in text)
+    ok("the depth-0 category does leave — it is what the axis argues with", "수면" in text)
+
+
+def test_the_quiet_day_is_found_in_the_data_not_written_into_the_code():
+    """2026-02-07 is in the output because the data puts it there. A projection that named
+    its own golden days would keep saying them after they stopped being true — which is the
+    exact failure this axis exists to expose, committed by the thing that exposes it."""
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).parent))
+    import project
+
+    lived = _fake_event("timelog")                 # depth 0 only: a day with no residue
+    lived["date_kst"] = "2026-02-07"
+    lived["entity_id"] = "timelog:2026-02-07:수면"
+    worked = _fake_event("git")                    # depth 3 on another day
+    with tempfile.TemporaryDirectory() as d:
+        ev_file, snap_file = _write_pair(Path(d), [lived, worked])
+        events, snapshot = project.read(ev_file, snap_file)
+        agg = project.aggregate(events, date(2026, 1, 1), date(2026, 7, 14))
+        text = "\n".join(project.body(agg, snapshot["manifest"], "md"))
+
+    ok("the day that was lived and left nothing behind is named", agg["quiet"] == ["2026-02-07"])
+    ok("the day with residue on it is not quiet", "2026-07-13" not in agg["quiet"])
+    ok("and it reaches the page with its blocks", "2026-02-07" in text and "514.0분" in text)
+    ok("the lens that reads only residue loses exactly that day",
+       agg["seen"][(2, 3)] == 1 and agg["seen"][(0, 1, 2, 3)] == 2)
+    src = (Path(__file__).parent / "project.py").read_text()
+    ok("no golden date is written into the projector",
+       not re.search(r"20\d\d-\d\d-\d\d", src))
+
+
+def test_the_projection_does_not_move_when_the_shell_does():
+    """Same input, same bytes — including from a machine whose clock and zone disagree with
+    the axis. The window comes off the manifest's `as_of`, never off today's date: a
+    projection rebuilt in December still describes the FULL it was handed."""
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).parent))
+    import project
+
+    def render() -> str:
+        with tempfile.TemporaryDirectory() as d:
+            evs = [_fake_event(s) for s in ("git", "note", "agenda", "journal", "timelog")]
+            ev_file, snap_file = _write_pair(Path(d), evs)
+            events, snapshot = project.read(ev_file, snap_file)
+            agg = project.aggregate(events, date(2026, 1, 1), date(2026, 7, 14))
+            return "\n".join(project.body(agg, snapshot["manifest"], "md"))
+
+    before = os.environ.get("TZ")
+    try:
+        os.environ["TZ"] = "Asia/Seoul"
+        time.tzset()
+        seoul = render()
+        os.environ["TZ"] = "Pacific/Kiritimati"
+        time.tzset()
+        kiritimati = render()
+    finally:
+        if before is None:
+            os.environ.pop("TZ", None)
+        else:
+            os.environ["TZ"] = before
+        time.tzset()
+
+    ok("the public reading is the same bytes twice", render() == seoul)
+    ok("and the shell's timezone does not change what it says", seoul == kiritimati)
+
+
+def test_the_viewer_and_the_projection_judge_a_day_the_same_way():
+    """One definition of `quiet`, imported. The viewer used to keep its own copy — and two
+    copies of the one judgement this axis makes is two axes, with nobody watching the day
+    they disagree."""
+    sys.path.insert(0, str(Path(__file__).parent))
+    import project
+    import view
+
+    ok("the viewer reads the predicate the projection owns", view.is_quiet is project.is_quiet)
+    ok("and the depth map too", view.DEPTH is project.DEPTH)
+
+
 def main() -> int:
     for t in (test_time, test_range, test_identity, test_ambiguity_is_rejected,
               test_agenda_occurrence, test_stamp_identity_ignores_the_query_window,
@@ -1275,7 +1452,12 @@ def main() -> int:
               test_the_viewer_refuses_a_snapshot_it_did_not_draw,
               test_a_malformed_snapshot_is_refused_not_crashed_on,
               test_the_quiet_day_stays_quiet_when_the_screen_is_filtered,
-              test_a_title_cannot_close_the_script_tag):
+              test_a_title_cannot_close_the_script_tag,
+              test_the_projection_refuses_a_pair_it_cannot_verify,
+              test_no_title_ref_or_locator_reaches_the_projection,
+              test_the_quiet_day_is_found_in_the_data_not_written_into_the_code,
+              test_the_projection_does_not_move_when_the_shell_does,
+              test_the_viewer_and_the_projection_judge_a_day_the_same_way):
         print(f"\n{t.__name__}")
         t()
     print()

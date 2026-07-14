@@ -1,6 +1,11 @@
 .PHONY: all cuts html pdf md check leak repro clean
 
 SOURCE := ax.org
+# `ax.org` #+includes the timeline reading, so the reading is a source of every view. Make
+# could not see that — a regenerated projection left the .tex untouched and the PDFs kept
+# printing the previous numbers while the build said OK. A document that cites an axis must
+# rebuild when the axis moves.
+INCLUDES := ../../timeline/projection.org
 BUILD := build
 COMPETENCY := $(BUILD)/KimJunghan_AX_Competency
 PORTFOLIO := $(BUILD)/KimJunghan_AX_Portfolio
@@ -22,13 +27,13 @@ cuts: $(BUILD)/landing.org $(BUILD)/record.org $(BUILD)/detail.org
 $(BUILD):
 	mkdir -p $(BUILD)
 
-$(BUILD)/landing.org: $(SOURCE) build.el | $(BUILD)
+$(BUILD)/landing.org: $(SOURCE) $(INCLUDES) build.el | $(BUILD)
 	emacs -Q --batch --script build.el cut $(SOURCE) landing $@
 
-$(BUILD)/record.org: $(SOURCE) build.el | $(BUILD)
+$(BUILD)/record.org: $(SOURCE) $(INCLUDES) build.el | $(BUILD)
 	emacs -Q --batch --script build.el cut $(SOURCE) record $@
 
-$(BUILD)/detail.org: $(SOURCE) build.el | $(BUILD)
+$(BUILD)/detail.org: $(SOURCE) $(INCLUDES) build.el | $(BUILD)
 	emacs -Q --batch --script build.el cut $(SOURCE) detail $@
 
 html: $(BUILD)/index.html $(BUILD)/record.html
@@ -43,10 +48,10 @@ $(BUILD)/record.html: $(BUILD)/record.org assets/paper.css
 
 pdf: $(COMPETENCY).pdf $(PORTFOLIO).pdf
 
-$(COMPETENCY).tex: $(SOURCE) build.el | $(BUILD)
+$(COMPETENCY).tex: $(SOURCE) $(INCLUDES) build.el | $(BUILD)
 	emacs -Q --batch --script build.el latex $(SOURCE) competency $@
 
-$(PORTFOLIO).tex: $(SOURCE) build.el | $(BUILD)
+$(PORTFOLIO).tex: $(SOURCE) $(INCLUDES) build.el | $(BUILD)
 	emacs -Q --batch --script build.el latex $(SOURCE) portfolio $@
 
 $(COMPETENCY).pdf: $(COMPETENCY).tex

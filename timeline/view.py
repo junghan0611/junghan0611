@@ -32,8 +32,12 @@ import sys
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-# Which lane a source is drawn in. `note` and `git` share depth 3: both are residue.
-DEPTH = {"timelog": 0, "journal": 1, "agenda": 2, "note": 3, "git": 3}
+# The lane a source is drawn in, and the one judgement drawn about a day, both come from
+# the projection — it owns them, tests them, and is what a stranger can check. A viewer with
+# its own copy is a second axis that nobody reads, right up to the day the two disagree.
+sys.path.insert(0, str(Path(__file__).parent))
+from project import DEPTH, is_quiet  # noqa: E402,F401  (re-exported: tests read view.is_quiet)
+
 LANES = [(0, "timelog", "산 대로의 하루"), (1, "journal", "제 손으로 적은 것"),
          (2, "agenda", "에이전트의 흔적"), (3, "note · git", "산출물")]
 
@@ -143,13 +147,6 @@ def _js(obj) -> str:
     Today the corpus holds 18 titles with a `<` in them — `M-<backspace>`, `C-<f12>` — and
     none that close a tag. The fix is not for those; it is for the one that will."""
     return json.dumps(obj, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
-
-
-def is_quiet(n: list[int]) -> bool:
-    """The residue is silent and the life is not: nothing in depth 2 or 3, yet depth 0 has
-    blocks. It is the whole claim of the axis, and it is a fact about **the day**, not about
-    whatever the screen is currently showing."""
-    return n[0] > 0 and n[2] == 0 and n[3] == 0
 
 
 def grid(events: list[dict]) -> list[dict]:
