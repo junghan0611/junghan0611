@@ -11,3 +11,9 @@ events*.jsonl
 
 # Registry entries for repos the forge does not report as public
 timeline/domains.local.json
+
+# Harness-local state. The skill under .claude/skills IS published — this repo is
+# public and the contract is meant to be read — but per-machine settings are not.
+.claude/settings.local.json
+.pi/sessions/
+.pi/state/
