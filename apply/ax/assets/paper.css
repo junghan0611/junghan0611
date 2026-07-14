@@ -1,0 +1,63 @@
+:root {
+  --bg: #fbfaf7;
+  --paper: #ffffff;
+  --ink: #171717;
+  --muted: #66625d;
+  --line: #dfdcd5;
+  --accent: #8b3d2e;
+  --code: #f1efe9;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg);
+  font: 17px/1.72 "Noto Sans CJK KR", "Noto Sans KR", system-ui, sans-serif;
+  word-break: keep-all;
+}
+body > header, body > main, body > nav, body > #TOC {
+  width: min(100% - 40px, 940px);
+  margin-inline: auto;
+}
+body > header { padding: 72px 0 28px; }
+body > header h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.8rem); line-height: 1.12; }
+body > header .subtitle { color: var(--muted); font-size: 1.15rem; }
+main { padding: 8px 0 100px; }
+h1, h2, h3 { line-height: 1.28; letter-spacing: -0.025em; }
+h1 { font-size: 2.2rem; margin-top: 3.5rem; }
+h2 { font-size: 1.55rem; margin-top: 2.8rem; border-top: 1px solid var(--line); padding-top: 1.4rem; }
+h3 { font-size: 1.18rem; margin-top: 2rem; }
+a { color: var(--accent); text-underline-offset: 0.18em; }
+p, li { max-width: 76ch; }
+li { margin: 0.35em 0; }
+code { background: var(--code); border-radius: 4px; padding: 0.1em 0.3em; }
+pre { overflow-x: auto; background: var(--code); border-radius: 10px; padding: 18px; }
+table { width: 100%; border-collapse: collapse; margin: 1.5rem 0 2.5rem; font-size: 0.92rem; }
+th, td { border-bottom: 1px solid var(--line); padding: 0.7rem 0.55rem; text-align: left; vertical-align: top; }
+th { font-weight: 700; }
+#TOC { border-block: 1px solid var(--line); padding: 18px 0; color: var(--muted); }
+#TOC ul { columns: 2; padding-left: 1.3rem; }
+.evidence-mount {
+  margin: 2rem 0;
+  padding: 1.2rem 1.4rem;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+@media (max-width: 680px) {
+  body { font-size: 16px; word-break: normal; }
+  body > header { padding-top: 42px; }
+  #TOC ul { columns: 1; }
+  table { display: block; overflow-x: auto; }
+}
+
+@media print {
+  :root { --bg: white; }
+  body { font-size: 11pt; }
+  a { color: inherit; }
+  #TOC { break-after: page; }
+}

@@ -5,6 +5,14 @@ NEXT--*.md
 # Company-specific and third-party private material (referrers, job postings)
 PRIVATE.md
 apply/PRIVATE.md
+
+# The terms the leak gate greps for. It is the denylist itself, so it cannot live in a
+# tracked file — a gate that names what it forbids publishes it. Held locally; `make check`
+# says out loud when it is absent rather than passing silently.
+apply/ax/leakwords.txt
+
+# Reproducible application derivatives — authored source is apply/ax/ax.org
+apply/ax/build/
 __pycache__/
 *.pyc
 events*.jsonl
