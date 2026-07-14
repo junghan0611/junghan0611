@@ -8,6 +8,11 @@ apply/PRIVATE.md
 __pycache__/
 *.pyc
 events*.jsonl
+# The viewer's page embeds the FULL's titles, so it is exactly as local as the FULL. A
+# picture being convenient to share is not a reason to punch a hole in the boundary the
+# events file keeps — what may leave is a projection, and a projection is an allowlist.
+axis*.html
+snapshot*.json
 
 # Registry entries for repos the forge does not report as public
 timeline/domains.local.json

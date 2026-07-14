@@ -237,10 +237,50 @@ substituting one for the other:
 
 ```json
 "device": "thinkpad",
-"code_sha256":   "fc6aed78…",   // the collector that produced it
-"events_sha256": "655332…",     // exactly the bytes written to events.jsonl
-"registries":    ["domains.json", "domains.local.json"]
+"code_sha256":    "fc6aed78…",  // the collector that produced it
+"events_sha256":  "655332…",    // exactly the bytes written to events.jsonl
+"content_sha256": "1d8b217e…",  // the same events without `provenance`
+"registries":     ["domains.json", "domains.local.json"]
 ```
+
+Two fingerprints, because two different questions get asked. `events_sha256` covers the
+bytes: it is what makes a run reproducible on this disk, so it has to cover everything,
+including where each event was read from. `content_sha256` drops `provenance` and covers
+what was observed — and that is the one to cite. The difference is not academic. A
+`locator` carries a line number, the agenda is a *reverse* datetree, and so one new stamp
+pushes every older line down: on the afternoon this was written, 28,662 events that had not
+changed in any respect produced three different `events_sha256` inside half an hour. A
+citation pinned to the bytes dies the next time the operator stamps an agenda; one pinned to
+the content survives, and still moves the moment a title, a time, a duration or a ref does.
+
+Be exact about what the hashes are worth, because it is less than it looks. They do not
+prove that this code ran: anyone can produce bytes and a hash of those bytes together. The
+manifest *records* a claimed derivation — this collector, this lifetract build, these source
+statuses, this `as_of` — and the hashes let a reader check that the bytes and the content in
+front of them are the ones that manifest names, and catch a substitution. They say nothing
+about whether the sources told the truth, or whether they were complete. So a citation needs
+the context, not the hash alone: `as_of` + `content_sha256` + `code_sha256` + the source
+statuses + the depth-0 tool revision. The same content collected through a different window,
+or with a source `stale`, is not the same claim.
+
+What an outside reader can independently verify depends on how far an event actually reached
+in public. Commits pushed to a public remote, and the records exported to the public garden —
+the journal goes out in full except what is marked `:noexport:`, and the notes are published —
+can be checked against something other than this disk. Private repos, refs that were never
+pushed, and Org records that never left cannot. Depth 0 least of all: it is a first-party
+export from a phone, and what can be checked there is the consistency of the derivation —
+run the old and the new lifetract against the same database and diff the depth-0 events — not
+the raw material. Verifiability is not a property of a depth, then, but of an event's reach;
+the ratio moves with the local refs and with what the garden has published, so it is measured
+when it is claimed, not frozen here.
+
+A run that could not read a source is **not a FULL, and does not get written.** The
+collector used to write the events file first and check the sources afterwards, so a missing
+`lifetract` still left 20,262 events sitting where 28,662 had been — depth 0 silently gone,
+`--day 2026-02-07` answering with nothing, and the loss landing at exactly the moment it
+could not be undone. Now the write is last, it happens only when every source answered, and
+it goes through a temp file and a rename. `--out` is left alone; the manifest still goes to
+stdout and still names what could not be read; the exit code is 2.
 
 Two traps follow, and both are easy to walk into:
 

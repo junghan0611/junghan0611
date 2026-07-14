@@ -32,7 +32,13 @@ SCHEMA_VERSION = "1"
 # Two FULLs that disagree by 500 commits in 2026 must not both call themselves 0.5.0 — a reader comparing
 # them would see a man who suddenly started committing more, not a collector that started
 # recognizing him. The version is where that difference is declared.
-COLLECTOR_VERSION = "0.6.0"
+#
+# 0.7.0 changes what a FULL *is*, in three ways a reader has to be able to tell apart:
+# a journal `ref` no longer carries the line number it was read at, so the same heading has
+# different bytes than it did under 0.6.0; the manifest carries a second fingerprint
+# (`content_sha256`); and a run that could not read a source no longer writes `--out` at all.
+# The event shape did not change, so `SCHEMA_VERSION` stays 1 — a 0.6.0 FULL still parses.
+COLLECTOR_VERSION = "0.7.0"
 
 # The sources, in depth order: 0 the life as lived, 1 the operator's own marks, 2 the
 # agents' traces, 3 the detail. `query.py` reads this list rather than keeping its own —
@@ -205,6 +211,56 @@ def forge_id_from_remote(url: str) -> str | None:
 
 def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def events_bytes(events: list[dict]) -> bytes:
+    """Exactly the bytes that land in `--out`. `events_sha256` covers these."""
+    return "".join(json.dumps(e, ensure_ascii=False, sort_keys=True) + "\n"
+                   for e in events).encode()
+
+
+def content_bytes(events: list[dict]) -> bytes:
+    """The same events with `provenance` dropped. `content_sha256` covers these.
+
+    Two fingerprints because a reader asks two different questions, and one hash cannot
+    answer both. `events_sha256` answers *are these the same bytes* — it is what makes a
+    run reproducible on this disk, and it must cover everything written. But a citation
+    asks something else: *is this still the same observation?* Those came apart the moment
+    `provenance.locator` started carrying a line number. The agenda is a reverse datetree,
+    so one new stamp pushes every older line down; on the afternoon this was written the
+    same 28,662 events, unchanged, produced three different `events_sha256` in half an hour
+    while nothing about the day being described had moved. A citation that dies whenever
+    the operator stamps an agenda is not a citation.
+
+    So `content_sha256` drops `provenance` — the whole of it, no field-by-field exceptions:
+
+    - `adapter` is `source` (0 of 28,662 events disagree),
+    - `collector_version` is in the manifest,
+    - `native_id` is already hashed into `event_id`, which stays in the content,
+    - `locator` is *where this was read on this disk* — a line number, an absolute clone
+      path — and none of it is a claim about what happened.
+
+    Nothing else may smuggle a location in. `ref` used to: the journal wrote `file::18`, so
+    inserting one line into an old journal changed the fingerprint of an observation nobody
+    had touched. That was fixed at the source rather than exempted here, and it must stay
+    fixed — the day this hash needs a per-source exception is the day it starts lying about
+    what it covers."""
+    return "".join(json.dumps({k: v for k, v in e.items() if k != "provenance"},
+                              ensure_ascii=False, sort_keys=True) + "\n"
+                   for e in events).encode()
+
+
+def write_atomic(path: Path, data: bytes) -> None:
+    """Replace the FULL, or leave the old one alone. Never a half of each.
+
+    `write_text` truncates the moment it opens, so a run that dies mid-write leaves a file
+    that is neither the old FULL nor the new one — and nothing downstream can tell."""
+    tmp = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    try:
+        tmp.write_bytes(data)
+        os.replace(tmp, path)          # same directory: the rename is atomic
+    finally:
+        tmp.unlink(missing_ok=True)
 
 
 def device_name() -> str:
@@ -801,10 +857,16 @@ def collect_journal(repos: Repos, frm: datetime, as_of: datetime,
     if not JOURNAL_DIR.is_dir():
         src.unreadable(f"{JOURNAL_DIR} not found")
         return []
+    # The ref names the file and stops there. It used to carry `::{line}`, which put a line
+    # number in the content — the one part of a journal that moves when nothing happened.
+    # Insert a line into an old day and every heading below it got a new fingerprint for an
+    # observation that had not changed. The line is still recorded, in `provenance.locator`,
+    # where every other exact-local trace lives and where the content hash cannot see it.
+    # Identity never needed it either: a heading is `(file, stable title, time, occurrence)`.
     return [_event(
         source="journal", entity_id=f"journal:{e['native']}", time_kind="logged",
         tp=e["tp"], domain=None, layer=None, title=e["title"], tags=e["tags"],
-        ref={"kind": "org", "value": f"{e['rel']}::{e['line']}"},
+        ref={"kind": "org", "value": e["rel"]},
         native_id=e["native"], locator=f"{e['rel']}:{e['line']}")
         for e in read_journal(src) if in_range(e["tp"], frm, as_of)]
 
@@ -1098,7 +1160,7 @@ def main() -> int:
     # neither is wrong. `--as-of` fixes the upper bound in time; it does not freeze the
     # local refs. So the fingerprint below is what lets two snapshots be *compared* rather
     # than silently substituted for one another.
-    body = "".join(json.dumps(e, ensure_ascii=False, sort_keys=True) + "\n" for e in events)
+    body = events_bytes(events)
 
     # No wall clock anywhere in the output: the same inputs and the same --as-of must
     # produce the same bytes, under any TZ.
@@ -1111,7 +1173,8 @@ def main() -> int:
         "as_of_is": "exclusive upper bound",
         "device": device_name(),
         "code_sha256": sha256(Path(__file__).read_bytes()),
-        "events_sha256": sha256(body.encode()),
+        "events_sha256": sha256(body),
+        "content_sha256": sha256(content_bytes(events)),
         "counts": {"events": len(events), "entities": len(entities)},
         "registries": repos.registries,
         "sources": [sources[n].report() for n, _ in collectors],
@@ -1133,15 +1196,33 @@ def main() -> int:
         "uncloned_repos": repos.uncloned(),
     }
 
-    if args.out:
-        Path(args.out).write_text(body)     # exactly the bytes events_sha256 covers
-        log(f"wrote {len(events)} events -> {args.out}")
+    dead = [n for n, _ in collectors if sources[n].status == "unreadable"]
 
+    # A run that could not read a source did not produce a FULL, and it must not leave one
+    # lying where a FULL is expected. It used to: the file was written first and the source
+    # checked afterwards, so pointing the collector at a missing lifetract still wrote 20,262
+    # events over the 28,662 that were already there. Depth 0 was simply gone, `query.py
+    # --day 2026-02-07` — the day this axis exists for — came back empty, and nothing in the
+    # events file said a word about why. Worse, it happened at exactly the moment the loss
+    # could not be undone: the FULL is cheap to rebuild only while the sources can be read.
+    #
+    # So the write is the last thing, it happens only when every source answered, and it goes
+    # through a temp file. A failed run leaves the previous FULL exactly as it found it.
+    if args.out:
+        if dead:
+            log(f"NOT writing {args.out}: {', '.join(dead)} unreadable — this run is not a "
+                f"FULL, and anything already at that path is left untouched.")
+        else:
+            write_atomic(Path(args.out), body)   # exactly the bytes events_sha256 covers
+            log(f"wrote {len(events)} events -> {args.out}")
+
+    # The manifest and the audit go to stdout either way. A failed run still has to be able
+    # to say what it saw and what it could not read — that is the difference between a hole
+    # and a silence.
     json.dump({"manifest": manifest, "audit": audit}, sys.stdout,
               ensure_ascii=False, indent=2, sort_keys=True)
     sys.stdout.write("\n")
 
-    dead = [n for n in sources if sources[n].status == "unreadable"]
     if dead:
         log(f"FATAL: source unreadable: {', '.join(dead)} — this is not a FULL.")
         return 2

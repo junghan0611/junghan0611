@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 import time
 from datetime import datetime, timedelta
@@ -856,6 +857,393 @@ def test_the_registry_reports_both_of_its_gaps():
        "github.com/a/only-ever-stamped" in r.unmapped)
 
 
+# ------------------------------------------------- the FULL, and what it is worth citing
+
+def _fake_event(source: str):
+    """One well-formed event per source, so main()'s write path can be exercised without
+    eight seconds of real disk."""
+    if source == "timelog":
+        return _event(source="timelog", entity_id="timelog:2026-07-13:수면",
+                      time_kind="tracked", tp=collect._tp(None, "2026-07-13", "day"),
+                      domain=None, layer=None, title="수면", tags=[], duration_min=514.0,
+                      ref={"kind": "lifetract", "value": "read 2026-07-13"},
+                      native_id="2026-07-13:수면", locator="lifetract read 2026-07-13")
+    kind = {"git": "authored", "note": "created", "agenda": "stamped", "journal": "logged"}
+    return _event(source=source, entity_id=f"{source}:x", time_kind=kind[source],
+                  tp=collect._tp("2026-07-13T10:00:00+09:00", "2026-07-13", "second"),
+                  domain=None, layer=None, title=f"a {source} thing", tags=[],
+                  ref={"kind": "org", "value": f"{source}.org"}, native_id="x",
+                  locator=f"{source}.org:12")
+
+
+def run_collector(out: Path, dead: str | None):
+    """collect.main() with the five sources stubbed. `dead` names the one that cannot be
+    read — the whole point being what main() does with `--out` when that happens."""
+    import contextlib
+    import io
+
+    class FakeRepos:
+        registries: list = []
+        unmapped: set = set()
+        unregistered_clones = staticmethod(lambda: [])
+        uncloned = staticmethod(lambda: [])
+
+    def collector(name):
+        def fn(repos, frm, as_of, src):
+            if name == "agenda":
+                src.unresolved_short = []
+            if name == dead:
+                src.unreadable(f"{name} could not be read")
+                return []
+            return [_fake_event(name)]
+        return fn
+
+    saved = {n: getattr(collect, f"collect_{n}") for n in
+             ("git", "notes", "agenda", "journal", "timelog")}
+    argv, repos_cls = sys.argv, collect.Repos
+    try:
+        for n, attr in (("git", "git"), ("note", "notes"), ("agenda", "agenda"),
+                        ("journal", "journal"), ("timelog", "timelog")):
+            setattr(collect, f"collect_{attr}", collector(n))
+        collect.Repos = FakeRepos
+        sys.argv = ["collect.py", "--as-of", "2026-07-14", "--out", str(out)]
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = collect.main()
+        return rc, json.loads(buf.getvalue())
+    finally:
+        for n, fn in saved.items():
+            setattr(collect, f"collect_{n}", fn)
+        collect.Repos, sys.argv = repos_cls, argv
+
+
+def test_a_failed_run_leaves_the_last_good_full_alone():
+    """The collector used to write the events file first and check the sources afterwards,
+    so a run with an unreadable lifetract still wrote a depth-0-less file over the FULL that
+    was already there — and it did it at the one moment the loss could not be undone, since
+    a FULL is only cheap to rebuild while the sources can still be read."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        out = Path(tmp) / "events.jsonl"
+
+        rc, snap = run_collector(out, dead=None)
+        good = out.read_bytes()
+        ok("a run with every source answering writes the FULL", rc == 0 and out.is_file())
+        ok("and the manifest fingerprints exactly those bytes",
+           snap["manifest"]["events_sha256"] == collect.sha256(good))
+
+        rc, snap = run_collector(out, dead="timelog")
+        ok("a run that could not read a source exits 2", rc == 2)
+        ok("it does not overwrite the FULL that was there", out.read_bytes() == good)
+        ok("and it still says what it saw and could not read",
+           [s for s in snap["manifest"]["sources"]
+            if s["name"] == "timelog"][0]["status"] == "unreadable")
+        ok("no temp file is left behind",
+           [p.name for p in Path(tmp).iterdir()] == ["events.jsonl"])
+
+        missing = Path(tmp) / "never-written.jsonl"
+        rc, _ = run_collector(missing, dead="timelog")
+        ok("a partial FULL is not created where none existed", not missing.exists())
+
+
+def test_a_full_replaces_its_predecessor_or_leaves_it_alone():
+    """`write_text` truncates the file the moment it opens it, so a write that dies halfway
+    — a full disk, a kill — leaves something that is neither the old FULL nor the new one,
+    and nothing downstream can tell. The bytes go to a temp file in the same directory and
+    arrive by rename, which the filesystem does whole or not at all.
+
+    The witness has to be the *interrupted* write. `no temp file is left behind` passes just
+    as happily against a plain `write_bytes` that never made one — a guard whose only test
+    is satisfied by its own absence is not guarded."""
+    import tempfile
+    was_here = b'{"the FULL":"that was already here"}\n'
+    with tempfile.TemporaryDirectory() as tmp:
+        out = Path(tmp) / "events.jsonl"
+        out.write_bytes(was_here)
+
+        def full_disk(*a):
+            raise OSError("no space left on device")
+
+        real, crashed = os.replace, False
+        try:
+            os.replace = full_disk
+            try:
+                collect.write_atomic(out, b'{"the new one":true}\n')
+            except OSError:
+                crashed = True
+        finally:
+            os.replace = real
+
+        ok("a write that could not land is a write that did not happen", crashed)
+        ok("the FULL that was there is byte-for-byte what it was", out.read_bytes() == was_here)
+        ok("and the half-written bytes are not lying around",
+           [p.name for p in Path(tmp).iterdir()] == ["events.jsonl"])
+
+
+def test_the_fingerprint_answers_the_question_it_is_asked():
+    """Two hashes, because a reader asks two questions and one hash cannot answer both.
+
+    `events_sha256` covers the bytes — reproduce this run on this disk. `content_sha256`
+    covers the observation — is this still the same day being described? They came apart
+    when `provenance.locator` started carrying a line number: the agenda is a reverse
+    datetree, so one new stamp pushes every older line down and the byte fingerprint of
+    28,662 unchanged events moves. It happened three times in one afternoon."""
+    evs = [_fake_event(s) for s in ("git", "note", "agenda", "journal", "timelog")]
+    base_events = collect.sha256(collect.events_bytes(evs))
+    base_content = collect.sha256(collect.content_bytes(evs))
+
+    shifted = [dict(e) for e in evs]
+    for e in shifted:                                  # a stamp lands; every line moves down
+        p = dict(e["provenance"])
+        p["locator"] = p["locator"].replace(":12", ":16")
+        e["provenance"] = p
+    ok("a line shift moves the byte fingerprint",
+       collect.sha256(collect.events_bytes(shifted)) != base_events)
+    ok("...and leaves the content fingerprint exactly where it was",
+       collect.sha256(collect.content_bytes(shifted)) == base_content)
+
+    moved = [dict(e) for e in evs]                     # the same commit, read from elsewhere
+    for e in moved:
+        p = dict(e["provenance"])
+        p["locator"] = "/somewhere/else/" + p["locator"]
+        e["provenance"] = p
+    ok("a clone read from another path is the same observation",
+       collect.sha256(collect.content_bytes(moved)) == base_content)
+
+    # And the reason a citation cannot be `content_sha256` alone. The collector's version
+    # rides in `provenance`, so bumping it moves the bytes and leaves the content where it
+    # was — which is right (the observations did not change), and is exactly why the reader
+    # has to be handed `code_sha256`, `as_of` and the source statuses alongside the content
+    # hash. The content hash answers "the same day?", never "collected by what, and when?".
+    rebuilt = [dict(e) for e in evs]
+    for e in rebuilt:
+        p = dict(e["provenance"])
+        p["collector_version"] = "99.0.0"
+        e["provenance"] = p
+    ok("a new collector version moves the byte fingerprint",
+       collect.sha256(collect.events_bytes(rebuilt)) != base_events)
+    ok("...and not the content one — so cite the code_sha256 too, never the content alone",
+       collect.sha256(collect.content_bytes(rebuilt)) == base_content)
+
+    for label, mutate in (
+            ("a title", lambda e: e.update(title="something else")),
+            ("a duration", lambda e: e.update(duration_min=(e["duration_min"] or 0) + 1)),
+            ("a domain", lambda e: e.update(domain="elsewhere")),
+            ("a ref", lambda e: e.update(ref={"kind": "org", "value": "other.org"})),
+            ("a day", lambda e: e.update(date_kst="2099-01-01"))):
+        changed = [dict(e) for e in evs]
+        mutate(changed[0])
+        ok(f"but {label} changing does change the content fingerprint",
+           collect.sha256(collect.content_bytes(changed)) != base_content)
+
+
+def test_a_journal_ref_carries_no_line_number():
+    """The line lives in the locator, where the content hash cannot see it. It used to live
+    in the ref as well — `file::18` — so inserting one line into an old journal re-minted
+    the fingerprint of an observation nobody had touched. Identity never needed it: a
+    heading is `(file, stable title, time, occurrence)`."""
+    events, _ = journal_events()
+    refs = [e["ref"]["value"] for e in events]
+    ok("the ref names the file and stops", all("::" not in r for r in refs), refs[0])
+    ok("the line is still on record, in the locator",
+       all(re.fullmatch(r".+\.org:\d+", e["provenance"]["locator"]) for e in events))
+    ok("and it is kept out of the content the axis fingerprints",
+       all("provenance" not in json.loads(line)
+           for line in collect.content_bytes(events).decode().splitlines()))
+
+
+def test_the_time_log_comment_never_reaches_the_axis():
+    """150 time blocks carry a comment naming who was there — a family member, a place.
+    The collector does not open the database, so it cannot read them; but the guard against
+    *that* is a guard on the mechanism, and this one is on the outcome. Hand the collector a
+    lifetract that volunteers a comment and no part of it may survive into an event.
+
+    The category names are deliberately NOT checked against a list. That taxonomy belongs to
+    lifetract, and a timeline holding an allowlist of it would turn this axis into the thing
+    a new category has to ask permission from."""
+    import tempfile
+    sentinel = "PRIVATE-SENTINEL-누구와-어디서"
+    payload = ('[{"date": "2026-07-12", "categories": ['
+               f'{{"name": "가족", "minutes": 611.6, "comment": "{sentinel}"}},'
+               f'{{"name": "새범주", "minutes": 30, "note": "{sentinel}"}}]}}]')
+    with tempfile.TemporaryDirectory() as tmp:
+        tool = Path(tmp) / "lifetract"
+        tool.write_text('#!/bin/sh\nif [ "$1" = "status" ]; then\n'
+                        '  echo \'{"database": {"last_time_block": "2026-07-13"}}\'\n'
+                        '  exit 0\nfi\ncat <<\'JSON\'\n' + payload + '\nJSON\n')
+        tool.chmod(0o755)
+        events, src = timelog_events(str(tool))
+
+    ok("a category the axis has never heard of still lands", len(events) == 2)
+    ok("no event carries a comment key",
+       not [e for e in events if "comment" in e or "comment" in (e["ref"] or {})])
+    ok("and the sentinel is nowhere in the bytes the axis writes",
+       sentinel not in collect.events_bytes(events).decode())
+
+
+def test_the_viewer_refuses_a_snapshot_it_did_not_draw():
+    """Hand the viewer a good FULL and the manifest of a *different*, failed run and it drew
+    the page anyway — stamping the other run's fingerprint, the other run's event count, and
+    `timelog: unreadable` over a depth-0 lane it had just painted. The collector refuses to
+    name a provenance it cannot vouch for; the viewer was doing exactly what the collector
+    refuses."""
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).parent))
+    import view
+
+    evs = [_fake_event(s) for s in ("git", "note", "agenda", "journal", "timelog")]
+    raw = collect.events_bytes(evs)
+    good = {"manifest": {"schema_version": "1", "as_of": "2026-07-14T00:00:00+09:00",
+                         "events_sha256": collect.sha256(raw),
+                         "content_sha256": collect.sha256(collect.content_bytes(evs)),
+                         "counts": {"events": len(evs)},
+                         "sources": [{"name": n, "status": "ok"} for n in
+                                     ("git", "note", "agenda", "journal", "timelog")]}}
+    ok("a page may be stamped with the snapshot of the FULL it drew",
+       view.verify(raw, evs, good) == [])
+
+    def refuses(snapshot, because: str) -> bool:
+        return any(because in e for e in view.verify(raw, evs, snapshot))
+
+    other = json.loads(json.dumps(good))
+    other["manifest"]["events_sha256"] = "0" * 64
+    ok("not with a fingerprint of some other FULL", refuses(other, "not the ones"))
+
+    miscounted = json.loads(json.dumps(good))
+    miscounted["manifest"]["counts"]["events"] = 20262
+    ok("not with a count that is not this file's", refuses(miscounted, "counts 20262"))
+
+    dead = json.loads(json.dumps(good))
+    dead["manifest"]["sources"][4]["status"] = "unreadable"
+    ok("and not with a snapshot that is not a FULL at all",
+       refuses(dead, "not a FULL: timelog unreadable"))
+
+    # Both assertions belong INSIDE the directory. Outside it, `not out.exists()` is true
+    # because the directory is gone — the witness for "no page was written" was passing on
+    # a page that had been written and then deleted with the tmpdir. A test that its own
+    # teardown satisfies is not a test, and the revert audit said so: pulling `verify()` out
+    # of main() broke exactly one assertion, when it should have broken two.
+    with tempfile.TemporaryDirectory() as tmp:
+        ev_file, snap_file = Path(tmp) / "events.jsonl", Path(tmp) / "snapshot.json"
+        out = Path(tmp) / "axis.html"
+        ev_file.write_bytes(raw)
+        snap_file.write_text(json.dumps(other))
+        argv = sys.argv
+        try:
+            sys.argv = ["view.py", str(ev_file), "--snapshot", str(snap_file),
+                        "--out", str(out)]
+            rc = view.main()
+        finally:
+            sys.argv = argv
+        ok("a refused pair exits non-zero", rc == 2)
+        ok("and no page is written at all", not out.exists())
+
+
+def test_a_malformed_snapshot_is_refused_not_crashed_on():
+    """The viewer must not believe a snapshot about its own shape. `sources: {}` sailed
+    through — nothing to iterate, so nothing was unreadable, so the pair looked fine — and
+    `sources: ["bad"]` died with an AttributeError. A crash is not a refusal: it says the
+    viewer was reading a snapshot it had already failed to understand."""
+    sys.path.insert(0, str(Path(__file__).parent))
+    import view
+
+    evs = [_fake_event(s) for s in ("git", "note", "agenda", "journal", "timelog")]
+    raw = collect.events_bytes(evs)
+    good = {"schema_version": "1", "as_of": "2026-07-14T00:00:00+09:00",
+            "events_sha256": collect.sha256(raw),
+            "content_sha256": collect.sha256(collect.content_bytes(evs)),
+            "counts": {"events": len(evs)},
+            "sources": [{"name": n, "status": "ok"} for n in
+                        ("git", "note", "agenda", "journal", "timelog")]}
+    ok("a well-formed FULL is accepted", view.verify(raw, evs, {"manifest": good}) == [])
+
+    for label, m in (
+            ("no manifest at all", None),
+            ("a manifest that is a string", "manifest"),
+            ("sources as an empty object", {**good, "sources": {}}),
+            ("sources as a list of strings", {**good, "sources": ["bad"]}),
+            # Not iterable at all. These are the ones that make the type check load-bearing:
+            # without it the row check walks straight into a TypeError, and a crash is not a
+            # refusal. Leave them out and the guard has no witness — the revert audit caught
+            # exactly that.
+            ("sources that are nothing", {**good, "sources": None}),
+            ("sources that are a number", {**good, "sources": 5}),
+            ("sources missing from the manifest", {k: v for k, v in good.items()
+                                                   if k != "sources"}),
+            ("a source row with no status", {**good, "sources": [{"name": "git"}]}),
+            ("a status nobody defined", {**good, "sources": [{"name": "git",
+                                                              "status": "fine"}]}),
+            ("a depth missing entirely", {**good, "sources": good["sources"][:4]}),
+            ("a schema this viewer cannot read", {**good, "schema_version": "99"}),
+            ("an as_of that is not an instant", {**good, "as_of": "어제"}),
+            ("an as_of with no timezone", {**good, "as_of": "2026-07-14T00:00:00"}),
+            # The axis cuts its days at +09:00. A bound in another zone is another midnight,
+            # so having *a* timezone was never the question — having this one is.
+            ("an as_of in UTC", {**good, "as_of": "2026-07-14T00:00:00+00:00"}),
+            ("an as_of in some other zone", {**good, "as_of": "2026-07-14T00:00:00+05:30"}),
+            # Exactly five, once each. A roster with a stranger on it, or with `git` on it
+            # twice under two statuses, is not this axis's roster — and "is any source
+            # unreadable" then asks the wrong list.
+            ("a source this axis does not collect",
+             {**good, "sources": good["sources"] + [{"name": "zotero", "status": "ok"}]}),
+            ("a source named twice",
+             {**good, "sources": good["sources"] + [{"name": "git", "status": "empty"}]}),
+            ("a fingerprint that is not a hash", {**good, "events_sha256": 123}),
+            ("a content hash that is not a hash", {**good, "content_sha256": "nope"}),
+            ("counts that are not counts", {**good, "counts": "many"}),
+            ("a negative count", {**good, "counts": {"events": -1}}),
+            ("a count that is a bool", {**good, "counts": {"events": True}})):
+        snapshot = {"manifest": m} if m is not None else {}
+        try:
+            errs = view.verify(raw, evs, snapshot)
+            ok(f"REFUSED: {label}", bool(errs), (errs or ["accepted it"])[0][:60])
+        except Exception as exc:                                   # noqa: BLE001
+            ok(f"REFUSED: {label}", False, f"crashed instead: {type(exc).__name__}")
+
+
+def test_the_quiet_day_stays_quiet_when_the_screen_is_filtered():
+    """The one judgement the page makes is `quiet`: the residue is silent and the life is
+    not. It is a fact about the day. It used to be re-derived in the browser from whatever
+    the domain filter had left — and depth 0 carries no domain, so picking any domain emptied
+    the depth-0 lane and 2026-02-07 stopped being quiet: gold marker gone, explanation gone,
+    `잔여물 침묵 0일` in the status bar. The day had not changed. So the predicate is computed
+    once, in Python, over every event, and the page only reads the flag."""
+    sys.path.insert(0, str(Path(__file__).parent))
+    import view
+
+    lived = _fake_event("timelog")                     # depth 0: 611 minutes, no domain
+    lived["date_kst"] = "2026-02-07"
+    worked = _fake_event("git")                        # depth 3, on another day, in a domain
+    worked["domain"] = "agent"
+    rows = {d["d"]: d for d in view.grid([lived, worked])}
+
+    ok("the day with only a life on it is quiet", rows["2026-02-07"].get("q") is True)
+    ok("the day with residue on it is not", rows["2026-07-13"].get("q") is False)
+    ok("the flag travels with the day, not with the filter",
+       "q" in rows["2026-02-07"] and view.is_quiet(rows["2026-02-07"]["n"]))
+    ok("the days between are drawn, empty, and not quiet — an absent day is a visible gap",
+       len(rows) == 157 and not any(rows[d].get("q") for d in rows if d not in
+                                    ("2026-02-07", "2026-07-13")))
+    # The page must read the flag rather than recompute it from the filtered counts.
+    ok("the page reads the flag it was given", "const isQuiet = d => d.q;" in view.HTML)
+
+
+def test_a_title_cannot_close_the_script_tag():
+    """A title is free text the operator wrote. `fix: escape </script> in the template` is a
+    commit message someone will write, and it would close the tag carrying the data and drop
+    the rest of the page into the document as markup. The side panel already knew titles are
+    data (`textContent`, never markup); the hole was the channel that carries them there."""
+    sys.path.insert(0, str(Path(__file__).parent))
+    import view
+
+    evs = [_fake_event("git")]
+    evs[0]["title"] = "fix: escape </script><h1>pwned</h1> in the template"
+    html = view.build(evs, None)
+    ok("the data cannot close the script tag it rides in", html.count("</script>") == 1)
+    ok("no injected markup lands in the document", "<h1>pwned</h1>" not in html)
+    ok("and the title is still carried, escaped", "\\u003c/script" in html)
+
+
 def main() -> int:
     for t in (test_time, test_range, test_identity, test_ambiguity_is_rejected,
               test_agenda_occurrence, test_stamp_identity_ignores_the_query_window,
@@ -878,7 +1266,16 @@ def main() -> int:
               test_query_never_reads_the_clock, test_sort_is_total,
               test_a_snapshot_can_name_itself,
               test_the_registry_can_be_read_from_two_files,
-              test_the_registry_reports_both_of_its_gaps):
+              test_the_registry_reports_both_of_its_gaps,
+              test_a_failed_run_leaves_the_last_good_full_alone,
+              test_a_full_replaces_its_predecessor_or_leaves_it_alone,
+              test_the_fingerprint_answers_the_question_it_is_asked,
+              test_a_journal_ref_carries_no_line_number,
+              test_the_time_log_comment_never_reaches_the_axis,
+              test_the_viewer_refuses_a_snapshot_it_did_not_draw,
+              test_a_malformed_snapshot_is_refused_not_crashed_on,
+              test_the_quiet_day_stays_quiet_when_the_screen_is_filtered,
+              test_a_title_cannot_close_the_script_tag):
         print(f"\n{t.__name__}")
         t()
     print()
