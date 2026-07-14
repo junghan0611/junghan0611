@@ -19,6 +19,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
+import collect  # noqa: E402
 from collect import (KST, Reject, Repos, _event, check, device_name,  # noqa: E402
                      duplicate_ids, forge_id_from_remote, in_range, load_registry,
                      make_event_id, normalize_git_ts, parse_agenda_ts, parse_denote_id,
@@ -272,13 +273,25 @@ def test_journal_has_no_domain():
        not [e for e in events if e["domain"] == "unmapped"])
 
 
-FAKE_LIFETRACT = """#!/bin/sh
+def fake_lifetract(reach: str | None = "2026-07-13") -> str:
+    """A stand-in that answers both questions the collector asks: what happened, and how
+    far down the log actually goes. `reach=None` is the older binary that cannot say."""
+    status = ('{"database": {}}' if reach is None
+              else '{"database": {"last_time_block": "%s"}}' % reach)
+    return f"""#!/bin/sh
+if [ "$1" = "status" ]; then
+  echo '{status}'
+  exit 0
+fi
 cat <<'JSON'
-[{"date": "2026-07-12", "categories": [{"name": "\\uc218\\uba74", "minutes": 514},
-                                       {"name": "\\uac00\\uc871", "minutes": 636.4}]},
- {"date": "2026-07-11", "categories": [{"name": "\\uc218\\uba74", "minutes": 0}]}]
+[{{"date": "2026-07-12", "categories": [{{"name": "\\uc218\\uba74", "minutes": 514}},
+                                       {{"name": "\\uac00\\uc871", "minutes": 636.4}}]}},
+ {{"date": "2026-07-11", "categories": [{{"name": "\\uc218\\uba74", "minutes": 0}}]}}]
 JSON
 """
+
+
+FAKE_LIFETRACT = fake_lifetract()
 
 
 def timelog_events(tool: str | None):
@@ -348,6 +361,106 @@ def test_the_collector_does_not_own_the_time_log():
     ok("the collector never opens the database itself",
        "import sqlite3" not in src and "sqlite3." not in src)
     ok("the time log is read through the skill", "lifetract" in src)
+
+
+def a_day(source, day):
+    return {"source": source, "date_kst": day}
+
+
+def test_a_lagging_depth_zero_that_misses_a_lived_day_is_stale():
+    """The failure this exists to stop, stated as a rule.
+
+    Depth 0 comes off a phone by hand, and it once sat two months behind while git, agenda
+    and journal ran on to July. The collector called that `ok` — 8,000-odd events, no
+    warning — and so those weeks read as weeks of rest. They were not; nobody had exported.
+
+    A lag is a lie only once something else testifies the days were lived. So: a day that
+    carries a commit, a stamp or a journal line happened, and if depth 0 stops before it,
+    the hours are unrecorded rather than unlived. The source says `stale` and names the
+    day. It cannot be skimmed as fine, and it tells the reader what to do about it."""
+    src = collect.Source("timelog")
+    src.reaches = "2026-05-18"
+    src.done(8114)
+    ok("a source that read cleanly starts out ok", src.status == "ok")
+    collect.flag_unrecorded_days(
+        [a_day("timelog", "2026-05-18"), a_day("git", "2026-07-13"),
+         a_day("journal", "2026-07-12")], src)
+    ok("depth 0 stopping short of a day other sources saw is not ok",
+       src.status == "stale")
+    ok("...and the gap is named, with the act that closes it",
+       src.errors and "2026-05-18" in src.errors[0] and "phone" in src.errors[0])
+    ok("the reach is on the record either way", src.report()["reaches"] == "2026-05-18")
+
+
+def test_depth_zero_lagging_a_day_nobody_lived_is_not_stale():
+    """The other half of the rule, and the reason it can be trusted.
+
+    The export is a hand act, so depth 0 is normally a day or two behind and that says
+    nothing false — this morning's blocks are still on the phone, and no other source
+    claims those hours either. An alarm that fires every morning is an alarm nobody reads,
+    and then the two-month hole slips past under the noise it taught everyone to ignore."""
+    src = collect.Source("timelog")
+    src.reaches = "2026-07-13"
+    src.done(8400)
+    collect.flag_unrecorded_days(
+        [a_day("timelog", "2026-07-13"), a_day("git", "2026-07-13")], src)
+    ok("a bottom that reaches every day the axis can see is ok", src.status == "ok")
+    ok("and it says nothing alarming", src.errors == [])
+
+
+def test_a_skill_that_cannot_say_its_reach_says_that_much():
+    """An older binary answers `status` without the field. Unknown freshness is reported as
+    unknown — the collector must not let silence pass for a current bottom."""
+    src = collect.Source("timelog")
+    src.reaches = None
+    src.done(8400)
+    collect.flag_unrecorded_days([a_day("git", "2026-07-14")], src)
+    ok("an unknown reach is written down, not assumed current",
+       src.errors and "freshness unknown" in src.errors[0])
+    ok("and no reach is claimed", "reaches" not in src.report())
+
+
+FAKE_LIFETRACT_TZ = """#!/bin/sh
+if [ "$1" = "status" ]; then exit 1; fi
+printf '[{"date": "2026-07-12", "categories": [{"name": "TZ=%s", "minutes": 1}]}]\\n' \
+"${TZ:-unset}"
+"""
+
+
+def test_the_child_is_told_which_zone_this_axis_lives_in():
+    """The collector pins TZ for the lifetract child, and this is what proves it still does.
+
+    The zone must not be the caller's to choose: a shell must not decide which day a night
+    belonged to. Nothing else in this file would notice if the pin were dropped —
+    test_tz_determinism exercises the parsers, not the subprocess, and the other depth-0
+    tests use a fake that ignores its environment. So a fake that reports the zone it was
+    run under is the only witness. Remove the `env=` from collect_timelog and this fails;
+    that is the whole point of it.
+
+    The skill was fixed to compute in KST regardless (2026-07-14), so this is now belt and
+    braces — but the binaries on this disk are older than the fix, and stating the axis's
+    zone is right even when the callee no longer needs to be told."""
+    import tempfile
+    before = os.environ.get("TZ")
+    seen = []
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            tool = Path(tmp) / "lifetract"
+            tool.write_text(FAKE_LIFETRACT_TZ)
+            tool.chmod(0o755)
+            for tz in ("UTC", "Pacific/Kiritimati"):
+                os.environ["TZ"] = tz
+                time.tzset()
+                events, _ = timelog_events(str(tool))
+                seen.append(events[0]["title"] if events else "no events")
+    finally:
+        if before is None:
+            os.environ.pop("TZ", None)
+        else:
+            os.environ["TZ"] = before
+        time.tzset()
+    ok("the child reads the time log in KST however the caller's shell is set",
+       seen == ["TZ=Asia/Seoul", "TZ=Asia/Seoul"])
 
 
 def test_remote_identity():
@@ -595,6 +708,10 @@ def main() -> int:
               test_depth_zero_is_a_span_not_a_moment,
               test_a_missing_skill_is_a_hole_not_a_zero,
               test_the_collector_does_not_own_the_time_log,
+              test_the_child_is_told_which_zone_this_axis_lives_in,
+              test_a_lagging_depth_zero_that_misses_a_lived_day_is_stale,
+              test_depth_zero_lagging_a_day_nobody_lived_is_not_stale,
+              test_a_skill_that_cannot_say_its_reach_says_that_much,
               test_remote_identity, test_a_commit_is_found_by_sha_not_by_name,
               test_clones_that_disagree_about_a_prefix, test_tz_determinism,
               test_query_never_reads_the_clock, test_sort_is_total,

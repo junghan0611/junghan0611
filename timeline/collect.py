@@ -296,6 +296,7 @@ class Source:
         self.errors: list[str] = []
         self.rejected: list[dict] = []
         self.accepted = 0
+        self.reaches: str | None = None
 
     def reject(self, reason: str, where: str):
         self.rejected.append({"reason": reason, "where": where})
@@ -304,14 +305,25 @@ class Source:
         self.status = "unreadable"
         self.errors.append(msg)
 
+    def stale(self, msg: str):
+        """Readable, and what it says is old. A source whose data stops two months back
+        while the run reaches today is not `ok`, and calling it `ok` is how a lived day
+        gets read as a day of rest. `stale` cannot be skimmed as fine."""
+        if self.status != "unreadable":
+            self.status = "stale"
+        self.errors.append(msg)
+
     def done(self, n: int):
         self.accepted = n
-        if self.status != "unreadable":
+        if self.status not in ("unreadable", "stale"):
             self.status = "partial" if self.rejected else "ok"
 
     def report(self) -> dict:
-        return {"name": self.name, "status": self.status, "accepted": self.accepted,
-                "rejected": len(self.rejected), "errors": self.errors[:20]}
+        r = {"name": self.name, "status": self.status, "accepted": self.accepted,
+             "rejected": len(self.rejected), "errors": self.errors[:20]}
+        if self.reaches is not None:
+            r["reaches"] = self.reaches
+        return r
 
 
 def _event(source: str, entity_id: str, time_kind: str, tp: dict, domain: str, layer: str,
@@ -773,6 +785,27 @@ def lifetract_bin() -> Path | None:
     return next((c for c in cands if c.is_file() and os.access(c, os.X_OK)), None)
 
 
+def timelog_reach(tool: Path, env: dict) -> str | None:
+    """The last day depth 0 actually has, whatever window this run asked for.
+
+    This is not `max(date_kst)` of the events we kept — that would only ever report the
+    edge of the window, which tells the reader nothing about the source. The skill knows
+    where its own data stops, so it is asked.
+
+    An older binary answers `status` without the field. That returns None, which the
+    manifest prints as an unknown reach, and unknown is the truth: this collector cannot
+    tell, and saying so beats implying the bottom is current."""
+    r = subprocess.run([str(tool), "status"], capture_output=True, text=True, env=env)
+    if r.returncode != 0:
+        return None
+    try:
+        out = json.loads(r.stdout or "{}")
+    except json.JSONDecodeError:
+        return None
+    db = out.get("database") if isinstance(out, dict) else None
+    return db.get("last_time_block") if isinstance(db, dict) else None
+
+
 def collect_timelog(repos: Repos, frm: datetime, as_of: datetime,
                     src: Source) -> list[dict]:
     """Depth 0 — the day as it was lived. The one source this collector does not parse.
@@ -791,23 +824,35 @@ def collect_timelog(repos: Repos, frm: datetime, as_of: datetime,
     day-only note.
 
     If the tool is missing the source says `unreadable`. It does NOT quietly reach past it
-    into the database: a depth-0 hole must be visible, not filled by a shortcut."""
+    into the database: a depth-0 hole must be visible, not filled by a shortcut.
+
+    And a hole is not only an absence — it is also an age. Depth 0 arrives by a hand export
+    from a phone, so its bottom lags whenever nobody has exported; it once sat two months
+    behind while every other source reached today. A run that reports 8,400 events and
+    `ok` while the blocks stop in May tells the reader that those weeks were unlived. So
+    the collector asks the skill how fresh it is and writes the answer down: `reaches` is
+    the last day depth 0 has, and a source the skill calls stale is reported `stale`, not
+    `ok`. The skill owns that judgement — we consume it rather than re-deriving it."""
     tool = lifetract_bin()
     if tool is None:
         src.unreadable("lifetract not found; set $LIFETRACT")
         return []
-    # --days is relative to today, so ask for a window that reaches `frm` and let the
-    # range filter below do the deciding. The extra days change nothing: the same --as-of
-    # yields the same events tomorrow.
-    days = (datetime.now(KST).date() - frm.date()).days + 2
-    # TZ is pinned for the child, because the skill reads it: run under TZ=UTC and it
-    # files the same blocks on different days (a day lost 220 minutes in the check). The
-    # canonical zone is this axis's contract, so the collector states it rather than
-    # letting the caller's shell decide what day a night belonged to. The skill should not
-    # depend on $TZ at all — that is a bug for every consumer, and it is filed as one.
-    r = subprocess.run([str(tool), "time", "--days", str(days)],
-                       capture_output=True, text=True,
-                       env={**os.environ, "TZ": "Asia/Seoul"})
+    # TZ is pinned for the child. The skill computes in KST since 2026-07-14, so this is
+    # belt and braces — but an older binary on some disk still reads $TZ (under TZ=UTC a
+    # day lost 220 minutes), and stating the axis's zone is right even when the callee no
+    # longer needs telling. A shell must not decide which day a night belonged to.
+    env = {**os.environ, "TZ": "Asia/Seoul"}
+    src.reaches = timelog_reach(tool, env)
+    # The window is half-open [from, to), which is what `as_of` already means, so the two
+    # line up exactly and no margin is needed. The old `--days N` form cut at "now minus
+    # N×24h" — an instant mid-day, not a midnight — and silently truncated the oldest day
+    # of every window: --days 2 reported 79 minutes of 독서 on 2026-07-12 where --days 3
+    # reported 139.5, with no warning either time. That is fixed in the skill now; asking
+    # for the window we actually want is how the fix is used.
+    r = subprocess.run([str(tool), "time",
+                        "--from", frm.date().isoformat(),
+                        "--to", as_of.date().isoformat()],
+                       capture_output=True, text=True, env=env)
     if r.returncode != 0:
         src.unreadable(f"lifetract time failed: {r.stderr.strip()[:200]}")
         return []
@@ -881,6 +926,33 @@ def tally(items) -> dict:
 # ---------------------------------------------------------------------------- main
 
 
+def flag_unrecorded_days(events: list[dict], timelog: Source) -> None:
+    """Depth 0 arrives by hand, so it lags — and a lag is only a lie once the axis has
+    evidence the days were lived.
+
+    The rule needs no threshold and no guess. If a day carries commits, stamps or a journal
+    line, that day happened; if depth 0 stops before it, those hours are unrecorded rather
+    than unlived, and the source is `stale`. If nothing else speaks for those days either,
+    depth 0 lagging by a day or two says nothing false, and the run stays `ok` — which is
+    why this does not cry wolf every morning before the export.
+
+    That distinction is the whole point. The axis once had depth 0 stopping in May while
+    git, agenda and journal ran to July, reported `ok`, and read those weeks as rest."""
+    if timelog.status == "unreadable":
+        return
+    if timelog.reaches is None:
+        timelog.errors.append("lifetract did not say how far depth 0 reaches "
+                              "(old binary?) — freshness unknown")
+        return
+    after = sorted({e["date_kst"] for e in events
+                    if e["source"] != "timelog" and e["date_kst"] > timelog.reaches})
+    if after:
+        timelog.stale(
+            f"depth 0 stops at {timelog.reaches}, but {len(after)} later day(s) "
+            f"({after[0]}…{after[-1]}) carry events from other sources — those hours are "
+            f"unrecorded, not unlived. Export the time log from the phone.")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="collect the LOCAL FULL event log")
     ap.add_argument("--from", dest="frm", default="2015-01-01", metavar="YYYY-MM-DD")
@@ -908,6 +980,8 @@ def main() -> int:
         src.done(len(evs))
         events += evs
         log(f"[{name}] {src.status} accepted={src.accepted} rejected={len(src.rejected)}")
+
+    flag_unrecorded_days(events, sources["timelog"])
 
     broken = [{"event_id": e["event_id"], "errors": errs}
               for e in events if (errs := check(e))]
