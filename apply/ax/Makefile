@@ -1,4 +1,4 @@
-.PHONY: all cuts html pdf md check leak repro clean
+.PHONY: all cuts html pdf md check leak repro publish clean
 
 SOURCE := ax.org
 # `ax.org` #+includes the timeline reading, so the reading is a source of every view. Make
@@ -155,6 +155,23 @@ repro:
 	 rm -rf $$a $$b; \
 	 [ $$fail -eq 0 ] || { echo 'DIFFERS: the build did not reproduce'; exit 1; }; \
 	 echo 'OK: two clean builds — identical HTML, Markdown, and extracted PDF text'
+
+# The web root is not the build directory. `build/` also holds the .tex, the LaTeX logs, the
+# .xdv, and the profile cuts — intermediates that say how the document was made and would be
+# served to anyone who guessed the filename. So publishing copies out the five files that are
+# meant to be read, into a directory that holds nothing else.
+#
+# It runs `check` first, and that is the point: the leak gate is what stands between the
+# denylist and a public URL. Never wire a web server at `build/`, and never publish by
+# copying past this target.
+PUBLISH ?= /home/junghan/docker-data/ax
+
+publish: check
+	@mkdir -p $(PUBLISH)
+	@cp build/index.html build/record.html $(COMPETENCY).pdf $(PORTFOLIO).pdf $(DETAIL) \
+	  $(PUBLISH)/
+	@printf 'OK: published 5 files -> $(PUBLISH)\n'
+	@ls -1 $(PUBLISH)
 
 clean:
 	rm -rf $(BUILD)
