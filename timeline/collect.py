@@ -27,7 +27,12 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 SCHEMA_VERSION = "1"
-COLLECTOR_VERSION = "0.5.0"
+# 0.6.0 changed who counts as the operator: the author is matched by name OR email, where
+# 0.5.0 matched the name alone and silently dropped 740 of his own commits (500 in 2026).
+# Two FULLs that disagree by 500 commits in 2026 must not both call themselves 0.5.0 — a reader comparing
+# them would see a man who suddenly started committing more, not a collector that started
+# recognizing him. The version is where that difference is declared.
+COLLECTOR_VERSION = "0.6.0"
 
 # The sources, in depth order: 0 the life as lived, 1 the operator's own marks, 2 the
 # agents' traces, 3 the detail. `query.py` reads this list rather than keeping its own —
@@ -42,7 +47,21 @@ ROOTS = [HOME / "repos/gh", HOME / "repos/work"]
 DOMAINS_FILE = Path(__file__).parent / "domains.json"
 DOMAINS_LOCAL = Path(__file__).parent / "domains.local.json"   # gitignored; see load_registry
 
+# Where the skill deploy leaves its record of what it built, and the binary that record is
+# about. Both belong to `agent-config`, not to this repo — we read them, never write them.
+DEPLOYED_LIFETRACT = HOME / ".claude/skills/lifetract/lifetract"
+PROVENANCE = HOME / ".claude/skills/.provenance.json"
+
 KST = timezone(timedelta(hours=9), "KST")
+
+# Whose commits are the operator's. Matched against the author's name AND email, because
+# the name is a display string that every machine's gitconfig writes its own way —
+# `junghan`, `Junghan Kim`, `Jung Han`, `junghanacs`, `mayor`, `정한` all appear in this
+# history — while the email is the identity git actually carries. Matching the name alone
+# dropped 740 commits (500 in 2026, two whole days of the axis). Adding `Jung Han` would
+# recover 733/495 of them but still miss `mayor` and `정한`: those commits are only
+# recognizable by their address. On this disk these two keys match 19 distinct name/email
+# pairs and nothing that is not the operator.
 AUTHORS = ("junghan", "jhkim2")
 
 log = lambda *a: print(*a, file=sys.stderr)  # noqa: E731
@@ -297,6 +316,7 @@ class Source:
         self.rejected: list[dict] = []
         self.accepted = 0
         self.reaches: str | None = None
+        self.tool: dict | None = None       # the build of the skill that produced this
 
     def reject(self, reason: str, where: str):
         self.rejected.append({"reason": reason, "where": where})
@@ -333,6 +353,8 @@ class Source:
              "rejected": len(self.rejected), "errors": self.errors[:20]}
         if self.reaches is not None:
             r["reaches"] = self.reaches
+        if self.tool is not None:
+            r["tool"] = self.tool
         return r
 
 
@@ -361,25 +383,36 @@ def _event(source: str, entity_id: str, time_kind: str, tp: dict, domain: str, l
 # ----------------------------------------------------------------------------- git
 
 
+def is_operator(author: str, email: str) -> bool:
+    """Is this commit the operator's? Name and email are searched together, so a commit is
+    his if EITHER says so — the name may be anything the machine was configured with, but
+    the address stays his."""
+    return any(a in f"{author} {email}".lower() for a in AUTHORS)
+
+
 def collect_git(repos: Repos, frm: datetime, as_of: datetime, src: Source) -> list[dict]:
     """One commit, one authored event. The entity keeps the FULL sha: truncating it to
     the 7 chars an agenda stamp happens to carry would join the two by baking a
     collision risk into identity itself.
 
     `--all`, not HEAD. Work that was abandoned on a branch still happened, and keeping
-    only what got merged would leave a time axis that records nothing but the successes."""
+    only what got merged would leave a time axis that records nothing but the successes.
+
+    The author is read by name *and* email — see AUTHORS. A clone holds everyone's
+    commits, so this filter decides whose life the axis is measuring, and it was silently
+    dropping the operator's own work whenever his gitconfig wrote a different name."""
     events, seen = [], set()
     for fid, d in sorted(repos.clones):
         out = _sh(["git", "-C", str(d), "log", "--all", "--no-merges",
-                   "--pretty=format:%H\x1f%aI\x1f%an\x1f%s"])
+                   "--pretty=format:%H\x1f%aI\x1f%an\x1f%ae\x1f%s"])
         domain, layer = repos.domain_layer(fid)
         for line in out.splitlines():
             parts = line.split("\x1f")
-            if len(parts) != 4:
+            if len(parts) != 5:
                 src.reject("malformed_log_line", fid)
                 continue
-            sha, ts, author, subject = parts
-            if not any(a in author.lower() for a in AUTHORS):
+            sha, ts, author, email, subject = parts
+            if not is_operator(author, email):
                 continue
             if sha in seen:                 # duplicate clones share history
                 continue
@@ -788,11 +821,54 @@ def lifetract_bin() -> Path | None:
     if (env := os.environ.get("LIFETRACT")):
         p = Path(env)
         return p if p.is_file() and os.access(p, os.X_OK) else None
-    cands = [HOME / ".claude/skills/lifetract/lifetract",
+    cands = [DEPLOYED_LIFETRACT,
              HOME / ".pi/agent/skills/pi-skills/lifetract/lifetract"]
     if (w := shutil.which("lifetract")):
         cands.append(Path(w))
     return next((c for c in cands if c.is_file() and os.access(c, os.X_OK)), None)
+
+
+def tool_provenance(tool: Path) -> tuple[dict, str | None]:
+    """Which build of the skill produced depth 0.
+
+    `code_sha256` pins this file, and this file does not produce depth 0 — a lifetract
+    binary outside the repo does, and it is rebuilt without asking us. So a FULL that
+    fingerprints the collector and says nothing about the skill cannot actually be
+    reproduced: the same code and the same `--as-of`, run a week later against a rebuilt
+    lifetract, is a different measurement wearing the same fingerprint. The deploy writes
+    a record next to the skills, and the collector reads it rather than trusting the path.
+
+    Three answers, and the difference between the last two is the whole point:
+
+    - **No record**, or a record that does not describe the binary we actually chose
+      (`$LIFETRACT` aimed at a dev build): the sha is still computed and written, the
+      revision stays `null`. This collector cannot tell, and unknown is the truth.
+    - **Record agrees** with the binary: the four stable fields go into the manifest.
+      `generated_at` does not — a wall clock in the output would break the determinism the
+      rest of this file exists to protect.
+    - **Record disagrees**: that is not an absence, it is a contradiction. Someone rebuilt
+      the binary without redeploying, and the manifest is one line away from naming a
+      revision that did not produce these events. A snapshot carrying a false provenance is
+      worse than one carrying none, so depth 0 goes `unreadable` and the run is not a FULL.
+    """
+    digest = sha256(tool.read_bytes())
+    # Absolute install paths are deliberately absent: they vary by harness and home directory
+    # without changing the build. The stable identity is the binary hash plus the deploy record.
+    prov = {"sha256": digest, "repo": None, "vcs_revision": None, "src_tree": None}
+    try:
+        rec = json.loads(PROVENANCE.read_text())["tools"]["lifetract"]
+        if not isinstance(rec, dict):
+            raise TypeError
+    except (OSError, ValueError, KeyError, TypeError):
+        return prov, None                       # no record; the sha alone is what we know
+    if tool.resolve() != DEPLOYED_LIFETRACT.resolve():
+        return prov, None                       # the record is not about this binary
+    if rec.get("sha256") != digest:
+        return prov, (f"deployed lifetract does not match the provenance record: binary "
+                      f"{digest[:12]}, record {str(rec.get('sha256'))[:12]} — rebuilt "
+                      f"without redeploying, so depth 0's revision cannot be named")
+    prov.update({k: rec.get(k) for k in ("repo", "vcs_revision", "src_tree")})
+    return prov, None
 
 
 def timelog_reach(tool: Path, env: dict) -> str | None:
@@ -852,6 +928,10 @@ def collect_timelog(repos: Repos, frm: datetime, as_of: datetime,
     # day lost 220 minutes), and stating the axis's zone is right even when the callee no
     # longer needs telling. A shell must not decide which day a night belonged to.
     env = {**os.environ, "TZ": "Asia/Seoul"}
+    src.tool, mismatch = tool_provenance(tool)
+    if mismatch:
+        src.unreadable(mismatch)
+        return []
     src.reaches = timelog_reach(tool, env)
     # The window is half-open [from, to), which is what `as_of` already means, so the two
     # line up exactly and no margin is needed. The old `--days N` form cut at "now minus
@@ -870,6 +950,14 @@ def collect_timelog(repos: Repos, frm: datetime, as_of: datetime,
         payload = json.loads(r.stdout or "[]")
     except json.JSONDecodeError:
         src.unreadable("lifetract time returned no JSON")
+        return []
+    # A window with no blocks is `[]` — an empty day is a fact, and `done(0)` will call the
+    # source `empty`. `null` is not that: it is the skill declining to answer in a shape the
+    # contract allows, and iterating it would crash with a TypeError that says nothing about
+    # depth 0. The skill returns `[]` today; a consumer still has to catch the violation
+    # rather than assume the producer will never regress.
+    if not isinstance(payload, list):
+        src.unreadable(f"lifetract time returned {type(payload).__name__}, not an array")
         return []
 
     events = []

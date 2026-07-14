@@ -447,6 +447,87 @@ def test_a_skill_that_cannot_say_its_reach_says_that_much():
     ok("and no reach is claimed", "reaches" not in src.report())
 
 
+FAKE_LIFETRACT_NULL = """#!/bin/sh
+if [ "$1" = "status" ]; then echo '{"database": {"last_time_block": "2026-07-13"}}'; exit 0; fi
+echo 'null'
+"""
+
+
+def test_a_time_log_that_answers_null_is_not_an_empty_one():
+    """`[]` is an empty window — a fact, and `empty` is the word for it. `null` is the skill
+    declining to answer in a shape the contract allows, and the two must not arrive at the
+    same place. Before this guard, `null` reached `for day in payload` and died with a
+    TypeError that said nothing about depth 0; a consumer has to name the violation itself
+    rather than trust the producer never to regress."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        tool = Path(tmp) / "lifetract"
+        tool.write_text(FAKE_LIFETRACT_NULL)
+        tool.chmod(0o755)
+        events, src = timelog_events(str(tool))
+    ok("no events are invented from a malformed answer", events == [])
+    ok("and the source says it could not be read, not that it was empty",
+       src.status == "unreadable")
+    ok("and it says what shape it got", any("not an array" in e for e in src.errors))
+
+
+def deployed_lifetract(tmp: Path, body: str, record: dict | None) -> Path:
+    """Stand in for the deploy: a binary at the canonical path, and the record beside it
+    that claims to describe that binary."""
+    skills = tmp / ".claude/skills"
+    (skills / "lifetract").mkdir(parents=True)
+    tool = skills / "lifetract/lifetract"
+    tool.write_text(body)
+    tool.chmod(0o755)
+    collect.DEPLOYED_LIFETRACT = tool
+    collect.PROVENANCE = skills / ".provenance.json"
+    if record is not None:
+        collect.PROVENANCE.write_text(json.dumps({"tools": {"lifetract": record}}))
+    return tool
+
+
+def test_a_snapshot_names_the_build_that_produced_depth_zero():
+    """`code_sha256` pins this collector, and this collector does not produce depth 0 — a
+    binary outside the repo does, and it is rebuilt without asking. A FULL that fingerprints
+    the collector while saying nothing about the skill cannot be reproduced.
+
+    Three answers, and the third is the one worth a test: a record that DISAGREES with the
+    binary is not an absence, it is a contradiction — someone rebuilt without redeploying,
+    and the manifest is one line from naming a revision that did not produce these events."""
+    import tempfile
+    keep = (collect.DEPLOYED_LIFETRACT, collect.PROVENANCE)
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            tool = deployed_lifetract(Path(tmp), FAKE_LIFETRACT, None)
+            digest = collect.sha256(tool.read_bytes())
+            rec = {"repo": "lifetract", "vcs_revision": "34a28cc", "src_tree": "688d7a0",
+                   "sha256": digest}
+
+            _, src = timelog_events(str(tool))                    # no record at all
+            ok("with no record the sha is still written down",
+               src.tool["sha256"] == digest and src.status == "ok")
+            ok("and no revision is claimed", src.tool["vcs_revision"] is None,
+               "unknown is the truth; this collector cannot tell")
+
+            collect.PROVENANCE.write_text(json.dumps({"tools": {"lifetract": rec}}))
+            _, src = timelog_events(str(tool))                    # record agrees
+            ok("an agreeing record names the revision that produced depth 0",
+               src.tool["vcs_revision"] == "34a28cc" and src.tool["src_tree"] == "688d7a0")
+            ok("and the source is readable", src.status == "ok")
+            ok("no wall clock rides along", "generated_at" not in src.tool)
+
+            collect.PROVENANCE.write_text(json.dumps(
+                {"tools": {"lifetract": {**rec, "sha256": "0" * 64}}}))
+            events, src = timelog_events(str(tool))               # record disagrees
+            ok("a record that disagrees with the binary makes depth 0 unreadable",
+               src.status == "unreadable" and events == [],
+               "a snapshot carrying a false provenance is worse than one carrying none")
+            ok("and it says which two hashes disagree",
+               any("provenance record" in e for e in src.errors))
+    finally:
+        collect.DEPLOYED_LIFETRACT, collect.PROVENANCE = keep
+
+
 FAKE_LIFETRACT_TZ = """#!/bin/sh
 if [ "$1" = "status" ]; then exit 1; fi
 printf '[{"date": "2026-07-12", "categories": [{"name": "TZ=%s", "minutes": 1}]}]\\n' \
@@ -537,6 +618,55 @@ def test_a_commit_is_found_by_sha_not_by_name():
        == ("github.com/junghanacs/andenken", "68b10f2"))
     ok("a release stamp is not a commit stamp",
        commit_ref("v1 https://github.com/junghan0611/entwurf/releases/tag/v1") is None)
+
+
+def test_the_operator_is_known_by_his_address_not_his_display_name():
+    """A clone holds everyone's commits, so the author filter decides whose life this axis
+    measures — and it was quietly dropping the operator's own.
+
+    The display name is whatever a machine's gitconfig was set to that year: `junghan`,
+    `Junghan Kim`, `Jung Han`, `mayor`, `정한` all sign real commits here. Matching the name
+    alone lost 740 of them, 500 in 2026, and two whole days fell out of the axis. Adding
+    `Jung Han` would recover 733/495 but still miss seven: `mayor` and `정한` share no substring with any
+    spelling of the name — they are only recognizable by the address they were sent from.
+
+    So this asserts the *rule*, not a list of spellings: a commit is his if the name OR the
+    email says so, and a stranger's commit stays out. Revert `is_operator` to the name and
+    the last three of these fail."""
+    import subprocess
+    import tempfile
+    from collect import Repos, collect_git
+
+    mine = [("Jung Han", "junghanacs@gmail.com", "the name with a space"),
+            ("mayor", "31724164+junghan0611@users.noreply.github.com", "a nickname"),
+            ("정한", "jhkim2@example.invalid", "the name in Korean")]
+    with tempfile.TemporaryDirectory() as tmp:
+        run = lambda *a: subprocess.run(["git", "-C", tmp, *a], capture_output=True,
+                                        text=True, check=True)
+        run("init", "-q", "-b", "main")
+        run("commit", "-q", "--allow-empty", "-m", "plain junghan",
+            "--author", "junghan <junghanacs@gmail.com>")
+        for name, email, subject in mine:
+            run("commit", "-q", "--allow-empty", "-m", subject,
+                "--author", f"{name} <{email}>")
+        run("commit", "-q", "--allow-empty", "-m", "somebody else's work",
+            "--author", "Peter Steinberger <steipete@gmail.com>")
+
+        repos = Repos.__new__(Repos)
+        repos.clones = [("github.com/junghan0611/x", Path(tmp))]
+        repos.domains, repos.unmapped = {}, set()
+        src = collect.Source("git")
+        frm, as_of = parse_kst("2000-01-01T00:00:00+09:00"), parse_kst(
+            "2100-01-01T00:00:00+09:00")
+        got = {e["title"] for e in collect_git(repos, frm, as_of, src)}
+
+    ok("the log line still parses after the email was added to it",
+       not src.rejected, f"rejected: {src.rejected[:2]}")
+    ok("the plain spelling is still his", "plain junghan" in got)
+    for _, _, subject in mine:
+        ok(f"and so is {subject}", subject in got)
+    ok("a stranger's commit stays out of his time axis",
+       "somebody else's work" not in got)
 
 
 def test_clones_that_disagree_about_a_prefix():
@@ -740,7 +870,10 @@ def main() -> int:
               test_a_lagging_depth_zero_that_misses_a_lived_day_is_stale,
               test_depth_zero_lagging_a_day_nobody_lived_is_not_stale,
               test_a_skill_that_cannot_say_its_reach_says_that_much,
+              test_a_time_log_that_answers_null_is_not_an_empty_one,
+              test_a_snapshot_names_the_build_that_produced_depth_zero,
               test_remote_identity, test_a_commit_is_found_by_sha_not_by_name,
+              test_the_operator_is_known_by_his_address_not_his_display_name,
               test_clones_that_disagree_about_a_prefix, test_tz_determinism,
               test_query_never_reads_the_clock, test_sort_is_total,
               test_a_snapshot_can_name_itself,
