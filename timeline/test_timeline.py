@@ -408,6 +408,33 @@ def test_depth_zero_lagging_a_day_nobody_lived_is_not_stale():
     ok("and it says nothing alarming", src.errors == [])
 
 
+def test_a_source_that_gave_nothing_is_not_ok():
+    """The fifth face of the one bug this axis kept meeting: something is missing, and the
+    run says it is fine.
+
+    `ok` means read-and-had-something, and readers skim it as the second. A disk where
+    `~/org` never mounted returns notes: accepted 0, rejected 0, `ok` — an entire depth
+    reported as fine and absent, which is how a lived stretch gets read as an empty one.
+    So zero is `empty`, a word that cannot be skimmed as fine. A genuinely quiet window
+    says `empty` as well, and that is simply true of that run."""
+    quiet = collect.Source("note")
+    quiet.done(0)
+    ok("a source that handed back nothing does not call itself ok",
+       quiet.status == "empty")
+    speaking = collect.Source("note")
+    speaking.done(5512)
+    ok("...and a source that did its job still says ok", speaking.status == "ok")
+    torn = collect.Source("note")
+    torn.reject("dup_denote_id", "20240101T000000")
+    torn.done(3)
+    ok("rejects with events kept are still partial", torn.status == "partial")
+    gone = collect.Source("timelog")
+    gone.unreadable("lifetract not found")
+    gone.done(0)
+    ok("and an unreadable source stays unreadable, not merely empty",
+       gone.status == "unreadable")
+
+
 def test_a_skill_that_cannot_say_its_reach_says_that_much():
     """An older binary answers `status` without the field. Unknown freshness is reported as
     unknown — the collector must not let silence pass for a current bottom."""
@@ -709,6 +736,7 @@ def main() -> int:
               test_a_missing_skill_is_a_hole_not_a_zero,
               test_the_collector_does_not_own_the_time_log,
               test_the_child_is_told_which_zone_this_axis_lives_in,
+              test_a_source_that_gave_nothing_is_not_ok,
               test_a_lagging_depth_zero_that_misses_a_lived_day_is_stale,
               test_depth_zero_lagging_a_day_nobody_lived_is_not_stale,
               test_a_skill_that_cannot_say_its_reach_says_that_much,

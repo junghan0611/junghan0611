@@ -314,9 +314,19 @@ class Source:
         self.errors.append(msg)
 
     def done(self, n: int):
+        """A source that handed back nothing is `empty`, never `ok`.
+
+        `ok` says two things at once — I read it, and it had something to say — and the
+        second is the one that gets skimmed. Point the collector at a machine where `~/org`
+        never mounted and notes come back zero, rejected zero, `ok`: a whole depth reported
+        as fine and absent. Every silence this axis met was of that shape, so a source that
+        gives nothing must say so in the word a reader cannot misread. An honestly quiet
+        window says `empty` too, and that costs nothing — `empty` is a fact about this run,
+        not an accusation."""
         self.accepted = n
-        if self.status not in ("unreadable", "stale"):
-            self.status = "partial" if self.rejected else "ok"
+        if self.status in ("unreadable", "stale"):
+            return
+        self.status = "empty" if n == 0 else ("partial" if self.rejected else "ok")
 
     def report(self) -> dict:
         r = {"name": self.name, "status": self.status, "accepted": self.accepted,
