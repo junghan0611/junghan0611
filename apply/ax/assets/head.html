@@ -1,0 +1,91 @@
+<!-- head.html — injected verbatim before </head> in index.html and record.html by the
+     Makefile, AFTER pandoc. It is not passed through pandoc's --embed-resources on purpose:
+     the Umami tag is an external <script src> that must stay a live reference (its own
+     data-website-id is how Umami identifies the site), and inlining it would both break that
+     and make the build fetch the network. So it is post-injected, stays deterministic and
+     offline, and `make check` greps the shipped HTML to keep this honest.
+
+     Everything here is site-level (analytics, identity schema, favicon) and valid on every
+     page, so one file serves both the landing and the record. No per-page canonical/og:url is
+     set for that reason. Serving (Caddy, TLS, the Umami server itself) is nixos-config's
+     surface; this file only carries the one line the site's SSOT must own — the analytics tag,
+     because Caddy deliberately injects nothing. -->
+
+<meta name="description" content="최근 1년의 AX·에이전트 플랫폼 작업을 코드, 운영 기록, 제3자의 행동, 라이브 집계, 공개 시간축으로 검증하는 기록면." />
+
+<!-- Link-preview basics for when the URL is shared into a messenger or LinkedIn. No og:image:
+     there is no hosted image asset here, and a data: URI is not honored by crawlers. -->
+<meta property="og:type" content="profile" />
+<meta property="og:site_name" content="ax.junghanacs.com" />
+<meta property="og:title" content="에이전트 플랫폼 운영과 조직 AX 전환" />
+<meta property="og:description" content="한 사람의 지식과 시간을 어디까지 가꿀 수 있는가 — 지난 1년의 AX 작업을 코드·인시던트·라이브 집계·공개 시간축으로 검증하는 기록면." />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="에이전트 플랫폼 운영과 조직 AX 전환" />
+<meta name="twitter:description" content="지난 1년의 AX·에이전트 플랫폼 작업을 검증 가능한 공개 증거로." />
+
+<!-- Self-contained SVG favicon (data URI): a paper-on-ink "AX" monogram in the dossier's own
+     palette. No hosted file, so /favicon.ico is never requested and the build stays offline. -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20fill='%23171717'/%3E%3Ctext%20x='32'%20y='44'%20font-family='ui-sans-serif%2Csystem-ui%2Csans-serif'%20font-size='30'%20font-weight='700'%20letter-spacing='-1'%20text-anchor='middle'%20fill='%23fbfaf7'%3EAX%3C/text%3E%3C/svg%3E" />
+
+<!-- Umami — privacy-first, cookieless analytics. Self-hosted at analytics.junghanacs.com.
+     Same pattern as geworfen; this site's own website-id. -->
+<script defer src="https://analytics.junghanacs.com/script.js" data-website-id="e3d37714-c377-4a83-b1a9-b82cec668368"></script>
+
+<!-- schema.org JSON-LD. The Person mirrors the garden's canonical node (same alternateName and
+     sameAs) so an AI knowledge graph merges this dossier with notes.junghanacs.com instead of
+     reading it as a stranger. Dates are static (from the source), not wall-clock, so two clean
+     builds stay byte-identical. No employer, referrer, or application route appears — the leak
+     gate greps this shipped HTML like any other artifact. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://ax.junghanacs.com/#person",
+      "name": "Junghan Kim",
+      "givenName": "Junghan",
+      "familyName": "Kim",
+      "alternateName": ["GLG", "GLGMAN", "힣", "힣맨", "정한"],
+      "url": "https://ax.junghanacs.com",
+      "email": "junghanacs@gmail.com",
+      "jobTitle": "AX / Agent-Platform Engineer",
+      "description": "에이전트 플랫폼을 운영하고 그 위에 메모리·디스패치·검토 가능한 개발 루프 계층을 쌓은 엔지니어이자 디지털 가드너. NixOS·Emacs·Org-mode로 재현 가능한 지식 환경을 만들고 공개 디지털 가든으로 배포한다.",
+      "knowsLanguage": ["ko", "en"],
+      "knowsAbout": ["Agent Experience (AX)", "AI agents", "Claude Code", "Agentic AI", "Large Language Models", "RAG", "Linux", "Docker", "Personal Knowledge Management", "Emacs", "Org-mode", "NixOS", "Digital Gardens"],
+      "sameAs": [
+        "https://notes.junghanacs.com/#person",
+        "https://junghanacs.com/",
+        "https://notes.junghanacs.com/",
+        "https://agenda.junghanacs.com/",
+        "https://github.com/junghan0611",
+        "https://github.com/junghanacs",
+        "https://kr.linkedin.com/in/junghan-kim-1489a4306",
+        "https://bsky.app/profile/junghanacs.bsky.social",
+        "https://fosstodon.org/@junghanacs"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://ax.junghanacs.com/#website",
+      "name": "에이전트 플랫폼 운영과 조직 AX 전환",
+      "url": "https://ax.junghanacs.com",
+      "inLanguage": "ko-KR",
+      "description": "최근 1년의 AX·에이전트 플랫폼 작업을 코드, 운영 기록, 제3자의 행동, 라이브 집계, 공개 시간축으로 검증하는 기록면.",
+      "author": {"@id": "https://ax.junghanacs.com/#person"},
+      "publisher": {"@id": "https://ax.junghanacs.com/#person"}
+    },
+    {
+      "@type": "ProfilePage",
+      "@id": "https://ax.junghanacs.com/#profilepage",
+      "url": "https://ax.junghanacs.com",
+      "name": "에이전트 플랫폼 운영과 조직 AX 전환",
+      "inLanguage": "ko-KR",
+      "dateModified": "2026-07-15",
+      "isPartOf": {"@id": "https://ax.junghanacs.com/#website"},
+      "about": {"@id": "https://ax.junghanacs.com/#person"},
+      "mainEntity": {"@id": "https://ax.junghanacs.com/#person"}
+    }
+  ]
+}
+</script>

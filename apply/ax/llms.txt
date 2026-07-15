@@ -1,0 +1,74 @@
+# ax.junghanacs.com
+
+> A public AX / agent-platform evidence dossier. It answers one question: in the last year
+> of rapid AI change, what did the author actually build, operate, recover, hand over, and
+> leave verifiable? Every large claim descends to public code, real incidents, live
+> aggregates, and a public time-axis — not to tenure or self-description.
+
+## Machine-readable entry points
+
+- Self: https://ax.junghanacs.com/llms.txt
+- Front door: https://ax.junghanacs.com/
+- Deep record: https://ax.junghanacs.com/record.html
+- Competency & achievement (PDF): https://ax.junghanacs.com/KimJunghan_AX_Competency.pdf
+- Portfolio (PDF): https://ax.junghanacs.com/KimJunghan_AX_Portfolio.pdf
+- Detailed record (Markdown): https://ax.junghanacs.com/KimJunghan_AX_Detail.md
+
+## About
+
+This site is a public evidence dossier by Junghan Kim (김정한) — also identified in the
+schema.org JSON-LD on this page as GLG (힣), GLGMAN (힣맨), and 정한 — a polymath engineer
+and digital gardener. It is not an employer-specific application and not a research paper.
+
+The author does not lead with the title "engineer": engineering is not the identity, it is
+the method for making evidence. The document is a record of a person who gardens a knowledge
+base and drove agents all the way down to the operating layer. Every claim descends the same
+ladder — role keyword → direct answer → real case → engineering judgement → measured trace →
+public evidence → boundary.
+
+The whole document is generated from a single authored Org-mode source by one `make`: the
+landing page, the deep web record, two submission PDFs, and a detailed Markdown are all
+derivatives of the same file. The way it is built is itself part of the claim. The language
+is primarily Korean with English technical terms.
+
+## What the author operated
+
+- Ran an agent runtime (OpenClaw) for about five months across 20+ version cycles on Oracle
+  Cloud ARM (aarch64), Docker, and multiple messenger channels.
+- When a regression hit, measured it and rolled back instead of chasing the latest release —
+  a gateway spinning a single thread to 102% CPU, boot time stretched from 11s to 88s — then
+  reproduced it on a clean boot to rule out misconfiguration before reverting.
+- Codified rules so it would not recur: no skipping two versions, 24h+ staging on a
+  non-production agent before promotion, a single `stuck session` line is a stop-ship reason,
+  and responsiveness is an SLO.
+- Separated that operating experience into three independent layers — memory, dispatch, and a
+  reviewable development loop.
+
+## Structure
+
+- `/` (index.html) — short public front door.
+- `/record.html` — the deep web record, following the role's vocabulary in order: main work
+  (AX infrastructure build/operate/design, documentation and education), qualifications
+  (Linux; Claude Code/Codex and Agentic AI; backend; AX in and out of development), preferred
+  capabilities (web/DB/MQ/containers, LLM/RAG, structured AI workflows, cloud, frontend,
+  collaboration, docs), and project records with verification surfaces.
+- The two PDFs and the detailed Markdown carry the same content in the required submission
+  formats.
+
+## Verification surfaces
+
+- GitHub — https://github.com/junghan0611 — self-owned repositories (capability, distinct
+  from reception such as upstream merges, outside contributions, and install counts).
+- Digital garden — https://notes.junghanacs.com — 2,200+ public notes.
+- Live agenda / stats — https://agenda.junghanacs.com — the live numbers behind every count
+  cited on this site (journal 1,500+ days, notes 3,500+, bibliography 8,200+, commits 8,500+,
+  life records 2,500+). Treat this endpoint as the source of truth for counts.
+
+## Named layers and terms
+
+- andenken — the memory layer.
+- entwurf — the dispatch layer.
+- forge-config — the reviewable development loop.
+- Being-to-Being (존재 대 존재 협업) — the author's mode of working with AI: not tool-use but
+  existence-to-existence partnership. Humans seed creation; agents cover survival-layer work;
+  both co-evolve.

@@ -11,6 +11,20 @@ COMPETENCY := $(BUILD)/KimJunghan_AX_Competency
 PORTFOLIO := $(BUILD)/KimJunghan_AX_Portfolio
 DETAIL := $(BUILD)/KimJunghan_AX_Detail.md
 LEAKWORDS := leakwords.txt
+# A verbatim <head> include (Umami tag, JSON-LD identity schema, favicon) injected AFTER
+# pandoc, on purpose: it holds an external <script src> that --embed-resources would inline
+# (breaking Umami's data-website-id and forcing a network fetch), so it must not pass through
+# pandoc. The injection is a static text insert before </head> — deterministic and offline.
+HEAD := assets/head.html
+# llms.txt is a static public file, not a pandoc output; it ships to the web root next to the
+# five generated views. The leak gate already scans it because it is a text file in this dir.
+LLMS := llms.txt
+
+# Insert $(HEAD) verbatim before the first </head> of an HTML file, in place. awk reads the
+# include fully (FNR==NR) then streams the target, emitting the buffer once at </head>.
+define inject_head =
+awk 'FNR==NR{h=h $$0 ORS; next} /<\/head>/ && !done{printf "%s", h; done=1} {print}' $(HEAD) $(1) > $(1).tmp && mv $(1).tmp $(1)
+endef
 
 # Same tracked inputs, same bytes. XeLaTeX and xdvipdfmx stamp a wall clock into every PDF
 # unless these two are set, and then "the build is deterministic" is a claim the build does
@@ -38,13 +52,15 @@ $(BUILD)/detail.org: $(SOURCE) $(INCLUDES) build.el | $(BUILD)
 
 html: $(BUILD)/index.html $(BUILD)/record.html
 
-$(BUILD)/index.html: $(BUILD)/landing.org assets/paper.css
+$(BUILD)/index.html: $(BUILD)/landing.org assets/paper.css $(HEAD)
 	pandoc $< -f org -t html5 --standalone --embed-resources \
 	  --css assets/paper.css --metadata title="에이전트 플랫폼 운영과 조직 AX 전환" -o $@
+	$(call inject_head,$@)
 
-$(BUILD)/record.html: $(BUILD)/record.org assets/paper.css
+$(BUILD)/record.html: $(BUILD)/record.org assets/paper.css $(HEAD)
 	pandoc $< -f org -t html5 --standalone --embed-resources --toc --toc-depth=2 \
 	  --css assets/paper.css --metadata title="에이전트 플랫폼 운영과 조직 AX 전환 — 기록" -o $@
+	$(call inject_head,$@)
 
 pdf: $(COMPETENCY).pdf $(PORTFOLIO).pdf
 
@@ -101,6 +117,15 @@ check: all leak
 	test -s $(DETAIL)
 	grep -q 'Read the record' $(BUILD)/index.html
 	grep -q 'timeline-projection' $(BUILD)/record.html
+# The post-pandoc head injection must actually land in both shipped HTML files. A silent
+# failure of the inject step would ship pages with no analytics, no identity schema, no icon —
+# and nothing else would say so, exactly the class of quiet gap this Makefile checks for.
+	grep -q 'data-website-id="e3d37714' $(BUILD)/index.html
+	grep -q 'data-website-id="e3d37714' $(BUILD)/record.html
+	grep -q 'application/ld+json' $(BUILD)/index.html
+	grep -q 'application/ld+json' $(BUILD)/record.html
+	grep -q 'rel="icon"' $(BUILD)/index.html
+	test -s $(LLMS)
 	pdftotext $(COMPETENCY).pdf - | grep -q '에이전트 플랫폼 운영'
 	pdftotext $(PORTFOLIO).pdf - | grep -q '포트폴리오'
 # Emphasis must have been *rendered*, not printed. Org marks bold `*so*`; writing Markdown's
@@ -158,8 +183,9 @@ repro:
 
 # The web root is not the build directory. `build/` also holds the .tex, the LaTeX logs, the
 # .xdv, and the profile cuts — intermediates that say how the document was made and would be
-# served to anyone who guessed the filename. So publishing copies out the five files that are
-# meant to be read, into a directory that holds nothing else.
+# served to anyone who guessed the filename. So publishing copies out the six files that are
+# meant to be read — the five generated views plus llms.txt — into a directory that holds
+# nothing else.
 #
 # It runs `check` first, and that is the point: the leak gate is what stands between the
 # denylist and a public URL. Never wire a web server at `build/`, and never publish by
@@ -169,8 +195,8 @@ PUBLISH ?= /home/junghan/docker-data/ax
 publish: check
 	@mkdir -p $(PUBLISH)
 	@cp build/index.html build/record.html $(COMPETENCY).pdf $(PORTFOLIO).pdf $(DETAIL) \
-	  $(PUBLISH)/
-	@printf 'OK: published 5 files -> $(PUBLISH)\n'
+	  $(LLMS) $(PUBLISH)/
+	@printf 'OK: published 6 files -> $(PUBLISH)\n'
 	@ls -1 $(PUBLISH)
 
 clean:

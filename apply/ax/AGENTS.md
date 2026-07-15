@@ -45,6 +45,27 @@ time-axis projection.
 Generated `build/*.org`, HTML, TeX, PDF, and Markdown are derivatives. Never repair a
 derivative by hand; fix `ax.org` or the build wiring.
 
+## Head include, favicon, analytics, and llms.txt
+
+The two HTML views carry a shared `<head>` include, `assets/head.html`, injected verbatim
+before `</head>` **after** pandoc — never through it. It holds three site-level things: the
+Umami analytics tag (external `<script src>`, this site's own `data-website-id`), the
+schema.org JSON-LD identity graph, and a self-contained SVG favicon (data URI). It is
+post-injected on purpose: `--embed-resources` would inline the Umami script and break both its
+`data-website-id` and the offline/deterministic build. `make check` greps the shipped HTML for
+the tag, the schema, and the icon so a silent inject failure cannot pass.
+
+- The JSON-LD Person mirrors the garden's canonical node (same `alternateName`/`sameAs`) so an
+  AI knowledge graph merges this dossier with `notes.junghanacs.com`. Keep dates static (from
+  the source), never wall-clock, or `make repro` breaks.
+- Caddy injects no analytics (`ax.junghanacs.com` is a plain file server); the tag lives in the
+  source because the authored artifact is the SSOT. The Umami *server* and the website-id
+  registration are the nixos-config maintainer's surface.
+- `llms.txt` is a tracked static file (not a pandoc output). It ships to the web root as the
+  sixth public file. The leak gate already scans it — it is a text file in this dir — so it is
+  gated like every other surface. Turning on Umami's public "share URL" is declined: it would
+  expose visitor referrers (an application route), which the leak gate cannot scrub.
+
 ## Reading sequence
 
 The deep record follows the role's vocabulary in this order:
