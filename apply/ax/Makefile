@@ -125,6 +125,13 @@ check: all leak
 	grep -q 'application/ld+json' $(BUILD)/index.html
 	grep -q 'application/ld+json' $(BUILD)/record.html
 	grep -q 'rel="icon"' $(BUILD)/index.html
+# The shipped pages, not only the source stylesheet, must retain the CSS-first accessibility
+# baseline: visible keyboard focus, anchor landing clearance, and horizontally scrollable
+# tables. These checks name behavior rather than a presentation-specific class or wording.
+	grep -q 'focus-visible' $(BUILD)/index.html
+	grep -q 'focus-visible' $(BUILD)/record.html
+	grep -q 'scroll-margin-top' $(BUILD)/record.html
+	grep -q 'overflow-x: auto' $(BUILD)/record.html
 	test -s $(LLMS)
 	pdftotext $(COMPETENCY).pdf - | grep -q '에이전트 플랫폼 운영'
 	pdftotext $(PORTFOLIO).pdf - | grep -q '포트폴리오'
