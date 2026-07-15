@@ -19,6 +19,7 @@
 #+latex_header: \setcopyright{none}
 #+latex_header: \acmDOI{}
 #+latex_header: \acmISBN{}
+#+latex_header: \usepackage{array}
 
 #+begin_export latex
 \title{에이전트 플랫폼 운영과 조직 AX 전환}
@@ -311,6 +312,9 @@ OpenClaw 운영 (업스트림 추적 · 버전 · 인시던트 · 메모리)
 둘입니다.
 
 ** 3. 디스패치와 연속성 — entwurf
+:PROPERTIES:
+:CUSTOM_ID: entwurf-continuity
+:END:
 
 [[https://github.com/junghan0611/entwurf][entwurf]]는 Claude Code, Codex 같은 서로 다른 하네스가 *상대의 인증·대화록·런타임을 소유하지
 않고,* 정체성만으로 서로를 호출하게 하는 얇은 기층입니다.
@@ -318,12 +322,36 @@ OpenClaw 운영 (업스트림 추적 · 버전 · 인시던트 · 메모리)
 여기에는 자기 리포로 증명되지 않는 것이 하나 있습니다 — *수용(reception).* 자기 저장소는
 능력을 보여주지만, 남이 그것을 실제로 썼는지는 보여주지 못합니다.
 
-- 외부 개발자가 Snowflake Cortex Code ACP 백엔드를 기여했습니다 — [[https://github.com/junghan0611/entwurf/pull/40][entwurf #40]].
-  *제가 그은 확장 경계를 제3자가 실제로 사용한 기록입니다.*
+- 외부 개발자가 Snowflake Cortex Code ACP 백엔드 기여를 열었습니다 — [[https://github.com/junghan0611/entwurf/pull/40][entwurf #40]].
+  *제가 그은 확장 경계에 제3자가 실제로 기여를 연 기록입니다.*
 - 제 코드가 남의 프로젝트에 받아들여진 기록도 함께 둡니다 — [[https://github.com/dakra/ghostel/pull/343][ghostel #343]], [[https://github.com/dakra/ghostel/pull/510][#510]].
 
 이 두 줄은 *가장 위조하기 어렵고, 회의적인 독자가 가장 먼저 확인하는 줄입니다.* 그래서
 서류에서 지우지 않습니다.
+
+이 주장을 뒷받침하는 공개 증거를 시간축으로 둡니다. 각 행은 하나의 날짜, 하나의 읽기 슬롯,
+하나의 공개 흔적이며, 표는 새 주장을 만들지 않고 이미 공개된 흔적을 가리킬 뿐입니다. Date는
+note의 경우 해당 경로의 first-public garden commit의 KST 날짜이고, commit·PR은 공개 event의 KST
+날짜입니다.
+
+#+caption: entwurf — 디스패치와 연속성의 공개 증거 시퀀스
+#+attr_html: :class evidence-sequence :data-claim entwurf-continuity
+#+attr_latex: :align p{1.8cm}p{2.8cm}p{2.1cm}p{2.5cm}>{\raggedright\arraybackslash}p{3.3cm}
+| Date | Reading slot | Signal | Public witness | What it shows |
+|------+--------------+--------+----------------+---------------|
+| 2026-03-03 | Trigger/Context | note · verifies | [[https://notes.junghanacs.com/botlog/20260302t191200][note 20260302t191200]] · [[https://github.com/junghan0611/garden/commit/0ccadcf2a4521bb867485129f0b57ff7f26548ce][garden 0ccadcf]] | 한 인간의 시간축 위 에이전트 협력을 설명하는 공개 가든 기록; 이 경로는 garden commit 0ccadcf에서 처음 확인됨. |
+| 2026-04-03 | Decision+witness | note · verifies | [[https://notes.junghanacs.com/botlog/20260324t153323][note 20260324t153323]] · [[https://github.com/junghan0611/garden/commit/9b56a8d39561bd3b3881ab535af07b3e5d4b8659][garden 9b56a8d]] | entwurf 분신 디스패치 가이드를 담은 공개 가든 기록; garden commit 9b56a8d에서 확인됨. |
+| 2026-04-06 | Decision+witness | note · verifies | [[https://notes.junghanacs.com/botlog/20260406t095748][note 20260406t095748]] · [[https://github.com/junghan0611/garden/commit/238d9efdcdd6fa9a05a9f493d8fe89e7a37dc874][garden 238d9ef]] | 힣봇클로드에서 pi-entwurf로의 전환을 설명하는 공개 가든 기록; garden commit 238d9ef에서 확인됨. |
+| 2026-04-09 | Artifact/Measurement | commit · implements | [[https://github.com/junghan0611/entwurf/commit/f31367d67f602862bae7240aae1e73a19fefb6dd][entwurf f31367d]] | harness-first setup workflow 도입. |
+| 2026-04-10 | Decision+witness | commit · implements | [[https://github.com/junghan0611/entwurf/commit/50328a41f297c63064e3d2c24a2210bcbd31e9f0][entwurf 50328a4]] | provider를 claude-agent-acp bridge로 전환한 pivot. |
+| 2026-04-20 | Artifact/Measurement | commit · implements | [[https://github.com/junghan0611/entwurf/commit/173186584ea3e96d052b35f160be4f3e7bfd6454][entwurf 1731865]] | dual ACP backend 지원 추가. |
+| 2026-04-24 | Decision+witness | commit · bounds | [[https://github.com/junghan0611/entwurf/commit/8e988720f4473cb9b6c4769a627d5615c2653883][entwurf 8e98872]] | Send-is-throw 메시징 계약을 tool·AGENTS 수준으로 성문화. |
+| 2026-05-03 | Artifact/Measurement | commit · implements | [[https://github.com/junghan0611/entwurf/commit/eb4c9732e31c40dba79fb6f30b1a1ea43ae0e1a9][entwurf eb4c973]] | gemini을 세 번째 ACP backend로 추가. |
+| 2026-06-17 | Reception/Boundary | pr · received | [[https://github.com/junghan0611/entwurf/pull/40][entwurf #40]] · head 3dd6f5f | 외부 개발자가 Cortex Code backend 기여를 연 공개 PR; 2026-07-15 관측 OPEN, +885/-70, 11 files. |
+
+경계 — named release/tag는 가리키는 커밋이 바뀔 수 있는 mutable ref이므로, 이 표는 commit SHA와
+PR head OID, 관측 시점 상태를 구분해 둡니다. 지문은 입력과 산출물의 동일성만 확인할 뿐, 실행·
+진실·완전성을 증명하지 않습니다.
 
 ** 4. 검토 가능한 개발 루프 — forge-config
 
