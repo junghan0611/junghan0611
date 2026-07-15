@@ -58,6 +58,42 @@ will follow — it will not.
 `llms.txt` and `VOCABULARY.md` disagree about what a term means, `VOCABULARY.md`
 wins and `llms.txt` gets corrected.
 
+### `apply/ax/` is live — the `run.sh` loop
+
+The AX evidence dossier is served at **https://ax.junghanacs.com**. It is not a file you
+build and attach once; it is a public surface a reviewer's agent reads, so it stays live
+and is updated in place. `run.sh` at the repo root is the entry point — a fresh session
+(human or agent) drives the whole edit → live-update loop through it, without needing to
+reconstruct the toolchain:
+
+```bash
+./run.sh publish     # build, pass the leak gate, copy the 5 public files to the web root → LIVE
+./run.sh live        # read the live site from outside; compare its bytes to what was published
+./run.sh axis        # regenerate timeline/projection.{md,org} from the LOCAL FULL (only when the axis moved)
+./run.sh help        # every command
+```
+
+The usual loop is: edit `apply/ax/ax.org` → `./run.sh publish` → `./run.sh live`. If the
+time axis moved (a fresh `events.jsonl` + `snapshot.json`), run `./run.sh axis` first,
+because `ax.org` `#+include`s the reading.
+
+Two invariants the script enforces and you must not route around:
+
+- **The web root is `/home/junghan/docker-data/ax`, not `apply/ax/build/`.** `build/` also
+  holds the `.tex`, LaTeX logs, and profile cuts; a server rooted there would leak them.
+  Never drop a file into the web root outside `./run.sh publish` — `make publish` depends
+  on `make check`, so the **leak gate is the only guard between the denylist and the URL**.
+- **The document is the source of truth, not the server.** Analytics (Umami) and any other
+  additive markup go into `ax.org` and ship through publish, never injected by the web
+  server — if the live page and the authored source diverge, "the way the document was made
+  is the claim" stops being true.
+
+**Serving is not this repo's surface.** The Caddy vhost, TLS, directory-listing policy,
+`.md` content-type, **Umami** analytics, and **Remark42** comments all live in
+`nixos-config` and belong to its maintainer. When ax needs a serving change — a new
+subdomain behaviour, analytics wiring, a comment thread — ask the nixos-config maintainer
+through entwurf; do not reach into Caddy or the docker host from here.
+
 ## `timeline/` — the observatory
 
 `timeline/` is the data layer the identity documents will eventually cite: a
