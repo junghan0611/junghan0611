@@ -6,7 +6,8 @@ set -euo pipefail
 # The AX evidence surface is LIVE. This script is the seam between an edit to the
 # authored source and what a reviewer's agent reads at the public URL. It is written for
 # a fresh session (human or agent) to enter cold: `./run.sh publish` builds, passes the
-# leak gate, and copies the six public files (5 generated views + llms.txt) to the web root
+# leak gate, and copies the eight public files (5 generated views + llms.txt + robots.txt +
+# sitemap.xml) to the web root
 # Caddy serves — no server restart. The pages carry an injected <head> (Umami analytics tag,
 # JSON-LD identity schema, favicon); serving itself (Caddy, TLS, the Umami server, Remark42)
 # is NOT here — that is the nixos-config maintainer's surface (see `help`).
@@ -21,7 +22,7 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AX="$REPO/apply/ax"
 WEB_ROOT="${AX_WEB_ROOT:-/home/junghan/docker-data/ax}"   # == Makefile PUBLISH; Caddy mounts :ro
 LIVE_URL="https://ax.junghanacs.com"
-PUBLIC_FILES=(index.html record.html KimJunghan_AX_Competency.pdf KimJunghan_AX_Portfolio.pdf KimJunghan_AX_Detail.md llms.txt)
+PUBLIC_FILES=(index.html record.html KimJunghan_AX_Competency.pdf KimJunghan_AX_Portfolio.pdf KimJunghan_AX_Detail.md llms.txt robots.txt sitemap.xml)
 
 # The dossier's toolchain (emacs, pandoc, xelatex, pdftotext, Korean fonts) comes from the
 # flake, so every build runs inside `nix develop`. A shell that resolves these from the host
@@ -87,7 +88,7 @@ usage() {
     echo -e "$(cat <<EOF
 ${BLUE}ax.junghanacs.com — edit → live-update${NC}   (live: $LIVE_URL)
 
-  ${YELLOW}./run.sh publish${NC}   build, pass the leak gate, copy 6 public files to the web root → LIVE
+  ${YELLOW}./run.sh publish${NC}   build, pass the leak gate, copy 8 public files to the web root → LIVE
   ${YELLOW}./run.sh axis${NC}      regenerate timeline/projection.{md,org} from the LOCAL FULL
                      (only when the axis moved; a prose edit does not need it)
   ${YELLOW}./run.sh all${NC}       axis → publish → live  (full loop after a new FULL)

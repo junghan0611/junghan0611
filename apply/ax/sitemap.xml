@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The five generated views plus llms.txt. robots.txt and this sitemap are not listed:
+     a sitemap does not index itself, and it advertises reading surfaces, not control files.
+     No modification timestamps: a wall clock in a tracked file would break the reproducible build. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://ax.junghanacs.com/</loc></url>
+  <url><loc>https://ax.junghanacs.com/record.html</loc></url>
+  <url><loc>https://ax.junghanacs.com/KimJunghan_AX_Competency.pdf</loc></url>
+  <url><loc>https://ax.junghanacs.com/KimJunghan_AX_Portfolio.pdf</loc></url>
+  <url><loc>https://ax.junghanacs.com/KimJunghan_AX_Detail.md</loc></url>
+  <url><loc>https://ax.junghanacs.com/llms.txt</loc></url>
+</urlset>

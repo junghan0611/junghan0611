@@ -19,6 +19,12 @@ HEAD := assets/head.html
 # llms.txt is a static public file, not a pandoc output; it ships to the web root next to the
 # five generated views. The leak gate already scans it because it is a text file in this dir.
 LLMS := llms.txt
+# robots.txt and sitemap.xml are static public files too — authored here, gated by the same
+# leak scan (any text file in this dir), and shipped to the web root. The sitemap lists the
+# five views + llms.txt (not itself or robots.txt) and carries no <lastmod>, so two clean
+# builds stay byte-identical.
+ROBOTS := robots.txt
+SITEMAP := sitemap.xml
 
 # Insert $(HEAD) verbatim before the first </head> of an HTML file, in place. awk reads the
 # include fully (FNR==NR) then streams the target, emitting the buffer once at </head>.
@@ -133,6 +139,21 @@ check: all leak
 	grep -q 'scroll-margin-top' $(BUILD)/record.html
 	grep -q 'overflow-x: auto' $(BUILD)/record.html
 	test -s $(LLMS)
+	test -s $(ROBOTS)
+	test -s $(SITEMAP)
+# robots.txt opens the whole site and names exactly one canonical sitemap; sitemap.xml lists
+# exactly the six public URLs (five views + llms.txt) and nothing else — not itself, not
+# robots.txt — and carries no <lastmod>, which would put a wall clock in a tracked file and
+# break `make repro`. These name the URLs, not any prose, so a content edit does not disturb them.
+	grep -q '^Sitemap: https://ax.junghanacs.com/sitemap.xml$$' $(ROBOTS)
+	test "$$(grep -c '<loc>' $(SITEMAP))" -eq 6
+	grep -q '<loc>https://ax.junghanacs.com/</loc>' $(SITEMAP)
+	grep -q '<loc>https://ax.junghanacs.com/record.html</loc>' $(SITEMAP)
+	grep -q '<loc>https://ax.junghanacs.com/KimJunghan_AX_Competency.pdf</loc>' $(SITEMAP)
+	grep -q '<loc>https://ax.junghanacs.com/KimJunghan_AX_Portfolio.pdf</loc>' $(SITEMAP)
+	grep -q '<loc>https://ax.junghanacs.com/KimJunghan_AX_Detail.md</loc>' $(SITEMAP)
+	grep -q '<loc>https://ax.junghanacs.com/llms.txt</loc>' $(SITEMAP)
+	! grep -q 'lastmod' $(SITEMAP)
 	pdftotext $(COMPETENCY).pdf - | grep -q '에이전트 플랫폼 운영'
 	pdftotext $(PORTFOLIO).pdf - | grep -q '포트폴리오'
 # Emphasis must have been *rendered*, not printed. Org marks bold `*so*`; writing Markdown's
@@ -190,9 +211,9 @@ repro:
 
 # The web root is not the build directory. `build/` also holds the .tex, the LaTeX logs, the
 # .xdv, and the profile cuts — intermediates that say how the document was made and would be
-# served to anyone who guessed the filename. So publishing copies out the six files that are
-# meant to be read — the five generated views plus llms.txt — into a directory that holds
-# nothing else.
+# served to anyone who guessed the filename. So publishing copies out the eight files that are
+# meant to be read — the five generated views, llms.txt, and the robots.txt / sitemap.xml pair
+# — into a directory that holds nothing else.
 #
 # It runs `check` first, and that is the point: the leak gate is what stands between the
 # denylist and a public URL. Never wire a web server at `build/`, and never publish by
@@ -202,8 +223,8 @@ PUBLISH ?= /home/junghan/docker-data/ax
 publish: check
 	@mkdir -p $(PUBLISH)
 	@cp build/index.html build/record.html $(COMPETENCY).pdf $(PORTFOLIO).pdf $(DETAIL) \
-	  $(LLMS) $(PUBLISH)/
-	@printf 'OK: published 6 files -> $(PUBLISH)\n'
+	  $(LLMS) $(ROBOTS) $(SITEMAP) $(PUBLISH)/
+	@printf 'OK: published 8 files -> $(PUBLISH)\n'
 	@ls -1 $(PUBLISH)
 
 clean:

@@ -1,0 +1,6 @@
+# ax.junghanacs.com — a public AX / agent-platform evidence dossier.
+# The whole site is public and meant to be read by people and agents alike.
+User-agent: *
+Allow: /
+
+Sitemap: https://ax.junghanacs.com/sitemap.xml

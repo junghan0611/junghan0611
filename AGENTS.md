@@ -67,7 +67,7 @@ and is updated in place. `run.sh` at the repo root is the entry point — a fres
 reconstruct the toolchain:
 
 ```bash
-./run.sh publish     # build, pass the leak gate, copy the 5 public files to the web root → LIVE
+./run.sh publish     # build, pass the leak gate, copy the 8 public files to the web root → LIVE
 ./run.sh live        # read the live site from outside; compare its bytes to what was published
 ./run.sh axis        # regenerate timeline/projection.{md,org} from the LOCAL FULL (only when the axis moved)
 ./run.sh help        # every command

@@ -65,6 +65,10 @@ the tag, the schema, and the icon so a silent inject failure cannot pass.
   sixth public file. The leak gate already scans it — it is a text file in this dir — so it is
   gated like every other surface. Turning on Umami's public "share URL" is declined: it would
   expose visitor referrers (an application route), which the leak gate cannot scrub.
+- `robots.txt` and `sitemap.xml` ship the same way — static files authored here, not pandoc
+  outputs, gated by the same leak scan, and copied to the web root by `make publish` (eight
+  public files now, not six). The sitemap lists the five views and `llms.txt` — not itself or
+  `robots.txt` — and carries no `<lastmod>`, so two clean builds stay byte-identical.
 
 ## Reading sequence
 
