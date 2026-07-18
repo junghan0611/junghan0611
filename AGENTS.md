@@ -96,15 +96,18 @@ through entwurf; do not reach into Caddy or the docker host from here.
 
 ## `timeline/` — the observatory
 
-`timeline/` is the data layer the identity documents will eventually cite: a
-normalized, KST-anchored event log of a day at four depths — the time blocks the
-operator logs by hand, his own journal headings, the agents' agenda stamps, and the
-commits and notes themselves. Its argument is one sentence — **you can attach any
-number of agents, but you cannot manufacture time already spent.**
+The time axis the identity documents cite is a normalized, KST-anchored event log of a
+day at four depths — the time blocks the operator logs by hand, his own journal headings,
+the agents' agenda stamps, and the commits and notes themselves. Its argument is one
+sentence — **you can attach any number of agents, but you cannot manufacture time already
+spent.** The observatory that builds it is now a **shared skill**
+(`~/.claude/skills/timeline`, sourced from agent-config, usable from any session); this
+repo is one consumer, and its `timeline/` holds only the committed `projection.{md,org}`
+it cites.
 
-The KST contract, the collector's known defects, and the run commands live in
-`timeline/README.md`. The current step lives in the gitignored `NEXT.md`. What
-follows is only what a new session must not re-derive.
+The KST contract, the collector's known defects, and the run commands live in the skill:
+`~/.claude/skills/timeline/SKILL.md` and its `README.md`. The current step lives in the
+gitignored `NEXT.md`. What follows is only what a new session must not re-derive.
 
 ### Where the time axis comes from — know this before touching anything
 

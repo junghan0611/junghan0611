@@ -36,18 +36,20 @@ cmd_axis() {
     if [[ ! -f "$REPO/events.jsonl" || ! -f "$REPO/snapshot.json" ]]; then
         error "no LOCAL FULL here — events.jsonl / snapshot.json missing"
         info  "the axis is collected on the machine that owns the sources; this may not be it."
-        info  "regenerate the FULL with the timeline skill (collect.py) before --axis."
+        info  "regenerate the FULL with the timeline skill before --axis:"
+        info  "  python3 ~/.claude/skills/timeline/scripts/collect.py --out \"$REPO/events.jsonl\" > \"$REPO/snapshot.json\""
         return 2
     fi
     info "regenerating the public reading from the LOCAL FULL"
-    python3 "$REPO/timeline/project.py" "$REPO/events.jsonl" --snapshot "$REPO/snapshot.json" \
+    # the timeline observatory is a shared skill (agent-config); this repo is one consumer.
+    python3 ~/.claude/skills/timeline/scripts/project.py "$REPO/events.jsonl" --snapshot "$REPO/snapshot.json" \
         --md "$REPO/timeline/projection.md" --org "$REPO/timeline/projection.org"
     success "timeline/projection.{md,org} regenerated — now: ./run.sh publish"
 }
 
 cmd_build() { info "building 5 views (landing · record · 2 PDFs · detail md)"; in_nix make all; }
 cmd_check() { info "build + gates (leak gate, emphasis, overfull, mount witness)"; in_nix make check; }
-cmd_test()  { info "timeline contract tests"; python3 "$REPO/timeline/test_timeline.py"; }
+cmd_test()  { info "timeline contract tests (shared skill)"; python3 ~/.claude/skills/timeline/scripts/test_timeline.py; }
 
 # The one that changes what the world sees. `make publish` depends on `check`, so the leak
 # gate is always between the denylist and the URL. Nothing else may enter the web root.

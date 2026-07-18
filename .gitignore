@@ -22,11 +22,8 @@ events*.jsonl
 axis*.html
 snapshot*.json
 
-# Registry entries for repos the forge does not report as public
-timeline/domains.local.json
-
-# Harness-local state. The skill under .claude/skills IS published — this repo is
-# public and the contract is meant to be read — but per-machine settings are not.
+# Harness-local per-machine state. The timeline observatory is now a shared skill in
+# agent-config (~/.claude/skills/timeline); this repo only commits its projection.
 .claude/settings.local.json
 .pi/sessions/
 .pi/state/
