@@ -10,9 +10,16 @@
 - Self: https://ax.junghanacs.com/llms.txt
 - Front door: https://ax.junghanacs.com/
 - Deep record: https://ax.junghanacs.com/record.html
-- Competency & achievement (PDF): https://ax.junghanacs.com/KimJunghan_AX_Competency.pdf
-- Portfolio (PDF): https://ax.junghanacs.com/KimJunghan_AX_Portfolio.pdf
-- Detailed record (Markdown): https://ax.junghanacs.com/KimJunghan_AX_Detail.md
+- Overview, depth 0-1 (PDF): https://ax.junghanacs.com/KimJunghan_AX_Overview.pdf
+- Record, depth 0-2 (PDF): https://ax.junghanacs.com/KimJunghan_AX_Record.pdf
+- Ledger, depth 0-3 (Markdown): https://ax.junghanacs.com/KimJunghan_AX_Detail.md
+
+These are not five documents. They are one document cut at four depths: d0 states the
+claim, d1 gives the shape of the evidence, d2 the events and numbers, d3 the ledger —
+reproduction commands, file paths, hash fingerprints, boundaries. Each view is a slice of
+a single Org source, so they cannot contradict each other. If you want everything, read
+the Markdown; the web record carries the same depth-3 content with a control that hides
+the deeper tiers.
 
 ## About
 

@@ -30,20 +30,59 @@ time-axis projection.
 - Do not claim direct use of a named framework that was not used. Map adjacent capability
   only after stating the boundary plainly.
 
-## One authored source, five views
+## One document, four depths
 
-`ax.org` is the only authored content source.
+`ax.org` is the only authored content source, and it is **one document** — not a bundle of
+three. It began as an employer's three required uploads (competency statement, portfolio,
+detailed Markdown), and those were their boxes, not its structure. What it actually is is a
+single argument that descends from claim to ledger, so the views are **slices of one
+document at increasing depth**. Nothing has to be kept in step with anything, because there
+is only one thing.
 
-| profile tag | generated view |
-|---|---|
-| `landing` | short public front door (`build/index.html`) |
-| `record` | deep web record (`build/record.html`) |
-| `competency` | required competency/achievement PDF |
-| `portfolio` | required portfolio PDF |
-| `detail` | required detailed Markdown |
+| depth | what it carries | reading time |
+|---|---|---|
+| `d0` | the claim — who this is and what they did | 2 min |
+| `d1` | the shape of the evidence — each axis and the judgement behind it | 5 min |
+| `d2` | events and numbers — incidents, measurements, third-party actions, boundaries | 15 min |
+| `d3` | the ledger — reproduction commands, paths, hash fingerprints, handoffs | open |
+
+| view | depth | role |
+|---|---|---|
+| `build/index.html` | d0 | front door |
+| `build/record.html` | d0–d3, with the dial | the document |
+| `KimJunghan_AX_Overview.pdf` | d0–d1 | the wide read |
+| `KimJunghan_AX_Record.pdf` | d0–d2 | the middle read |
+| `KimJunghan_AX_Detail.md` | d0–d3, flat | agents, and anyone reading everything |
 
 Generated `build/*.org`, HTML, TeX, PDF, and Markdown are derivatives. Never repair a
 derivative by hand; fix `ax.org` or the build wiring.
+
+### The invariant: depth must not decrease down the tree
+
+Every heading carries exactly one depth tag. A cut at depth N excludes the subtrees tagged
+deeper than N — `org-export-exclude-tags`, not `select-tags`, because selecting a heading
+drags **all** of its descendants along and the d1 view would arrive carrying the d3 ledger.
+
+Org inherits tags, which is what makes the cut nearly free, and it is also the trap: a `d1`
+heading placed under a `d2` parent inherits `d2` and **disappears from the d1 view with no
+error anywhere**. Nothing downstream notices, because a section that was cut looks exactly
+like a section that was never written. So `build.el` refuses to build a non-monotonic tree,
+and `make check` counts the survivors of each cut against `build/depth.json` instead of
+trusting that they are all there.
+
+Read this as an editing rule: when a depth placement feels wrong, **move the tag, not the
+sentence**. Each depth has to read as a finished document on its own — if d0–d1 feels
+truncated, the depths are mis-assigned, not the prose.
+
+### The dial
+
+`assets/depth.html` is injected before `</body>` of `build/record.html` only; the front door
+is already the d0 cut. Build-time, `make` stamps `data-depth` onto each heading by walking
+`build/depth.json` and the shipped headings in the same document order — a positional match,
+which is exactly why `check` asserts the two counts agree rather than assuming it. Pandoc is
+deliberately **not** given `--section-divs`: this stylesheet is built on flat sibling
+selectors, and wrapping every heading in a `<section>` would restyle the document to buy
+nesting the dial does not need.
 
 ## Head include, favicon, analytics, and llms.txt
 

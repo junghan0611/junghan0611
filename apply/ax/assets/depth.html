@@ -1,0 +1,171 @@
+<!-- The depth dial. Injected verbatim before </body> of record.html only — the front door
+     is the d0 cut and has nothing to dial.
+
+     This document is one document read at four depths, and the web record is the only view
+     where the reader chooses. The PDFs are fixed slices (d1, d2) because a PDF cannot ask.
+
+     Everything here is runtime. The stamping that makes it work happens at build time in
+     `make record.html`, which walks build/depth.json and pandoc's headings in the same
+     document order — `make check` asserts the two counts agree, because a positional match
+     that silently slips would reveal the wrong paragraphs rather than fail. -->
+<style>
+  .depth-dial {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 10px;
+    padding: 10px 0;
+    margin-bottom: 8px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+  .depth-dial > span {
+    font-size: 0.82rem;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+  }
+  .depth-dial .depth-opts { display: flex; gap: 6px; }
+  .depth-dial button {
+    font: inherit;
+    font-size: 0.82rem;
+    line-height: 1;
+    padding: 7px 11px;
+    color: var(--muted);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .depth-dial button:hover { color: var(--ink); border-color: var(--muted); }
+  .depth-dial button[aria-pressed="true"] {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .depth-dial .depth-note {
+    flex-basis: 100%;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  /* Keep the dial usable for keyboards; paper.css sets the site-wide focus ring. */
+  .depth-dial button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  @media print { .depth-dial { display: none; } }
+
+  /* The dial hides sections with the `hidden` attribute, whose display:none comes only
+     from the UA stylesheet — any author rule that sets `display` on the same element wins
+     and the section stays on screen while claiming to be hidden. paper.css does not set
+     display on these today; this makes that a property of the dial rather than a
+     coincidence of the stylesheet it happens to ship next to. */
+  [hidden] { display: none !important; }
+</style>
+<script>
+  (function () {
+    "use strict";
+
+    var LABELS = [
+      ["d0", "주장", "무엇을 했는가"],
+      ["d1", "윤곽", "다섯 축과 그 판단"],
+      ["d2", "사건", "인시던트·수치·경계"],
+      ["d3", "원장", "명령·경로·지문"]
+    ];
+
+    var sel = "h1[data-depth],h2[data-depth],h3[data-depth]," +
+              "h4[data-depth],h5[data-depth],h6[data-depth]";
+    var heads = Array.prototype.slice.call(document.querySelectorAll(sel));
+    if (!heads.length) return;
+
+    var depthOf = function (h) { return parseInt(h.getAttribute("data-depth"), 10) || 0; };
+    var max = heads.reduce(function (m, h) { return Math.max(m, depthOf(h)); }, 0);
+    if (max < 1) return;   // a document with one tier has nothing to dial
+
+    var byId = {};
+    heads.forEach(function (h) { if (h.id) byId[h.id] = depthOf(h); });
+
+    // A heading owns the siblings that follow it until the next heading. Deeper
+    // subsections are headings themselves and hide by their own rule, so this stays local
+    // — and because depth never decreases down the tree, no heading can be stranded
+    // visible inside a hidden parent.
+    function setSection(h, hidden) {
+      h.hidden = hidden;
+      var n = h.nextElementSibling;
+      while (n && !/^H[1-6]$/.test(n.tagName)) {
+        n.hidden = hidden;
+        n = n.nextElementSibling;
+      }
+    }
+
+    var buttons = [];
+    function apply(level) {
+      heads.forEach(function (h) { setSection(h, depthOf(h) > level); });
+
+      var links = document.querySelectorAll('#TOC a[href^="#"]');
+      Array.prototype.forEach.call(links, function (a) {
+        var d = byId[decodeURIComponent(a.getAttribute("href").slice(1))];
+        if (d === undefined) return;
+        var li = a.closest("li");
+        if (li) li.hidden = d > level;
+      });
+
+      buttons.forEach(function (b, i) {
+        b.setAttribute("aria-pressed", String(i === level));
+      });
+      try { localStorage.setItem("ax-depth", String(level)); } catch (e) { /* private mode */ }
+    }
+
+    var dial = document.createElement("nav");
+    dial.className = "depth-dial";
+    dial.setAttribute("aria-label", "읽기 깊이");
+
+    var lead = document.createElement("span");
+    lead.textContent = "읽기 깊이";
+    dial.appendChild(lead);
+
+    var opts = document.createElement("div");
+    opts.className = "depth-opts";
+    LABELS.slice(0, max + 1).forEach(function (spec, i) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = spec[0] + " · " + spec[1];
+      b.title = spec[2];
+      b.setAttribute("aria-pressed", "false");
+      b.addEventListener("click", function () { apply(i); });
+      opts.appendChild(b);
+      buttons.push(b);
+    });
+    dial.appendChild(opts);
+
+    var note = document.createElement("p");
+    note.className = "depth-note";
+    note.textContent = "한 문서를 네 깊이로 읽습니다. 깊이를 올리면 같은 주장 아래로 " +
+                       "사건과 수치, 그리고 재현 명령이 열립니다.";
+    dial.appendChild(note);
+
+    var toc = document.getElementById("TOC");
+    if (toc) toc.parentNode.insertBefore(dial, toc);
+    else document.body.insertBefore(dial, document.body.firstChild);
+
+    // A deep link must win over a remembered shallow setting: arriving at a d3 anchor with
+    // the dial on d1 would land the reader on a hidden heading and look like a dead link.
+    var wanted = null;
+    try {
+      var saved = parseInt(localStorage.getItem("ax-depth"), 10);
+      if (saved >= 0 && saved <= max) wanted = saved;
+    } catch (e) { /* private mode */ }
+    if (wanted === null) wanted = max;
+
+    var anchor = decodeURIComponent((location.hash || "").slice(1));
+    if (anchor && byId[anchor] !== undefined && byId[anchor] > wanted) wanted = byId[anchor];
+
+    apply(wanted);
+
+    if (anchor) {
+      var target = document.getElementById(anchor);
+      if (target) target.scrollIntoView();
+    }
+  })();
+</script>

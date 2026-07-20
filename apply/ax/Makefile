@@ -7,9 +7,15 @@ SOURCE := ax.org
 # rebuild when the axis moves.
 INCLUDES := ../../timeline/projection.org
 BUILD := build
-COMPETENCY := $(BUILD)/KimJunghan_AX_Competency
-PORTFOLIO := $(BUILD)/KimJunghan_AX_Portfolio
+# One document read at four depths — d0 the claim, d1 the shape of the evidence, d2 the
+# events and numbers, d3 the ledger. These are not three documents that must be kept in
+# step with each other; each is a slice of the same source, so they cannot disagree.
+# The names say which slice, because "Competency" and "Portfolio" said which *document*
+# and there is only one now.
+OVERVIEW := $(BUILD)/KimJunghan_AX_Overview
+RECORD := $(BUILD)/KimJunghan_AX_Record
 DETAIL := $(BUILD)/KimJunghan_AX_Detail.md
+MANIFEST := $(BUILD)/depth.json
 LEAKWORDS := leakwords.txt
 # A verbatim <head> include (Umami tag, JSON-LD identity schema, favicon) injected AFTER
 # pandoc, on purpose: it holds an external <script src> that --embed-resources would inline
@@ -25,11 +31,39 @@ LLMS := llms.txt
 # builds stay byte-identical.
 ROBOTS := robots.txt
 SITEMAP := sitemap.xml
+# The depth dial: style + behaviour for the one view where the reader chooses a depth.
+# Kept out of $(HEAD) on purpose — that include carries the three site-level things (the
+# analytics tag, the identity schema, the icon) and goes into both pages, while this goes
+# into the record alone and is about reading, not identity.
+DIAL := assets/depth.html
 
 # Insert $(HEAD) verbatim before the first </head> of an HTML file, in place. awk reads the
 # include fully (FNR==NR) then streams the target, emitting the buffer once at </head>.
 define inject_head =
 awk 'FNR==NR{h=h $$0 ORS; next} /<\/head>/ && !done{printf "%s", h; done=1} {print}' $(HEAD) $(1) > $(1).tmp && mv $(1).tmp $(1)
+endef
+
+# Same trick at the other end of the document.
+define inject_dial =
+awk 'FNR==NR{h=h $$0 ORS; next} /<\/body>/ && !done{printf "%s", h; done=1} {print}' $(DIAL) $(1) > $(1).tmp && mv $(1).tmp $(1)
+endef
+
+# Stamp each heading with the depth it was authored at, so the dial can hide tiers at
+# runtime. Pandoc is not asked for --section-divs: this stylesheet is built on flat
+# sibling selectors (`body > header + h1 ~ ul`), and wrapping every heading in a <section>
+# would silently restyle the whole document to buy nesting the dial does not need — it
+# hides a heading together with the siblings that follow it.
+#
+# The match is positional: the Nth heading carrying an id is the Nth manifest row. That
+# holds because both build.el's scan and pandoc's output follow document order, and the
+# record is the depth-3 cut, which keeps every heading. It is an invariant, not a hope, so
+# `check` counts both sides rather than trusting them.
+define stamp_depth =
+awk 'FNR==NR { if (match($$0, /"depth": [0-9]+/)) \
+                 d[++n] = substr($$0, RSTART + 9, RLENGTH - 9); \
+               next } \
+     /<h[1-6][^>]*id="/ { i++; sub(/<h[1-6]/, "& data-depth=\"" d[i] "\"") } \
+     { print }' $(MANIFEST) $(1) > $(1).tmp && mv $(1).tmp $(1)
 endef
 
 # Same tracked inputs, same bytes. XeLaTeX and xdvipdfmx stamp a wall clock into every PDF
@@ -40,51 +74,55 @@ SOURCE_DATE_EPOCH := $(shell git log -1 --format=%ct -- $(SOURCE) 2>/dev/null | 
 export SOURCE_DATE_EPOCH
 export FORCE_SOURCE_DATE := 1
 
-all: html pdf md
+all: html pdf md $(MANIFEST)
 
-cuts: $(BUILD)/landing.org $(BUILD)/record.org $(BUILD)/detail.org
+# d0 is the front door; d3 is the whole document. The web record and the detailed Markdown
+# are the same cut in two formats — there is no separate "detail" authoring pass.
+cuts: $(BUILD)/d0.org $(BUILD)/d3.org $(MANIFEST)
 
 $(BUILD):
 	mkdir -p $(BUILD)
 
-$(BUILD)/landing.org: $(SOURCE) $(INCLUDES) build.el | $(BUILD)
-	emacs -Q --batch --script build.el cut $(SOURCE) landing $@
+$(BUILD)/d0.org: $(SOURCE) $(INCLUDES) build.el | $(BUILD)
+	emacs -Q --batch --script build.el cut $(SOURCE) 0 $@
 
-$(BUILD)/record.org: $(SOURCE) $(INCLUDES) build.el | $(BUILD)
-	emacs -Q --batch --script build.el cut $(SOURCE) record $@
+$(BUILD)/d3.org: $(SOURCE) $(INCLUDES) build.el | $(BUILD)
+	emacs -Q --batch --script build.el cut $(SOURCE) 3 $@
 
-$(BUILD)/detail.org: $(SOURCE) $(INCLUDES) build.el | $(BUILD)
-	emacs -Q --batch --script build.el cut $(SOURCE) detail $@
+$(MANIFEST): $(SOURCE) $(INCLUDES) build.el | $(BUILD)
+	emacs -Q --batch --script build.el manifest $(SOURCE) 3 $@
 
 html: $(BUILD)/index.html $(BUILD)/record.html
 
-$(BUILD)/index.html: $(BUILD)/landing.org assets/paper.css $(HEAD)
+$(BUILD)/index.html: $(BUILD)/d0.org assets/paper.css $(HEAD)
 	pandoc $< -f org -t html5 --standalone --embed-resources \
 	  --css assets/paper.css --metadata title="에이전트 플랫폼 운영과 조직 AX 전환" -o $@
 	$(call inject_head,$@)
 
-$(BUILD)/record.html: $(BUILD)/record.org assets/paper.css $(HEAD)
+$(BUILD)/record.html: $(BUILD)/d3.org assets/paper.css $(HEAD) $(DIAL) $(MANIFEST)
 	pandoc $< -f org -t html5 --standalone --embed-resources --toc --toc-depth=2 \
 	  --css assets/paper.css --metadata title="에이전트 플랫폼 운영과 조직 AX 전환 — 기록" -o $@
 	$(call inject_head,$@)
+	$(call stamp_depth,$@)
+	$(call inject_dial,$@)
 
-pdf: $(COMPETENCY).pdf $(PORTFOLIO).pdf
+pdf: $(OVERVIEW).pdf $(RECORD).pdf
 
-$(COMPETENCY).tex: $(SOURCE) $(INCLUDES) build.el | $(BUILD)
-	emacs -Q --batch --script build.el latex $(SOURCE) competency $@
+$(OVERVIEW).tex: $(SOURCE) $(INCLUDES) build.el | $(BUILD)
+	emacs -Q --batch --script build.el latex $(SOURCE) 1 $@
 
-$(PORTFOLIO).tex: $(SOURCE) $(INCLUDES) build.el | $(BUILD)
-	emacs -Q --batch --script build.el latex $(SOURCE) portfolio $@
+$(RECORD).tex: $(SOURCE) $(INCLUDES) build.el | $(BUILD)
+	emacs -Q --batch --script build.el latex $(SOURCE) 2 $@
 
-$(COMPETENCY).pdf: $(COMPETENCY).tex
+$(OVERVIEW).pdf: $(OVERVIEW).tex
 	latexmk -xelatex -interaction=nonstopmode -output-directory=$(BUILD) $<
 
-$(PORTFOLIO).pdf: $(PORTFOLIO).tex
+$(RECORD).pdf: $(RECORD).tex
 	latexmk -xelatex -interaction=nonstopmode -output-directory=$(BUILD) $<
 
 md: $(DETAIL)
 
-$(DETAIL): $(BUILD)/detail.org
+$(DETAIL): $(BUILD)/d3.org
 	pandoc $< -f org -t gfm --wrap=none --toc -o $@
 
 # The gate greps what actually ships, not only what was authored — a term can reach a PDF
@@ -98,12 +136,12 @@ leak: html pdf md
 	@if [ ! -f $(LEAKWORDS) ]; then \
 	  echo 'SKIP: local leakword gate unavailable ($(LEAKWORDS) absent)'; exit 0; fi; \
 	tmp=$$(mktemp -d); \
-	pdftotext $(COMPETENCY).pdf $$tmp/competency.txt; \
-	pdftotext $(PORTFOLIO).pdf $$tmp/portfolio.txt; \
+	pdftotext $(OVERVIEW).pdf $$tmp/overview.txt; \
+	pdftotext $(RECORD).pdf $$tmp/record.txt; \
 	targets=$$(find . -type f -not -path './build/*' -not -path './.git/*' \
 	  -not -name '$(LEAKWORDS)' -exec grep -Iq . {} \; -print | sort); \
 	targets="$$targets $(BUILD)/index.html $(BUILD)/record.html $(DETAIL) \
-	  $$tmp/competency.txt $$tmp/portfolio.txt"; \
+	  $$tmp/overview.txt $$tmp/record.txt"; \
 	hits=0; n=0; \
 	while IFS= read -r w; do \
 	  case "$$w" in ''|\#*) continue;; esac; \
@@ -118,8 +156,8 @@ leak: html pdf md
 check: all leak
 	test -s $(BUILD)/index.html
 	test -s $(BUILD)/record.html
-	test -s $(COMPETENCY).pdf
-	test -s $(PORTFOLIO).pdf
+	test -s $(OVERVIEW).pdf
+	test -s $(RECORD).pdf
 	test -s $(DETAIL)
 	grep -q 'Read the record' $(BUILD)/index.html
 	grep -q 'timeline-projection' $(BUILD)/record.html
@@ -149,27 +187,60 @@ check: all leak
 	test "$$(grep -c '<loc>' $(SITEMAP))" -eq 6
 	grep -q '<loc>https://ax.junghanacs.com/</loc>' $(SITEMAP)
 	grep -q '<loc>https://ax.junghanacs.com/record.html</loc>' $(SITEMAP)
-	grep -q '<loc>https://ax.junghanacs.com/KimJunghan_AX_Competency.pdf</loc>' $(SITEMAP)
-	grep -q '<loc>https://ax.junghanacs.com/KimJunghan_AX_Portfolio.pdf</loc>' $(SITEMAP)
+	grep -q '<loc>https://ax.junghanacs.com/KimJunghan_AX_Overview.pdf</loc>' $(SITEMAP)
+	grep -q '<loc>https://ax.junghanacs.com/KimJunghan_AX_Record.pdf</loc>' $(SITEMAP)
 	grep -q '<loc>https://ax.junghanacs.com/KimJunghan_AX_Detail.md</loc>' $(SITEMAP)
 	grep -q '<loc>https://ax.junghanacs.com/llms.txt</loc>' $(SITEMAP)
 	! grep -q 'lastmod' $(SITEMAP)
-	pdftotext $(COMPETENCY).pdf - | grep -q '에이전트 플랫폼 운영'
-	pdftotext $(PORTFOLIO).pdf - | grep -q '포트폴리오'
+	pdftotext $(OVERVIEW).pdf - | grep -q '에이전트 플랫폼 운영'
+	pdftotext $(RECORD).pdf - | grep -q '에이전트 플랫폼 운영'
+# The depth machine, checked against the manifest rather than against any sentence. Org
+# tag inheritance is what makes the cut cheap, and it is also what makes a bad cut silent:
+# a heading that inherits a deeper tag than it declares simply does not appear, and a
+# missing section looks exactly like one that was never written. `build.el' refuses a
+# non-monotonic tree; these three lines confirm the survivors were actually counted out.
+#
+# The last one is load-bearing beyond this file: the depth dial stamps data-depth onto
+# pandoc's <section> elements positionally, which is only safe while the Nth section is
+# the Nth manifest row. Assert it here, where it is cheap, instead of discovering it as a
+# dial that reveals the wrong paragraphs.
+	@m=$(MANIFEST); \
+	 for d in 1 2; do \
+	   want=$$(grep -oE '"depth": [0-'$$d']' $$m | wc -l); \
+	   case $$d in 1) tex=$(OVERVIEW).tex;; 2) tex=$(RECORD).tex;; esac; \
+	   got=$$(grep -cE '^\\(sub)*section' $$tex); \
+	   [ "$$want" -eq "$$got" ] || { \
+	     echo "DEPTH: d$$d expected $$want headings, .tex has $$got"; exit 1; }; \
+	   echo "  ok  d$$d — $$got headings"; \
+	 done; \
+	 want=$$(grep -c '"depth"' $$m); \
+	 got=$$(grep -cE '<h[1-6][^>]*id="' $(BUILD)/record.html); \
+	 [ "$$want" -eq "$$got" ] || { \
+	   echo "DEPTH: manifest has $$want headings, record.html has $$got —"; \
+	   echo "       positional data-depth stamping would be off by $$((want-got))"; exit 1; }; \
+	 stamped=$$(grep -cE '<h[1-6] data-depth="[0-9]"' $(BUILD)/record.html); \
+	 [ "$$want" -eq "$$stamped" ] || { \
+	   echo "DEPTH: $$want headings but $$stamped carry data-depth — the dial would leave"; \
+	   echo "       the unstamped ones permanently visible"; exit 1; }; \
+	 grep -q '\.depth-dial {' $(BUILD)/record.html || { \
+	   echo 'DEPTH: the dial stylesheet did not reach record.html'; exit 1; }; \
+	 grep -q 'ax-depth' $(BUILD)/record.html || { \
+	   echo 'DEPTH: the dial script did not reach record.html'; exit 1; }; \
+	 echo "  ok  d3 — $$got headings, all stamped, dial present"
 # Emphasis must have been *rendered*, not printed. Org marks bold `*so*`; writing Markdown's
 # `**so**` in the source is not an error anywhere in the toolchain — it simply sets the
 # asterisks in the page, and 64 lines of the two PDFs shipped that way. Korean makes it
 # sharper: a closing marker followed immediately by a particle (`*운영*했습니다`) is not
 # emphasis to Org or to pandoc either, so it also prints. The extracted text is the witness
 # — a submitted PDF has no business containing an asterisk at all.
-	! pdftotext $(COMPETENCY).pdf - | grep -q '[*]'
-	! pdftotext $(PORTFOLIO).pdf - | grep -q '[*]'
+	! pdftotext $(OVERVIEW).pdf - | grep -q '[*]'
+	! pdftotext $(RECORD).pdf - | grep -q '[*]'
 	grep -q '<strong>' $(BUILD)/record.html
 # A table wider than the text block does not wrap — it runs off the right edge of the page
 # and the reader loses the column. LaTeX says so in the log and nothing else does.
-	! grep -q 'Overfull \\hbox' $(BUILD)/KimJunghan_AX_Competency.log
-	! grep -q 'Overfull \\hbox' $(BUILD)/KimJunghan_AX_Portfolio.log
-	@printf 'OK: one Org source -> landing + record + 2 PDFs + detailed Markdown\n'
+	! grep -q 'Overfull \\hbox' $(BUILD)/KimJunghan_AX_Overview.log
+	! grep -q 'Overfull \\hbox' $(BUILD)/KimJunghan_AX_Record.log
+	@printf 'OK: one Org source -> one document at four depths (d0 door, d1+d2 PDFs, d3 record + Markdown)\n'
 	@if grep -q 'data-placeholder="true"' $(BUILD)/record.html; then \
 	  printf 'PLACEHOLDER: the timeline mount carries no projection yet — replace it or hide\n'; \
 	  printf '             the section before this record is submitted.\n'; fi
@@ -189,19 +260,19 @@ repro:
 	@$(MAKE) --no-print-directory all >/dev/null 2>&1 || { echo 'repro: first build failed'; exit 1; }
 	@a=$$(mktemp -d); b=$$(mktemp -d); \
 	 snap() { d=$$1; cp $(BUILD)/index.html $(BUILD)/record.html $(DETAIL) \
-	            $(COMPETENCY).pdf $(PORTFOLIO).pdf $$d/; \
-	          pdftotext $(COMPETENCY).pdf $$d/competency.txt; \
-	          pdftotext $(PORTFOLIO).pdf $$d/portfolio.txt; }; \
+	            $(OVERVIEW).pdf $(RECORD).pdf $$d/; \
+	          pdftotext $(OVERVIEW).pdf $$d/overview.txt; \
+	          pdftotext $(RECORD).pdf $$d/record.txt; }; \
 	 snap $$a; \
 	 $(MAKE) --no-print-directory clean >/dev/null; \
 	 $(MAKE) --no-print-directory all >/dev/null 2>&1 || { echo 'repro: second build failed'; exit 1; }; \
 	 snap $$b; \
 	 fail=0; \
-	 for f in index.html record.html $(notdir $(DETAIL)) competency.txt portfolio.txt; do \
+	 for f in index.html record.html $(notdir $(DETAIL)) overview.txt record.txt; do \
 	   if cmp -s $$a/$$f $$b/$$f; then echo "  same     $$f"; \
 	   else echo "  DIFFERS  $$f"; fail=1; fi; \
 	 done; \
-	 for f in $(notdir $(COMPETENCY)).pdf $(notdir $(PORTFOLIO)).pdf; do \
+	 for f in $(notdir $(OVERVIEW)).pdf $(notdir $(RECORD)).pdf; do \
 	   if cmp -s $$a/$$f $$b/$$f; then echo "  same     $$f (bytes)"; \
 	   else echo "  differ   $$f — $$(cmp -l $$a/$$f $$b/$$f | wc -l) of $$(stat -c%s $$a/$$f) bytes (trailer file id; not enforced)"; fi; \
 	 done; \
@@ -222,7 +293,7 @@ PUBLISH ?= /home/junghan/docker-data/ax
 
 publish: check
 	@mkdir -p $(PUBLISH)
-	@cp build/index.html build/record.html $(COMPETENCY).pdf $(PORTFOLIO).pdf $(DETAIL) \
+	@cp build/index.html build/record.html $(OVERVIEW).pdf $(RECORD).pdf $(DETAIL) \
 	  $(LLMS) $(ROBOTS) $(SITEMAP) $(PUBLISH)/
 	@printf 'OK: published 8 files -> $(PUBLISH)\n'
 	@ls -1 $(PUBLISH)

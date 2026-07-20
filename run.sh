@@ -22,7 +22,7 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 AX="$REPO/apply/ax"
 WEB_ROOT="${AX_WEB_ROOT:-/home/junghan/docker-data/ax}"   # == Makefile PUBLISH; Caddy mounts :ro
 LIVE_URL="https://ax.junghanacs.com"
-PUBLIC_FILES=(index.html record.html KimJunghan_AX_Competency.pdf KimJunghan_AX_Portfolio.pdf KimJunghan_AX_Detail.md llms.txt robots.txt sitemap.xml)
+PUBLIC_FILES=(index.html record.html KimJunghan_AX_Overview.pdf KimJunghan_AX_Record.pdf KimJunghan_AX_Detail.md llms.txt robots.txt sitemap.xml)
 
 # The dossier's toolchain (emacs, pandoc, xelatex, pdftotext, Korean fonts) comes from the
 # flake, so every build runs inside `nix develop`. A shell that resolves these from the host
@@ -77,7 +77,7 @@ cmd_live() {
         fi
     done
     # Intermediates must not be reachable — the web root is not the build dir.
-    for f in KimJunghan_AX_Competency.tex KimJunghan_AX_Competency.log record.org; do
+    for f in KimJunghan_AX_Overview.tex KimJunghan_AX_Overview.log d3.org; do
         code=$(curl -so /dev/null -w '%{http_code}' "$LIVE_URL/$f")
         [[ "$code" == "404" ]] || warn "intermediate reachable: /$f -> $code (expected 404)"
     done
