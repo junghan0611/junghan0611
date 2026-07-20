@@ -109,6 +109,29 @@ pre {
   line-height: 1.55;
 }
 
+/* Pandoc emits images at their intrinsic pixel width. A figure also carries the browser's
+   default 40px inline margins, so an otherwise responsive page overflows twice on a phone:
+   once for the margins and once for the 1600px image. The figure already inherits the
+   document width from `body > *`; remove the default side margins and make the bitmap fit
+   that box without changing its aspect ratio. */
+figure {
+  margin: 1.8rem auto 2.4rem;
+}
+figure img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+}
+figcaption {
+  max-width: 72ch;
+  margin: 0.75rem auto 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
 table {
   display: block;
   width: 100%;

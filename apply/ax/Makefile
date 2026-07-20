@@ -209,13 +209,15 @@ check: all leak
 	grep -q 'application/ld+json' $(BUILD)/record.html
 	grep -q 'rel="icon"' $(BUILD)/index.html
 # The shipped pages, not only the source stylesheet, must retain the CSS-first accessibility
-# baseline: visible keyboard focus, anchor landing clearance, and horizontally scrollable
-# tables. These checks name behavior rather than a presentation-specific class or wording.
+# baseline: visible keyboard focus, anchor landing clearance, horizontally scrollable tables,
+# and figures constrained to the content box. Without the last rule a 1600px diagram and the
+# browser's default figure margins both overflow a phone viewport.
 	grep -q 'focus-visible' $(BUILD)/index.html
 	grep -q '<link rel="stylesheet" href="paper.css"' $(BUILD)/record.html
 	grep -q 'focus-visible' $(BUILD)/paper.css
 	grep -q 'scroll-margin-top' $(BUILD)/paper.css
 	grep -q 'overflow-x: auto' $(BUILD)/paper.css
+	grep -A6 '^figure img {' $(BUILD)/paper.css | grep -q 'max-width: 100%'
 # No binary may re-enter the text artifacts. base64 both bloats the record and fills the
 # leak gate with false matches, so its absence is checked rather than remembered.
 	! grep -q 'base64,' $(BUILD)/record.html
