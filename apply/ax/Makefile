@@ -60,6 +60,13 @@ endef
 # holds because both build.el's scan and pandoc's output follow document order, and the
 # record is the depth-3 cut, which keeps every heading. It is an invariant, not a hope, so
 # `check` counts both sides rather than trusting them.
+#
+# This awk is line-based, which is a second, quieter assumption: a heading whose tag spans
+# a newline is not seen, and — worse than going unstamped — it does not advance the
+# counter, so every heading after it receives the depth belonging to its neighbour. Pandoc
+# wrapped exactly two of them once (long Korean ids), and the dial would have revealed the
+# wrong paragraphs with no error anywhere. Hence `--wrap=none` on the HTML writers. The
+# count comparison in `check` is what caught it and is what would catch it again.
 define stamp_depth =
 awk 'FNR==NR { if (match($$0, /"depth": [0-9]+/)) \
                  d[++n] = substr($$0, RSTART + 9, RLENGTH - 9); \
@@ -94,16 +101,37 @@ $(BUILD)/d3.org: $(SOURCE) $(INCLUDES) build.el | $(BUILD)
 $(MANIFEST): $(SOURCE) $(INCLUDES) build.el | $(BUILD)
 	emacs -Q --batch --script build.el manifest $(SOURCE) 3 $@
 
-html: $(BUILD)/index.html $(BUILD)/record.html
+html: $(BUILD)/index.html $(BUILD)/record.html $(BUILD)/paper.css
 
 $(BUILD)/index.html: $(BUILD)/d0.org assets/paper.css $(HEAD)
-	pandoc $< -f org -t html5 --standalone --embed-resources \
+	pandoc $< -f org -t html5 --standalone --embed-resources --wrap=none \
 	  --css assets/paper.css --metadata title="에이전트 플랫폼 운영과 조직 AX 전환" -o $@
 	$(call inject_head,$@)
 
-$(BUILD)/record.html: $(BUILD)/d3.org assets/paper.css $(HEAD) $(DIAL) $(MANIFEST)
-	pandoc $< -f org -t html5 --standalone --embed-resources --toc --toc-depth=2 \
-	  --css assets/paper.css --metadata title="에이전트 플랫폼 운영과 조직 AX 전환 — 기록" -o $@
+# The record does NOT embed its resources, and the front door does. That asymmetry is the
+# point, not an oversight.
+#
+# Embedding turned four cleared PNGs into 3.2MB of base64 inside a text file, and two
+# things broke at once. The page went from 62KB to 3.3MB. And the leak gate — which reads
+# text, and base64 is text — started matching a three-character denylisted term fifteen
+# times in the noise, at exactly the rate random base64 produces a three-character string.
+# A gate that cries wolf on its own artifact is worse than no gate, because the next real
+# hit reads like more noise.
+#
+# Neither problem is fixed by teaching the gate to skip base64: that would carve out a
+# region of a public artifact that nobody scans, which is the kind of hole this file
+# exists to close. They are both fixed by not putting binary in the text. The images are
+# published as files anyway, served from the same origin, and cached by the browser.
+#
+# index.html keeps embedding because it carries no images and stays one 15KB file someone
+# can save or mail. paper.css is copied next to the record so the build directory and the
+# web root resolve the stylesheet identically.
+$(BUILD)/paper.css: assets/paper.css | $(BUILD)
+	cp $< $@
+
+$(BUILD)/record.html: $(BUILD)/d3.org $(BUILD)/paper.css $(HEAD) $(DIAL) $(MANIFEST) $(IMAGES)
+	pandoc $< -f org -t html5 --standalone --toc --toc-depth=2 --wrap=none \
+	  --css paper.css --metadata title="에이전트 플랫폼 운영과 조직 AX 전환 — 기록" -o $@
 	$(call inject_head,$@)
 	$(call stamp_depth,$@)
 	$(call inject_dial,$@)
@@ -184,9 +212,13 @@ check: all leak
 # baseline: visible keyboard focus, anchor landing clearance, and horizontally scrollable
 # tables. These checks name behavior rather than a presentation-specific class or wording.
 	grep -q 'focus-visible' $(BUILD)/index.html
-	grep -q 'focus-visible' $(BUILD)/record.html
-	grep -q 'scroll-margin-top' $(BUILD)/record.html
-	grep -q 'overflow-x: auto' $(BUILD)/record.html
+	grep -q '<link rel="stylesheet" href="paper.css"' $(BUILD)/record.html
+	grep -q 'focus-visible' $(BUILD)/paper.css
+	grep -q 'scroll-margin-top' $(BUILD)/paper.css
+	grep -q 'overflow-x: auto' $(BUILD)/paper.css
+# No binary may re-enter the text artifacts. base64 both bloats the record and fills the
+# leak gate with false matches, so its absence is checked rather than remembered.
+	! grep -q 'base64,' $(BUILD)/record.html
 	test -s $(LLMS)
 	test -s $(ROBOTS)
 	test -s $(SITEMAP)
@@ -236,11 +268,11 @@ check: all leak
 	   echo "  ok  d$$d — $$got headings"; \
 	 done; \
 	 want=$$(grep -c '"depth"' $$m); \
-	 got=$$(grep -cE '<h[1-6][^>]*id="' $(BUILD)/record.html); \
+	 got=$$(grep -oE '<h[1-6][^>]*id="' $(BUILD)/record.html | wc -l); \
 	 [ "$$want" -eq "$$got" ] || { \
 	   echo "DEPTH: manifest has $$want headings, record.html has $$got —"; \
 	   echo "       positional data-depth stamping would be off by $$((want-got))"; exit 1; }; \
-	 stamped=$$(grep -cE '<h[1-6] data-depth="[0-9]"' $(BUILD)/record.html); \
+	 stamped=$$(grep -oE '<h[1-6] data-depth="[0-9]"' $(BUILD)/record.html | wc -l); \
 	 [ "$$want" -eq "$$stamped" ] || { \
 	   echo "DEPTH: $$want headings but $$stamped carry data-depth — the dial would leave"; \
 	   echo "       the unstamped ones permanently visible"; exit 1; }; \
@@ -258,6 +290,17 @@ check: all leak
 	! pdftotext $(OVERVIEW).pdf - | grep -q '[*]'
 	! pdftotext $(RECORD).pdf - | grep -q '[*]'
 	grep -q '<strong>' $(BUILD)/record.html
+# Verbatim has the same failure as emphasis, and one more way to reach it: `=like this=`
+# cannot cross a line break. A caption wrapped mid-span printed `=DENOTE GRAPH=` into both
+# PDFs with nothing complaining — Org saw two unbalanced markers on two lines and did the
+# only thing it could, which was to set them. The .tex is the witness: had Org rendered the
+# span it would read \texttt{...}, so a bare `=` before a capital is markup that did not
+# take. Measured against the current document this matches the one real defect and nothing
+# else — every legitimate `=` here is followed by a lowercase letter or a digit. A shell
+# assignment like PATH=/usr in a source block would trip it; that is the safe direction,
+# because the alternative is shipping the markers again.
+	! grep -qE '=[A-Z]' $(OVERVIEW).tex
+	! grep -qE '=[A-Z]' $(RECORD).tex
 # A table wider than the text block does not wrap — it runs off the right edge of the page
 # and the reader loses the column. LaTeX says so in the log and nothing else does.
 	! grep -q 'Overfull \\hbox' $(BUILD)/KimJunghan_AX_Overview.log
@@ -355,7 +398,7 @@ PUBLISH ?= /home/junghan/docker-data/ax
 # decide what may ship, not something that ships.
 IMAGES := $(wildcard images/*.png) $(wildcard images/*.jpg) $(wildcard images/*.svg)
 
-VIEWS := index.html record.html $(notdir $(OVERVIEW)).pdf $(notdir $(RECORD)).pdf \
+VIEWS := index.html record.html paper.css $(notdir $(OVERVIEW)).pdf $(notdir $(RECORD)).pdf \
          $(notdir $(DETAIL)) $(LLMS) $(ROBOTS) $(SITEMAP) $(IMAGES)
 
 # Legacy URL aliases, as `served-name:view-it-copies`. These are not extra artifacts —
@@ -370,7 +413,7 @@ PUBLISHED := $(VIEWS) $(foreach a,$(ALIASES),$(firstword $(subst :, ,$(a))))
 
 publish: check
 	@mkdir -p $(PUBLISH)
-	@cp build/index.html build/record.html $(OVERVIEW).pdf $(RECORD).pdf $(DETAIL) \
+	@cp build/index.html build/record.html build/paper.css $(OVERVIEW).pdf $(RECORD).pdf $(DETAIL) \
 	  $(LLMS) $(ROBOTS) $(SITEMAP) $(PUBLISH)/
 	@if [ -n "$(IMAGES)" ]; then mkdir -p $(PUBLISH)/images && cp $(IMAGES) $(PUBLISH)/images/; fi
 	@for a in $(ALIASES); do \
