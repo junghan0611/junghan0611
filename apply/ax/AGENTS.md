@@ -128,17 +128,34 @@ They are honoured, never advertised: canonical names are what `sitemap.xml` and 
 carry. Deleting an alias line is how you decide to let that URL 404 — a decision, not a
 side effect.
 
-## The gate cannot read pictures
+## Image evidence contract
 
 `make leak` greps text. Binary files are skipped by construction (`grep -Iq .`), so **a
 forbidden term rendered into an image passes every check in this repository**. This is not
-hypothetical: the private dossier's hero diagram has internal tool names drawn into it.
+hypothetical: the private dossier's hero diagram has internal tool names drawn into it, and
+the document that used it was clean. The gate now names every file it could not read rather
+than passing over it in silence — a silent skip reads exactly like a pass — but naming is
+the whole of what it can do. Neither the text gate nor OCR substitutes for looking.
 
-The gate now names every file it could not read instead of passing over them in silence — a
-silent skip reads exactly like a pass. But naming is all it can do. **Images are cleared by
-someone reading them, not by running `make`.** Any image entering this directory must be
-opened and read first, and its caption checked against current fact rather than against the
-claim it carried in the document it came from.
+- **Images are cleared by someone reading them, not by running `make`.** The reviewer (a
+  person, or a vision-capable reviewer) opens the *final optimized file that would ship* —
+  not the master, not an earlier revision, not the prompt that produced it.
+- Reject on any of: an identifiable organisation, customer, or internal tool name; a
+  credential or private identifier; invented or corrupted strings; a structure that
+  disagrees with the surrounding text; a state ahead of what is implemented.
+- **A generated image is an explanatory panel, not evidence.** The claim belongs to the
+  caption and the public surface cited beside it. Remove the picture and the argument must
+  still stand on the link.
+- Rejected files are never copied into this repository. `images/README.md` is the tracked
+  clearance ledger and records approvals only; it must not spell out the term that caused a
+  rejection, for the same reason the denylist itself is gitignored.
+- Masters stay in the private dossier. Do not "fix" a rejected image by blurring it.
+
+Images ship as files, not only as embeds: the HTML views inline them and the PDFs carry
+them, but `KimJunghan_AX_Detail.md` references them by relative path, so a publish without
+them hands an agent a document full of broken links. They are therefore part of `VIEWS`,
+of the leak gate's blind-file report, and of `repro`'s input fingerprint. They are **not**
+listed individually in `sitemap.xml`, which advertises reading surfaces.
 
 ## Reading sequence
 

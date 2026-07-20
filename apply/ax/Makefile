@@ -285,7 +285,7 @@ check: all leak
 # by its name instead of blaming the build. A prose rule ("only run this on a quiet tree")
 # would not have caught it; nobody reads a rule at the moment they are about to break it.
 INPUTS := $(SOURCE) $(INCLUDES) build.el assets/paper.css $(HEAD) $(DIAL) \
-          $(LLMS) $(ROBOTS) $(SITEMAP)
+          $(LLMS) $(ROBOTS) $(SITEMAP) $(IMAGES)
 # Expanded once, when make parses this file — which is before either build runs, so it is
 # the "before" reading with no temp file to carry it across the two clean builds.
 INPUTS_FP := $(shell cat $(INPUTS) 2>/dev/null | sha256sum | cut -d' ' -f1)
@@ -339,8 +339,15 @@ PUBLISH ?= /home/junghan/docker-data/ax
 # What the web root is allowed to hold, as data rather than as a number. A literal count
 # was wrong the moment a second kind of published file appeared; images will make it wrong
 # again. Everything below derives from these two lists.
+# Content images ship as files, not only as embeds. The HTML views inline them and the PDFs
+# carry them, but `KimJunghan_AX_Detail.md` references them by relative path — publish the
+# document without the pictures and the Markdown view, the one an agent reads, arrives full
+# of broken links. `images/README.md` is the clearance ledger and stays here: it is how we
+# decide what may ship, not something that ships.
+IMAGES := $(wildcard images/*.png) $(wildcard images/*.jpg) $(wildcard images/*.svg)
+
 VIEWS := index.html record.html $(notdir $(OVERVIEW)).pdf $(notdir $(RECORD)).pdf \
-         $(notdir $(DETAIL)) $(LLMS) $(ROBOTS) $(SITEMAP)
+         $(notdir $(DETAIL)) $(LLMS) $(ROBOTS) $(SITEMAP) $(IMAGES)
 
 # Legacy URL aliases, as `served-name:view-it-copies`. These are not extra artifacts —
 # each is a byte-identical copy of a view that was renamed, kept so a URL that has been
@@ -356,6 +363,7 @@ publish: check
 	@mkdir -p $(PUBLISH)
 	@cp build/index.html build/record.html $(OVERVIEW).pdf $(RECORD).pdf $(DETAIL) \
 	  $(LLMS) $(ROBOTS) $(SITEMAP) $(PUBLISH)/
+	@if [ -n "$(IMAGES)" ]; then mkdir -p $(PUBLISH)/images && cp $(IMAGES) $(PUBLISH)/images/; fi
 	@for a in $(ALIASES); do \
 	   old=$${a%%:*}; new=$${a##*:}; \
 	   cp $(PUBLISH)/$$new $(PUBLISH)/$$old; \
