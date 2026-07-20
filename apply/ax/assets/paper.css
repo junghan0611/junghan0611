@@ -109,11 +109,18 @@ pre {
   line-height: 1.55;
 }
 
-/* Pandoc emits images at their intrinsic pixel width. A figure also carries the browser's
-   default 40px inline margins, so an otherwise responsive page overflows twice on a phone:
-   once for the margins and once for the 1600px image. The figure already inherits the
-   document width from `body > *`; remove the default side margins and make the bitmap fit
-   that box without changing its aspect ratio. */
+/* Pandoc emits images at their intrinsic pixel width — 1600px here — with no max-width, so
+   on a phone the bitmap runs past the box that holds it and takes the page's horizontal
+   scroll with it. That is the whole of the overflow, and `max-width: 100%` is the whole of
+   the fix; `width`/`height: auto` keep the aspect ratio while it scales.
+
+   The figure box itself was never the problem. `figure` is a direct child of `body`, so
+   `body > *` above already gives it the document width and `margin-inline: auto`, which beat
+   the UA stylesheet's `margin: 1em 40px` long before this rule existed. The margin declared
+   here only replaces the UA's vertical `1em` with this document's rhythm. Said plainly
+   because the first version of this comment claimed the page overflowed twice — once for
+   those 40px margins and once for the image — and the next person to read it would go
+   looking for a second overflow that was never there. */
 figure {
   margin: 1.8rem auto 2.4rem;
 }

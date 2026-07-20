@@ -210,8 +210,9 @@ check: all leak
 	grep -q 'rel="icon"' $(BUILD)/index.html
 # The shipped pages, not only the source stylesheet, must retain the CSS-first accessibility
 # baseline: visible keyboard focus, anchor landing clearance, horizontally scrollable tables,
-# and figures constrained to the content box. Without the last rule a 1600px diagram and the
-# browser's default figure margins both overflow a phone viewport.
+# and figures constrained to the content box. Without the last rule a 1600px diagram overflows
+# a phone viewport and drags the page's horizontal scroll with it — the figure's own box is
+# already constrained by `body > *`, so the image is the one thing that escapes.
 	grep -q 'focus-visible' $(BUILD)/index.html
 	grep -q '<link rel="stylesheet" href="paper.css"' $(BUILD)/record.html
 	grep -q 'focus-visible' $(BUILD)/paper.css

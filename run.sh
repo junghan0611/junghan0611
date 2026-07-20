@@ -76,6 +76,30 @@ cmd_live() {
             echo "  $f  $code  (not published locally)"
         fi
     done
+    # The images the record actually references, discovered from the shipped page rather than
+    # listed here. A hand-kept list is how `PUBLIC_FILES` came to omit them entirely: the
+    # figures shipped as part of `VIEWS`, the document depended on all five, and this check
+    # reported every file green without ever asking for one — the same failure as the Makefile
+    # prose that once said "eight public files" and was wrong the moment a ninth appeared.
+    # Reading the page also makes it a stronger assertion than a wildcard would: it verifies
+    # that what the document *asks for* resolves, so a figure added to the source and left
+    # unpublished fails here instead of turning into a broken image on a phone.
+    local imgs
+    imgs=$(sed -n 's/.*<img[^>]*src="\(images\/[^"]*\)".*/\1/p' "$WEB_ROOT/record.html" 2>/dev/null | sort -u)
+    if [[ -z "$imgs" ]]; then
+        echo "  (record.html references no images)"
+    else
+        for f in $imgs; do
+            code=$(curl -so /dev/null -w '%{http_code}' "$LIVE_URL/$f")
+            if [[ -f "$WEB_ROOT/$f" ]]; then
+                local a b; a=$(curl -s "$LIVE_URL/$f" | sha256sum | cut -c1-12)
+                b=$(sha256sum "$WEB_ROOT/$f" | cut -c1-12)
+                [[ "$a" == "$b" ]] && success "$f  $code  bytes match" || warn "$f  $code  LIVE≠LOCAL ($a vs $b)"
+            else
+                error "$f  $code  referenced by record.html but not in the web root"
+            fi
+        done
+    fi
     # Intermediates must not be reachable — the web root is not the build dir.
     for f in KimJunghan_AX_Overview.tex KimJunghan_AX_Overview.log d3.org; do
         code=$(curl -so /dev/null -w '%{http_code}' "$LIVE_URL/$f")
