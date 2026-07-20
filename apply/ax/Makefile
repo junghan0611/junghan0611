@@ -285,10 +285,19 @@ check: all leak
 # by its name instead of blaming the build. A prose rule ("only run this on a quiet tree")
 # would not have caught it; nobody reads a rule at the moment they are about to break it.
 INPUTS := $(SOURCE) $(INCLUDES) build.el assets/paper.css $(HEAD) $(DIAL) \
-          $(LLMS) $(ROBOTS) $(SITEMAP) $(IMAGES)
+          $(LLMS) $(ROBOTS) $(SITEMAP)
+# The image set is discovered when the fingerprint runs, not when make parses this file.
+# `$(IMAGES)` is a parse-time wildcard, so hashing it would have frozen the file list at
+# startup: an image *added* mid-run would land in the second build and leave the after
+# fingerprint unchanged — the one direction of drift the check exists to catch. Hashing
+# `find` output covers additions, deletions and edits alike, because the paths are part of
+# what gets hashed.
+INPUT_FP = { cat $(INPUTS) 2>/dev/null; \
+             find images -type f 2>/dev/null | sort | xargs -r sha256sum; \
+           } | sha256sum | cut -d' ' -f1
 # Expanded once, when make parses this file — which is before either build runs, so it is
 # the "before" reading with no temp file to carry it across the two clean builds.
-INPUTS_FP := $(shell cat $(INPUTS) 2>/dev/null | sha256sum | cut -d' ' -f1)
+INPUTS_FP := $(shell $(INPUT_FP))
 
 repro:
 	@$(MAKE) --no-print-directory clean >/dev/null
@@ -302,7 +311,7 @@ repro:
 	 $(MAKE) --no-print-directory clean >/dev/null; \
 	 $(MAKE) --no-print-directory all >/dev/null 2>&1 || { echo 'repro: second build failed'; exit 1; }; \
 	 snap $$b; \
-	 after=$$(cat $(INPUTS) 2>/dev/null | sha256sum | cut -d' ' -f1); \
+	 after=$$($(INPUT_FP)); \
 	 if [ "$$after" != "$(INPUTS_FP)" ]; then \
 	   rm -rf $$a $$b; \
 	   echo 'NON-STATIONARY INPUT: a source changed while repro was running.'; \
