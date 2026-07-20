@@ -237,6 +237,23 @@ check: all leak
 	! grep -q 'lastmod' $(SITEMAP)
 	pdftotext $(OVERVIEW).pdf - | grep -q '에이전트 플랫폼 운영'
 	pdftotext $(RECORD).pdf - | grep -q '에이전트 플랫폼 운영'
+# Both PDFs must be A4. acmart hard-codes letterpaper inside the class — it is an ACM
+# format and ACM prints on US letter — so the page size is not something the document asks
+# for and gets; it is something `build.el` has to take back with a \geometry re-call. A
+# silent revert of that line yields a document that still builds, still passes every other
+# gate here, and quietly ships on the wrong paper to a reader who prints it. Measured from
+# the file rather than from the source: pdfinfo reports what the writer actually wrote.
+# 595x842pt is A4 to the point; the tolerance absorbs pdfinfo's rounding, nothing more.
+	@for p in $(OVERVIEW).pdf $(RECORD).pdf; do \
+	   sz=$$(pdfinfo $$p | sed -n 's/^Page size: *\([0-9.]*\) x \([0-9.]*\) .*/\1 \2/p' | head -1); \
+	   w=$${sz%% *}; h=$${sz##* }; \
+	   awk -v w="$$w" -v h="$$h" -v p="$$p" 'BEGIN{ \
+	     if (w < 594 || w > 597 || h < 840 || h > 843) { \
+	       printf "PAPER: %s is %s x %s pt — not A4 (595 x 842). acmart pins letterpaper\n", p, w, h; \
+	       printf "       inside the class; the \\geometry re-call in build.el is what undoes it.\n"; \
+	       exit 1 } \
+	     printf "  ok  %s — A4 %s x %s pt\n", p, w, h }'; \
+	 done
 # Exactly one title block. `ax.org` carries a raw acmart topmatter block because ox-latex
 # emits no \subtitle, \affiliation or \email for this class, and Org will happily print a
 # second one of its own on top of it — both PDFs shipped the title twice and the author as
@@ -299,8 +316,16 @@ check: all leak
 # else — every legitimate `=` here is followed by a lowercase letter or a digit. A shell
 # assignment like PATH=/usr in a source block would trip it; that is the safe direction,
 # because the alternative is shipping the markers again.
-	! grep -qE '=[A-Z]' $(OVERVIEW).tex
-	! grep -qE '=[A-Z]' $(RECORD).tex
+# Scanned from \begin{document} on, not over the whole file. The defect is Org markup that
+# did not render, and Org markup exists only in the body — everything above \begin{document}
+# is `#+latex_header:` passed through literally, where `=` before a capital is ordinary
+# LaTeX (`[Ligatures=TeX]`, and any key=Value a future preamble adds). Scanning the preamble
+# made the gate fail on its own typesetting the day A4 arrived. The alternative — a
+# whitelist of known-good spellings — grows a line every time the preamble does, and each
+# line is a hole aimed at exactly the region the gate cannot see into. Narrowing the window
+# to where the defect can occur keeps the assertion absolute inside it.
+	! sed -n '/\\begin{document}/,$$p' $(OVERVIEW).tex | grep -qE '=[A-Z]'
+	! sed -n '/\\begin{document}/,$$p' $(RECORD).tex | grep -qE '=[A-Z]'
 # A table wider than the text block does not wrap — it runs off the right edge of the page
 # and the reader loses the column. LaTeX says so in the log and nothing else does.
 	! grep -q 'Overfull \\hbox' $(BUILD)/KimJunghan_AX_Overview.log

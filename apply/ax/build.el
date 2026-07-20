@@ -22,9 +22,24 @@
       (seq-remove (lambda (pkg) (equal (cadr pkg) "amssymb"))
                   org-latex-default-packages-alist))
 
+;; acmart pins `letterpaper' inside the class because ACM prints on US letter, and it does
+;; not accept `a4paper' as a class option. geometry is already loaded by then, so
+;; \usepackage[a4paper]{geometry} dies of an option clash. Re-calling \geometry is the only
+;; door left, and it has to be part of the class definition — the same wiring the private
+;; dossier proved, kept identical here on purpose so the two surfaces do not drift.
+;;
+;; `twoside=false' rather than `oneside': manuscript is twoside, so odd and even pages
+;; disagree by 37pt (1.3cm) of margin. That is right for a bound page turned by hand and
+;; wrong for a document read by scrolling — there it only ever looks like the text block
+;; sliding left and right. `oneside' is a class option, not a geometry key (xkeyval:
+;; `oneside' undefined in families `Gm'); the geometry spelling of the same intent is the
+;; twoside boolean.
+(defconst ax/geometry
+  "\\geometry{a4paper,twoside=false,left=3cm,right=3cm,top=2.8cm,bottom=2.8cm}")
+
 (add-to-list 'org-latex-classes
-             '("axpaper"
-               "\\documentclass{acmart}"
+             `("axpaper"
+               ,(concat "\\documentclass{acmart}\n" ax/geometry)
                ("\\section{%s}" . "\\section*{%s}")
                ("\\subsection{%s}" . "\\subsection*{%s}")
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
