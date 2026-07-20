@@ -208,6 +208,10 @@ check: all leak
 	grep -q 'application/ld+json' $(BUILD)/index.html
 	grep -q 'application/ld+json' $(BUILD)/record.html
 	grep -q 'rel="icon"' $(BUILD)/index.html
+# Search Console verifies by fetching the root URL, so the token must survive into index.html.
+# Losing it silently un-verifies the property — Search Console stops reporting and says nothing
+# here.
+	grep -q 'name="google-site-verification"' $(BUILD)/index.html
 # The shipped pages, not only the source stylesheet, must retain the CSS-first accessibility
 # baseline: visible keyboard focus, anchor landing clearance, horizontally scrollable tables,
 # and figures constrained to the content box. Without the last rule a 1600px diagram overflows

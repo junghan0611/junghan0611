@@ -13,6 +13,8 @@
 - Overview, depth 0-1 (PDF): https://ax.junghanacs.com/KimJunghan_AX_Overview.pdf
 - Record, depth 0-2 (PDF): https://ax.junghanacs.com/KimJunghan_AX_Record.pdf
 - Ledger, depth 0-3 (Markdown): https://ax.junghanacs.com/KimJunghan_AX_Detail.md
+- Sitemap: https://ax.junghanacs.com/sitemap.xml
+- Robots: https://ax.junghanacs.com/robots.txt
 
 These are not five documents. They are one document cut at four depths: d0 states the
 claim, d1 gives the shape of the evidence, d2 the events and numbers, d3 the ledger —
