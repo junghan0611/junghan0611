@@ -24,6 +24,9 @@ snapshot*.json
 
 # Harness-local per-machine state. The timeline observatory is now a shared skill in
 # agent-config (~/.claude/skills/timeline); this repo only commits its projection.
+# The domain map is per-machine and symlinks into ~/org/private — it names local repo
+# paths, so it stays out of a public tree even though the projection it feeds may ship.
+timeline/domains.local.json
 .claude/settings.local.json
 .pi/sessions/
 .pi/state/
