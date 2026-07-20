@@ -131,11 +131,18 @@ side effect.
 ## Image evidence contract
 
 `make leak` greps text. Binary files are skipped by construction (`grep -Iq .`), so **a
-forbidden term rendered into an image passes every check in this repository**. This is not
-hypothetical: the private dossier's hero diagram has internal tool names drawn into it, and
-the document that used it was clean. The gate now names every file it could not read rather
-than passing over it in silence — a silent skip reads exactly like a pass — but naming is
-the whole of what it can do. Neither the text gate nor OCR substitutes for looking.
+forbidden term rendered into an image passes every check in this repository**. The gate now
+names every file it could not read rather than passing over it in silence — a silent skip
+reads exactly like a pass — but naming is the whole of what it can do. Neither the text gate
+nor OCR substitutes for looking.
+
+The exposure is worst for diagrams: a diagram is generated once from a prompt, reviewed as
+a picture, and then dropped into a document whose *prose* was written under the denylist.
+The gate reads the prose and reports a clean run over an artifact nobody read. So the
+question at clearance is never "does a string in here look internal" but "does what is
+legible identify an organisation, a customer, or a private system" — a functional name that
+says what a tool does is not by itself an identifier, and a name that exists only inside one
+company is. That is a person's judgement; `images/README.md` records who made it per file.
 
 - **Images are cleared by someone reading them, not by running `make`.** The reviewer (a
   person, or a vision-capable reviewer) opens the *final optimized file that would ship* —
