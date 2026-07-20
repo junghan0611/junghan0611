@@ -36,8 +36,10 @@ time-axis projection.
 three. It began as an employer's three required uploads (competency statement, portfolio,
 detailed Markdown), and those were their boxes, not its structure. What it actually is is a
 single argument that descends from claim to ledger, so the views are **slices of one
-document at increasing depth**. Nothing has to be kept in step with anything, because there
-is only one thing.
+document at increasing depth**. That removes drift *between the derivatives* — no view can
+fall behind another, because none of them is authored. It does not make the document
+consistent: two sentences in one source can still contradict each other, and only reading
+catches that.
 
 | depth | what it carries | reading time |
 |---|---|---|
@@ -100,14 +102,43 @@ the tag, the schema, and the icon so a silent inject failure cannot pass.
 - Caddy injects no analytics (`ax.junghanacs.com` is a plain file server); the tag lives in the
   source because the authored artifact is the SSOT. The Umami *server* and the website-id
   registration are the nixos-config maintainer's surface.
-- `llms.txt` is a tracked static file (not a pandoc output). It ships to the web root as the
-  sixth public file. The leak gate already scans it — it is a text file in this dir — so it is
-  gated like every other surface. Turning on Umami's public "share URL" is declined: it would
-  expose visitor referrers (an application route), which the leak gate cannot scrub.
+- `llms.txt` is a tracked static file (not a pandoc output). It ships to the web root as a
+  public file in its own right. The leak gate already scans it — it is a text file in this dir
+  — so it is gated like every other surface. Turning on Umami's public "share URL" is declined:
+  it would expose visitor referrers (an application route), which the leak gate cannot scrub.
 - `robots.txt` and `sitemap.xml` ship the same way — static files authored here, not pandoc
-  outputs, gated by the same leak scan, and copied to the web root by `make publish` (eight
-  public files now, not six). The sitemap lists the five views and `llms.txt` — not itself or
-  `robots.txt` — and carries no `<lastmod>`, so two clean builds stay byte-identical.
+  outputs, gated by the same leak scan, and copied to the web root by `make publish`. The
+  sitemap lists the generated views and `llms.txt` — not itself, not `robots.txt`, and never a
+  legacy alias — and carries no `<lastmod>`, so two clean builds stay byte-identical.
+
+## What the web root may hold
+
+`make publish` does not merely copy: it makes the web root **equal** to a declared set, and
+that set lives in the Makefile as data (`VIEWS` + `ALIASES`), never as a count. A number in
+prose was already wrong once — it said "eight public files" — and it would go wrong again the
+moment images ship. Anything in the web root that is not in the set is retired, by name, out
+loud, because a file nobody publishes any more is still served to anyone holding its URL:
+stale, unbuilt, and never re-examined by a gate that only ever sees what the current source
+generates.
+
+`ALIASES` are legacy URLs kept deliberately. The depth redesign renamed both PDFs, and those
+URLs had been public since 2026-07-15, so each old name is republished as a byte-identical
+copy of the view that replaced it and `publish` proves the identity with `cmp` every time.
+They are honoured, never advertised: canonical names are what `sitemap.xml` and `llms.txt`
+carry. Deleting an alias line is how you decide to let that URL 404 — a decision, not a
+side effect.
+
+## The gate cannot read pictures
+
+`make leak` greps text. Binary files are skipped by construction (`grep -Iq .`), so **a
+forbidden term rendered into an image passes every check in this repository**. This is not
+hypothetical: the private dossier's hero diagram has internal tool names drawn into it.
+
+The gate now names every file it could not read instead of passing over them in silence — a
+silent skip reads exactly like a pass. But naming is all it can do. **Images are cleared by
+someone reading them, not by running `make`.** Any image entering this directory must be
+opened and read first, and its caption checked against current fact rather than against the
+claim it carried in the document it came from.
 
 ## Reading sequence
 

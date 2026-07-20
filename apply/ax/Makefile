@@ -9,7 +9,9 @@ INCLUDES := ../../timeline/projection.org
 BUILD := build
 # One document read at four depths — d0 the claim, d1 the shape of the evidence, d2 the
 # events and numbers, d3 the ledger. These are not three documents that must be kept in
-# step with each other; each is a slice of the same source, so they cannot disagree.
+# step with each other: none of them is authored, so no view can fall behind another.
+# (That removes drift between derivatives. It does not make the document consistent —
+# two sentences in one source can still contradict, and only reading catches that.)
 # The names say which slice, because "Competency" and "Portfolio" said which *document*
 # and there is only one now.
 OVERVIEW := $(BUILD)/KimJunghan_AX_Overview
@@ -27,7 +29,7 @@ HEAD := assets/head.html
 LLMS := llms.txt
 # robots.txt and sitemap.xml are static public files too — authored here, gated by the same
 # leak scan (any text file in this dir), and shipped to the web root. The sitemap lists the
-# five views + llms.txt (not itself or robots.txt) and carries no <lastmod>, so two clean
+# canonical views + llms.txt (not itself or robots.txt) and carries no <lastmod>, so two clean
 # builds stay byte-identical.
 ROBOTS := robots.txt
 SITEMAP := sitemap.xml
@@ -151,7 +153,16 @@ leak: html pdf md
 	done < $(LEAKWORDS); \
 	rm -rf $$tmp; \
 	[ $$hits -eq 0 ] || exit 1; \
-	echo "OK: leak gate — $$n terms against $$(echo $$targets | wc -w) files (sources + shipped artifacts)"
+	echo "OK: leak gate — $$n terms against $$(echo $$targets | wc -w) files (sources + shipped artifacts)"; \
+	blind=$$(find . -type f -not -path './build/*' -not -path './.git/*' \
+	  -not -name '$(LEAKWORDS)' -not -name '*.lock' \
+	  -exec sh -c 'grep -Iq . "$$1" || echo "$$1"' _ {} \; | sort); \
+	if [ -n "$$blind" ]; then \
+	  echo "BLIND: this gate reads text. It did not read, and cannot read, these:"; \
+	  echo "$$blind" | sed 's/^/         /'; \
+	  echo "       A term rendered into an image passes every check in this file."; \
+	  echo "       Images are cleared by reading them, not by running make."; \
+	fi
 
 check: all leak
 	test -s $(BUILD)/index.html
@@ -194,6 +205,17 @@ check: all leak
 	! grep -q 'lastmod' $(SITEMAP)
 	pdftotext $(OVERVIEW).pdf - | grep -q '에이전트 플랫폼 운영'
 	pdftotext $(RECORD).pdf - | grep -q '에이전트 플랫폼 운영'
+# Exactly one title block. `ax.org` carries a raw acmart topmatter block because ox-latex
+# emits no \subtitle, \affiliation or \email for this class, and Org will happily print a
+# second one of its own on top of it — both PDFs shipped the title twice and the author as
+# "김정한 and 김정한". The export plist cannot stop it: an in-buffer #+options beats the
+# plist, the same way it already defeats toc:nil (see the note at the top of ax.org). The
+# fix belongs in #+options; this is the witness that it stayed fixed. Counting \maketitle
+# names the defect exactly and does not depend on a single word of the prose.
+	test "$$(grep -c '\\maketitle' $(OVERVIEW).tex)" -eq 1
+	test "$$(grep -c '\\maketitle' $(RECORD).tex)" -eq 1
+	! pdftotext $(OVERVIEW).pdf - | grep -q 'and 김정한'
+	! pdftotext $(RECORD).pdf - | grep -q 'and 김정한'
 # The depth machine, checked against the manifest rather than against any sentence. Org
 # tag inheritance is what makes the cut cheap, and it is also what makes a bad cut silent:
 # a heading that inherits a deeper tag than it declares simply does not appear, and a
@@ -255,6 +277,19 @@ check: all leak
 # failure. The PDF *bytes* are reported and not enforced: XeLaTeX's writer regenerates the
 # trailer's file identifier on every run and this toolchain has no flag to suppress it.
 # Layout is not compared at all — do not claim it is.
+# Two builds only compare if they were given the same inputs. They were not, once: a
+# sibling session edited ax.org between them, every artifact came out DIFFERS, and the
+# obvious reading — "the build stopped reproducing" — was wrong. A repro run that cannot
+# tell a real regression from a moving source is not a witness, so it takes the inputs'
+# fingerprint before the first build and again after the second, and calls the difference
+# by its name instead of blaming the build. A prose rule ("only run this on a quiet tree")
+# would not have caught it; nobody reads a rule at the moment they are about to break it.
+INPUTS := $(SOURCE) $(INCLUDES) build.el assets/paper.css $(HEAD) $(DIAL) \
+          $(LLMS) $(ROBOTS) $(SITEMAP)
+# Expanded once, when make parses this file — which is before either build runs, so it is
+# the "before" reading with no temp file to carry it across the two clean builds.
+INPUTS_FP := $(shell cat $(INPUTS) 2>/dev/null | sha256sum | cut -d' ' -f1)
+
 repro:
 	@$(MAKE) --no-print-directory clean >/dev/null
 	@$(MAKE) --no-print-directory all >/dev/null 2>&1 || { echo 'repro: first build failed'; exit 1; }
@@ -267,6 +302,16 @@ repro:
 	 $(MAKE) --no-print-directory clean >/dev/null; \
 	 $(MAKE) --no-print-directory all >/dev/null 2>&1 || { echo 'repro: second build failed'; exit 1; }; \
 	 snap $$b; \
+	 after=$$(cat $(INPUTS) 2>/dev/null | sha256sum | cut -d' ' -f1); \
+	 if [ "$$after" != "$(INPUTS_FP)" ]; then \
+	   rm -rf $$a $$b; \
+	   echo 'NON-STATIONARY INPUT: a source changed while repro was running.'; \
+	   echo "  before  $(INPUTS_FP)"; \
+	   echo "  after   $$after"; \
+	   echo '  The two builds were given different inputs, so any difference between them'; \
+	   echo '  says nothing about reproducibility. Re-run once the tree is quiet.'; \
+	   exit 1; \
+	 fi; \
 	 fail=0; \
 	 for f in index.html record.html $(notdir $(DETAIL)) overview.txt record.txt; do \
 	   if cmp -s $$a/$$f $$b/$$f; then echo "  same     $$f"; \
@@ -291,12 +336,54 @@ repro:
 # copying past this target.
 PUBLISH ?= /home/junghan/docker-data/ax
 
+# What the web root is allowed to hold, as data rather than as a number. A literal count
+# was wrong the moment a second kind of published file appeared; images will make it wrong
+# again. Everything below derives from these two lists.
+VIEWS := index.html record.html $(notdir $(OVERVIEW)).pdf $(notdir $(RECORD)).pdf \
+         $(notdir $(DETAIL)) $(LLMS) $(ROBOTS) $(SITEMAP)
+
+# Legacy URL aliases, as `served-name:view-it-copies`. These are not extra artifacts —
+# each is a byte-identical copy of a view that was renamed, kept so a URL that has been
+# public since 2026-07-15 keeps resolving. The canonical names are what sitemap.xml and
+# llms.txt advertise; an alias is never advertised, only honoured. Retire one by deleting
+# its line, which makes that URL 404 on the next publish, deliberately and visibly.
+ALIASES := KimJunghan_AX_Competency.pdf:$(notdir $(OVERVIEW)).pdf \
+           KimJunghan_AX_Portfolio.pdf:$(notdir $(RECORD)).pdf
+
+PUBLISHED := $(VIEWS) $(foreach a,$(ALIASES),$(firstword $(subst :, ,$(a))))
+
 publish: check
 	@mkdir -p $(PUBLISH)
 	@cp build/index.html build/record.html $(OVERVIEW).pdf $(RECORD).pdf $(DETAIL) \
 	  $(LLMS) $(ROBOTS) $(SITEMAP) $(PUBLISH)/
-	@printf 'OK: published 8 files -> $(PUBLISH)\n'
-	@ls -1 $(PUBLISH)
+	@for a in $(ALIASES); do \
+	   old=$${a%%:*}; new=$${a##*:}; \
+	   cp $(PUBLISH)/$$new $(PUBLISH)/$$old; \
+	   cmp -s $(PUBLISH)/$$old $(PUBLISH)/$$new || { \
+	     echo "ALIAS: $$old is not byte-identical to $$new"; exit 1; }; \
+	   printf '  alias    %s == %s\n' "$$old" "$$new"; \
+	 done
+# Copying alone cannot keep the promise above. Rename a view — as the depth redesign
+# renamed both PDFs — and the old file keeps being served from its old URL: stale, no
+# longer produced by any build, and never re-examined by a leak gate that only ever sees
+# what the current source generates. An alias is that same file kept *on purpose* and
+# proved identical; anything else that survives here is an accident. So publishing states
+# the set it intends and then makes the directory equal to it.
+	@cd $(PUBLISH) && find . -type f -printf '%P\n' | sort > /tmp/ax-actual.$$$$; \
+	 printf '%s\n' $(PUBLISHED) | sort > /tmp/ax-want.$$$$; \
+	 comm -23 /tmp/ax-actual.$$$$ /tmp/ax-want.$$$$ | while read -r f; do \
+	   printf '  retired  %s (its URL now 404s)\n' "$$f"; rm -f "$$f"; \
+	 done; \
+	 find . -type f -printf '%P\n' | sort > /tmp/ax-actual.$$$$; \
+	 if ! diff -q /tmp/ax-want.$$$$ /tmp/ax-actual.$$$$ >/dev/null; then \
+	   echo 'PUBLISH: the web root does not equal the published set:'; \
+	   diff /tmp/ax-want.$$$$ /tmp/ax-actual.$$$$ | sed 's/^/    /'; \
+	   rm -f /tmp/ax-want.$$$$ /tmp/ax-actual.$$$$; exit 1; \
+	 fi; \
+	 n=$$(wc -l < /tmp/ax-want.$$$$); \
+	 rm -f /tmp/ax-want.$$$$ /tmp/ax-actual.$$$$; \
+	 printf 'OK: web root == published set (%s files: %s views + %s legacy aliases) -> $(PUBLISH)\n' \
+	   "$$n" "$(words $(VIEWS))" "$(words $(ALIASES))"
 
 clean:
 	rm -rf $(BUILD)
