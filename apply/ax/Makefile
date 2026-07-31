@@ -105,7 +105,7 @@ html: $(BUILD)/index.html $(BUILD)/record.html $(BUILD)/paper.css
 
 $(BUILD)/index.html: $(BUILD)/d0.org assets/paper.css $(HEAD)
 	pandoc $< -f org -t html5 --standalone --embed-resources --wrap=none \
-	  --css assets/paper.css --metadata title="에이전트 플랫폼 운영에서 책임질 수 있는 작업면까지" -o $@
+	  --css assets/paper.css --metadata title="모델 역량에서 책임질 수 있는 작업면까지" -o $@
 	$(call inject_head,$@)
 
 # The record does NOT embed its resources, and the front door does. That asymmetry is the
@@ -131,7 +131,7 @@ $(BUILD)/paper.css: assets/paper.css | $(BUILD)
 
 $(BUILD)/record.html: $(BUILD)/d3.org $(BUILD)/paper.css $(HEAD) $(DIAL) $(MANIFEST) $(IMAGES)
 	pandoc $< -f org -t html5 --standalone --toc --toc-depth=2 --wrap=none \
-	  --css paper.css --metadata title="에이전트 플랫폼 운영에서 책임질 수 있는 작업면까지 — 기록" -o $@
+	  --css paper.css --metadata title="모델 역량에서 책임질 수 있는 작업면까지 — 기록" -o $@
 	$(call inject_head,$@)
 	$(call stamp_depth,$@)
 	$(call inject_dial,$@)
@@ -242,8 +242,12 @@ check: all leak
 	grep -q '<loc>https://ax.junghanacs.com/KimJunghan_AX_Detail.md</loc>' $(SITEMAP)
 	grep -q '<loc>https://ax.junghanacs.com/llms.txt</loc>' $(SITEMAP)
 	! grep -q 'lastmod' $(SITEMAP)
-	pdftotext $(OVERVIEW).pdf - | grep -q '에이전트 플랫폼 운영'
-	pdftotext $(RECORD).pdf - | grep -q '에이전트 플랫폼 운영'
+# The title's opening words, not the whole title: a title long enough to wrap arrives from
+# pdftotext split across two lines, so grepping the full string would fail on a document
+# that is in fact correct. The check is that Korean topmatter reached the PDF at all — if
+# the Hangul faces had not resolved this is the line that would go quiet.
+	pdftotext $(OVERVIEW).pdf - | grep -q '모델 역량에서'
+	pdftotext $(RECORD).pdf - | grep -q '모델 역량에서'
 # Both PDFs must be A4. acmart hard-codes letterpaper inside the class — it is an ACM
 # format and ACM prints on US letter — so the page size is not something the document asks
 # for and gets; it is something `build.el` has to take back with a \geometry re-call. A

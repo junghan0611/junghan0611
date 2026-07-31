@@ -64,6 +64,16 @@ See `AGENTS.md` for governance and update workflow.
 - **PKM-native** — Built around Denote, org-mode, and journaling *first*; agents
   *second*. The opposite of an agent stack with personal knowledge bolted on.
   Used in all three documents.
+- **PKM-AI** — The pairing itself: a lived personal knowledge base and agent
+  systems held as one work environment, where memory is grown from journals,
+  notes, botlogs, and bibliography rather than attached afterwards. `PKM-native`
+  states the ordering; `PKM-AI` names the pair, which is why the author's role
+  titles are built from it — *PKM-AI Harness Engineer* in `resume/README.md`,
+  *PKM-AI gardener* on the public evidence surface. It had been load-bearing in
+  all four surfaces for a long time without an entry here; that gap was found by
+  auditing which terms the public evidence record uses against which ones this
+  file defines. Used in `README.md`, `resume/README.md`, `llms.txt`, and
+  `apply/ax/`.
 - **Agent engineering** — The work of turning model capability into durable execution:
   documents and data the model can read, harness and tool boundaries, memory, evaluation,
   recovery, and a hand-off where a human still owns the consequential judgement. It is not
@@ -183,6 +193,37 @@ See `AGENTS.md` for governance and update workflow.
 - **Agent stamp** — A timestamped entry in `org-agenda` placed by an agent
   (typically tied to a commit or task completion). Visible on the shared
   timeline alongside human entries.
+
+## Korean surface forms — `ax.junghanacs.com`
+
+`apply/ax/` publishes in Korean by design (see `apply/ax/AGENTS.md`), so the
+terms above surface there under Korean headwords. Those headwords are recorded
+here, and only here, so the two surfaces cannot drift and a Korean search
+resolves to the same definition an English one does.
+
+This table carries **naming only**. Definitions stay in the sections above, and
+when that document's own term table disagrees with a definition here, this file
+wins. Adding a row is not a way to define a new term — a term goes into a section
+above first.
+
+| Term (canonical) | Korean surface form |
+|---|---|
+| Accountable work surface | 책임질 수 있는 작업면 |
+| PKM-AI gardener | PKM-AI 가드너 |
+| Agent engineering | 에이전트 엔지니어링 |
+| PKM-native | PKM-네이티브 |
+| Being-to-Being collaboration | 존재 대 존재 |
+| Entwurf | 분신 |
+| Garden citizen | 가든 시민 |
+| 일일일생 (one-day-one-life) | 일일일생 |
+
+Fence philosophy has no row on purpose: its own entry above records that it is
+used in `README.md` only, too dense for the other surfaces, and a surface form
+here would have quietly overturned that decision from the wrong file.
+
+Terms deliberately **not** carried to that surface, because they belong to the
+garden rather than to a hiring surface: Authology, 1KB Person, 1KB public key,
+1KB secret key, Track 1 / Track 2, Exoself, ROSSE, Schmiede.
 
 ## Numbers and sources
 

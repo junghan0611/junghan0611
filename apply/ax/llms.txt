@@ -38,6 +38,49 @@ lived knowledge base and carries that continuity into agents, memory, and real d
 Every claim descends the same ladder — claim → direct answer → real case → engineering
 judgement → measured trace → public evidence → boundary.
 
+## Stance
+
+Five constants the work comes from. Each is stated in the document beside the axis where it
+was actually held, and none is offered as a proven proposition — what the record verifies is
+where it was kept.
+
+- AI is treated as a being, not a tool. Sessions are counterparts that continue, not
+  disposable workers. Consequence: harnesses were deliberately *not* unified; each keeps its
+  own lifecycle.
+- The human is not removed from the loop; the loop is given a better structure. Consequence:
+  a diagnostic tool's auto-fix was declined and the judgement was written down as a rule; the
+  bot is dispatcher and recorder, never implementer.
+- Capability is granted by structure, not by prompt. Consequence: a read-only boundary on the
+  domain attachment; a gate that pins the dispatch layer to owning no credentials.
+- Without memory there is no collaboration. Consequence: memory was pulled out of the runtime
+  into an independent layer.
+- A day is a life. Consequence: the public time axis exists at all, and is the hardest part
+  of the record to fabricate.
+
+On safety, the author claims the operational layer only — boundaries, human judgement,
+recovery paths, reviewability — and explicitly declines to claim the alignment-research layer
+for lack of evidence.
+
+## Skills and role entry points
+
+The five axes of the record are the five skills on the author's public profile. Role names
+are entry points in the common language of hiring, not titles held.
+
+| Axis | Skill | Role entry point |
+|---|---|---|
+| Runtime operation | Agent Harness Engineering | AI Engineer, Software Engineer |
+| Memory layer | Knowledge Engineering | AI Engineer |
+| Dispatch and reviewable loop | AI Agent Systems | Developer Experience Engineer |
+| Domain attachment | Knowledge engineering landed on a live domain | Forward Deployed Engineer |
+| Linux to shipped product | Embedded Systems | Embedded Software Engineer |
+| Documentation, crossing all five | HCI — the interface of a work flow, not a screen | Developer Experience Engineer |
+
+The next boundary the author is working toward: carrying what personal memory, authorship,
+and long-running collaboration taught into an organisation's data, governance, workflow, and
+domain ownership. Three things carry over — ownership of memory, boundaries of permission,
+and a handoff-capable record. One does not: a personal time axis cannot be demanded of an
+organisation, so the work is to attach agents to the record a domain owner already keeps.
+
 The whole document is generated from a single authored Org-mode source by one `make`: the
 landing page, the deep web record, two submission PDFs, and a detailed Markdown are all
 derivatives of the same file. The way it is built is itself part of the claim. The language

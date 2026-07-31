@@ -347,6 +347,13 @@ Korean text must not appear in these files except in four explicit cases.
 4. Verbatim Korean quotes from journals or agenda entries used as illustrative
    examples in prose, accompanied by an English gloss in parentheses.
    Example: `"밥먹고 올게" (going to eat)`.
+5. The rows of the Korean surface-form table in `VOCABULARY.md` — that table
+   only, nowhere else. `apply/ax/` publishes in Korean, so its headwords have to
+   be pinned against the canonical English terms somewhere, and the glossary is
+   the only place that cannot drift from them. The exception covers the table's
+   cells and not its surrounding prose: it carries names, never definitions. If
+   that table is ever the thing defining a term, the exception has been abused
+   and the term belongs in a section above it.
 
 ### Why this rule exists
 

@@ -18,11 +18,36 @@ model capability through documents, memory, execution boundaries, evaluation, an
 judgement into code, incidents, third-party actions, live aggregates, and a public time-axis
 projection.
 
+The document also carries **the stance the work comes from** and **the common-language
+landing** — the five skills and the role entry points a hiring surface reads. Both are
+deliberate. A reader who only sees five projects concludes "he built entwurf", which is not
+the claim; a reader who only sees a stance has been handed a manifesto. The two are held
+together by the discipline in the next section: a stance sentence must arrive carrying the
+place it was actually kept.
+
 ## Do not drift
 
 - The Anthropic J-space paper is a **format and build baseline only**. Do not summarize,
   cite, imitate, or discuss that paper here.
-- Do not turn this into `geworfen`, an academic paper, or a Track 2 manifesto.
+- Do not turn this into `geworfen` or an academic paper.
+- **A stance sentence arrives carrying the place it was kept.** `왜 이 일을 하는가` states
+  five constants, and each one names the axis where it was actually held — a design that
+  refused to unify, a fix declined, a boundary drawn read-only. A sentence with no such
+  place does not go in. That single rule is the whole difference between this section and a
+  manifesto, and it is the first thing to check when adding to it. The five are constants of
+  the author's work, not proven propositions; what the document verifies is where they were
+  kept, and `경계` says so out loud.
+- **Terms are defined by what they do, never by their etymology.** `andenken` is the memory
+  layer here, not a philosophical lineage. Load-bearing words must already appear in the
+  `이 문서의 말` table or go into the repo-root `VOCABULARY.md` first — that file stays
+  authoritative for meaning, this table only carries the Korean surface form and a
+  one-line job. Words that belong to the garden rather than to a hiring surface —
+  authology, 1KB Person, Track 2 — do not come here.
+- **Role names are entry points, not evidence.** `AI Engineer`, `Forward Deployed
+  Engineer`, `Developer Experience Engineer` and the rest say which door an axis opens in
+  the common language of hiring. They never imply the author held that title, and `경계`
+  carries that disclaimer. Do not promote them into the schema.org `jobTitle`, which
+  asserts a held position.
 - Do not make the local `axis.html` public. It embeds FULL titles and is deliberately
   gitignored. Only an allowlisted timeline projection may enter this document.
 - Do not add a new document converter. Use Org's exporters, Pandoc, and the proven
@@ -170,13 +195,21 @@ listed individually in `sitemap.xml`, which advertises reading surfaces.
 
 ## Reading sequence
 
-The deep record follows the model-to-work path in this order:
+The document opens with three short sections that tell the reader how to read it — the
+stance (`왜 이 일을 하는가`), the rules it holds itself to (`이 문서가 지키는 규칙`), and its
+vocabulary (`이 문서의 말`). They are `d1`, so the wide read carries them and the front door
+does not. Then the deep record follows the model-to-work path in this order:
 
 1. Model capability meets documents, memory, tools, and execution boundaries.
 2. Long-running agents need evaluation, recovery, durable state, and human judgement.
 3. Linux, backend, data, document, and product systems are the physical substrate beneath
    that work surface.
 4. Project records and verification surfaces.
+
+It closes with where the work is going (`다음 경계`) and what is not the author's (`경계`).
+The time axis sits at `d1`, not `d2`: it is the evidence for the stance section's last
+constant — a day recorded as a whole life — and a claim whose evidence was cut out of the
+same view is not a claim.
 
 Every claim descends through the same ladder:
 
