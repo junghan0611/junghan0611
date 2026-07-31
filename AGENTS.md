@@ -12,13 +12,16 @@ This repo holds three coordinated identity documents plus a glossary.
 - `VOCABULARY.md` — canonical glossary. Single source of truth for load-bearing terms.
 
 `apply/` and `timeline/` are separate surfaces and are **not** identity documents.
-See below.
+`apply/ax/` is a public evidence record for the same direction, not an employer-specific
+AX application or a substitute résumé. See below.
 
-## `apply/` — job-application surface
+## `apply/` — public evidence and application surfaces
 
-`apply/README.md` (competency statement) and `apply/portfolio.md` (project detail)
-are a **role-targeted cut** of the identity set, for AX-transformation and agent-platform
-positions. They are public and reusable across employers.
+`apply/README.md` (competency statement) and `apply/portfolio.md` (project detail) are
+public reusable material. `apply/ax/` turns the same direction into a live evidence record:
+**model capability → accountable work surface**. It is for a reader — including a model-team
+reader — to inspect what was actually built, operated, recovered, and handed over. It is not
+an employer-specific application and does not position its author as an AX-only candidate.
 
 Three rules govern this directory, and they invert the ones above.
 
@@ -33,8 +36,8 @@ Three rules govern this directory, and they invert the ones above.
    When a figure changes, update the identity documents first, then mirror it here.
    The verifiability pairing rule and the numbers policy below both apply.
 
-The résumé stays comprehensive; `apply/` is where the target-specific cut lives. Do
-not let a job posting reshape `resume/README.md`.
+The résumé stays comprehensive; target-specific cuts belong outside this public identity
+repository. Do not let a job posting reshape `resume/README.md` or the live evidence record.
 
 ### Where each document is authored
 
@@ -60,7 +63,8 @@ wins and `llms.txt` gets corrected.
 
 ### `apply/ax/` is live — the `run.sh` loop
 
-The AX evidence dossier is served at **https://ax.junghanacs.com**. It is not a file you
+The public evidence record is served at **https://ax.junghanacs.com**. The hostname is a stable
+address, not a claim that the author is seeking an AX role. It is not a file you
 build and attach once; it is a public surface a reviewer's agent reads, so it stays live
 and is updated in place. `run.sh` at the repo root is the entry point — a fresh session
 (human or agent) drives the whole edit → live-update loop through it, without needing to

@@ -1,5 +1,5 @@
 {
-  description = "Public AX evidence dossier — one Org SSOT to web, PDF, and Markdown";
+  description = "Public agent-engineering evidence record — one Org SSOT to web, PDF, and Markdown";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 

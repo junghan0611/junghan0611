@@ -1,4 +1,4 @@
-# ax.junghanacs.com — a public AX / agent-platform evidence dossier.
+# ax.junghanacs.com — a public evidence record for PKM-native agent engineering.
 # The whole site is public and meant to be read by people and agents alike.
 User-agent: *
 Allow: /

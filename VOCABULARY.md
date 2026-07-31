@@ -64,6 +64,16 @@ See `AGENTS.md` for governance and update workflow.
 - **PKM-native** — Built around Denote, org-mode, and journaling *first*; agents
   *second*. The opposite of an agent stack with personal knowledge bolted on.
   Used in all three documents.
+- **Agent engineering** — The work of turning model capability into durable execution:
+  documents and data the model can read, harness and tool boundaries, memory, evaluation,
+  recovery, and a hand-off where a human still owns the consequential judgement. It is not
+  a synonym for prompt assembly or a framework name. Used in `README.md` and the public
+  evidence surface at `ax.junghanacs.com`.
+- **Accountable work surface** — The place where a model's output meets real documents,
+  tools, decisions, and people without losing provenance, permission boundaries, or a
+  human path for review and exception handling. The unit of value is not a successful
+  model call but work that another person or agent can inspect, continue, and challenge.
+  Used in `README.md`.
 
 ## Harness layer
 

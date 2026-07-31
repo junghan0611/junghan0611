@@ -12,7 +12,9 @@
 
 ---
 
-I build PKM-native harnesses for long-term human-AI collaboration: shared memory, shared timelines, and reproducible work surfaces where humans and agents can keep continuity.
+I build the systems that turn model capability into **accountable work**: documents and memory a model can read, harness and tool boundaries it can inhabit, evaluation and recovery when it fails, and work surfaces where a human still owns consequential judgement. A successful model call is not the unit I care about. The unit is work another person or agent can inspect, continue, and challenge.
+
+This is **PKM-native agent engineering**. It begins with a lived knowledge base — journals, notes, bibliography, timelines, and the habits that gave them meaning — then carries that continuity into agents, shared memory, reproducible environments, and real domain work. The public record below is not a job application or a project catalogue. It is the body of work through which I ask model builders, AI teams, and collaborators to judge whether this direction is worth carrying further.
 
 ## The Ecosystem
 

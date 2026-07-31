@@ -105,7 +105,7 @@ html: $(BUILD)/index.html $(BUILD)/record.html $(BUILD)/paper.css
 
 $(BUILD)/index.html: $(BUILD)/d0.org assets/paper.css $(HEAD)
 	pandoc $< -f org -t html5 --standalone --embed-resources --wrap=none \
-	  --css assets/paper.css --metadata title="에이전트 플랫폼 운영과 조직 AX 전환" -o $@
+	  --css assets/paper.css --metadata title="에이전트 플랫폼 운영에서 책임질 수 있는 작업면까지" -o $@
 	$(call inject_head,$@)
 
 # The record does NOT embed its resources, and the front door does. That asymmetry is the
@@ -131,7 +131,7 @@ $(BUILD)/paper.css: assets/paper.css | $(BUILD)
 
 $(BUILD)/record.html: $(BUILD)/d3.org $(BUILD)/paper.css $(HEAD) $(DIAL) $(MANIFEST) $(IMAGES)
 	pandoc $< -f org -t html5 --standalone --toc --toc-depth=2 --wrap=none \
-	  --css paper.css --metadata title="에이전트 플랫폼 운영과 조직 AX 전환 — 기록" -o $@
+	  --css paper.css --metadata title="에이전트 플랫폼 운영에서 책임질 수 있는 작업면까지 — 기록" -o $@
 	$(call inject_head,$@)
 	$(call stamp_depth,$@)
 	$(call inject_dial,$@)

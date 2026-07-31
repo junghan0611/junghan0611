@@ -1,18 +1,22 @@
-# AGENTS.md — public AX evidence dossier
+# AGENTS.md — public agent-engineering evidence record
 
-This directory builds a public evidence surface for AX / agent-platform roles.
-It is not an employer-specific application and it is not a research paper.
+This directory builds a public evidence surface for **PKM-native agent engineering**:
+how model capability becomes an accountable work surface. The stable `ax` hostname is not a
+claim that the author seeks an AX role. This is not an employer-specific application and not
+a research paper.
 
 ## Center
 
 The document answers one question:
 
-> In the last year of rapid AI change, what did the author actually build, operate,
-> recover, hand over, and leave verifiable?
+> How does model capability become work that people and agents can inspect, continue,
+> recover, and challenge — and what has the author actually built, operated, handed over,
+> and left verifiable while pursuing that question?
 
-The answer is not tenure or self-description. It is a path from the reader's familiar
-job-language into code, incidents, third-party actions, live aggregates, and a public
-time-axis projection.
+The answer is not tenure, self-description, or an AX-role checklist. It is a path from
+model capability through documents, memory, execution boundaries, evaluation, and human
+judgement into code, incidents, third-party actions, live aggregates, and a public time-axis
+projection.
 
 ## Do not drift
 
@@ -166,19 +170,17 @@ listed individually in `sitemap.xml`, which advertises reading surfaces.
 
 ## Reading sequence
 
-The deep record follows the role's vocabulary in this order:
+The deep record follows the model-to-work path in this order:
 
-1. Main work: AX infrastructure build/manage/design/develop/operate; documentation,
-   distribution, and education.
-2. Qualifications: Linux; Claude Code/Codex and Agentic AI; backend systems; AX in
-   development and non-development domains.
-3. Preferred capabilities: web frameworks; DB/MQ/VM/containers; LLM/RAG; structured AI
-   workflows such as BMAD; cloud; frontend; collaboration; developer/non-developer docs.
+1. Model capability meets documents, memory, tools, and execution boundaries.
+2. Long-running agents need evaluation, recovery, durable state, and human judgement.
+3. Linux, backend, data, document, and product systems are the physical substrate beneath
+   that work surface.
 4. Project records and verification surfaces.
 
 Every claim descends through the same ladder:
 
-`role keyword → direct answer → real case → engineering judgement → measured trace → public evidence → boundary`
+`claim → direct answer → real case → engineering judgement → measured trace → public evidence → boundary`
 
 Use progressive disclosure. The landing page stays short; the record carries the mass.
 

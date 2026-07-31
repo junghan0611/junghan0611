@@ -1,9 +1,11 @@
 # ax.junghanacs.com
 
-> A public AX / agent-platform evidence dossier. It answers one question: in the last year
-> of rapid AI change, what did the author actually build, operate, recover, hand over, and
-> leave verifiable? Every large claim descends to public code, real incidents, live
-> aggregates, and a public time-axis — not to tenure or self-description.
+> A public evidence record for PKM-native agent engineering: how model capability becomes
+> an accountable work surface. It answers one question: what did the author actually build,
+> operate, recover, hand over, and leave verifiable while turning model capability into work
+> that people and agents can inspect, continue, and challenge? Every large claim descends to
+> public code, real incidents, live aggregates, and a public time-axis — not to tenure or
+> self-description.
 
 ## Machine-readable entry points
 
@@ -25,15 +27,16 @@ the deeper tiers.
 
 ## About
 
-This site is a public evidence dossier by Junghan Kim (김정한) — also identified in the
+This site is a public evidence record by Junghan Kim (김정한) — also identified in the
 schema.org JSON-LD on this page as GLG (힣), GLGMAN (힣맨), and 정한 — a polymath engineer
-and digital gardener. It is not an employer-specific application and not a research paper.
+and digital gardener. The `ax` hostname is a stable address, not a claim that the author is
+seeking an AX role. It is not an employer-specific application and not a research paper.
 
 The author does not lead with the title "engineer": engineering is not the identity, it is
-the method for making evidence. The document is a record of a person who gardens a knowledge
-base and drove agents all the way down to the operating layer. Every claim descends the same
-ladder — role keyword → direct answer → real case → engineering judgement → measured trace →
-public evidence → boundary.
+the method for making evidence. This is PKM-native agent engineering — it begins with a
+lived knowledge base and carries that continuity into agents, memory, and real domain work.
+Every claim descends the same ladder — claim → direct answer → real case → engineering
+judgement → measured trace → public evidence → boundary.
 
 The whole document is generated from a single authored Org-mode source by one `make`: the
 landing page, the deep web record, two submission PDFs, and a detailed Markdown are all
@@ -56,13 +59,13 @@ is primarily Korean with English technical terms.
 ## Structure
 
 - `/` (index.html) — short public front door.
-- `/record.html` — the deep web record, following the role's vocabulary in order: main work
-  (AX infrastructure build/operate/design, documentation and education), qualifications
-  (Linux; Claude Code/Codex and Agentic AI; backend; AX in and out of development), preferred
-  capabilities (web/DB/MQ/containers, LLM/RAG, structured AI workflows, cloud, frontend,
-  collaboration, docs), and project records with verification surfaces.
-- The two PDFs and the detailed Markdown carry the same content in the required submission
-  formats.
+- `/record.html` — the deep web record, following the model-to-work path in order: model
+  capability meeting documents, memory, tools, and execution boundaries; the evaluation,
+  recovery, and durable state long-running agents need; the Linux, backend, data, and
+  product systems that are the physical substrate beneath that work surface; and project
+  records with verification surfaces.
+- The two PDFs and the detailed Markdown carry the same content at different depths, in
+  formats convenient for printing, sharing, or agent ingestion.
 
 ## Verification surfaces
 

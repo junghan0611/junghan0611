@@ -1,7 +1,7 @@
-#+title:      에이전트 플랫폼 운영과 조직 AX 전환
+#+title:      에이전트 플랫폼 운영에서 책임질 수 있는 작업면까지
 #+subtitle:   Linux 인프라에서 메모리·디스패치·개발 루프·문서 전파까지
 #+author:     김정한 (Junghan Kim)
-#+date:       2026-07-15
+#+date:       2026-07-31
 #+language:   ko
 # toc:nil / title:nil / author:nil / date:nil — an in-buffer #+options beats the export
 # plist, so build.el could not turn these off from the outside. The web record's TOC is
@@ -10,7 +10,7 @@
 # \affiliation, \email, \maketitle) is the SSOT — ox-latex's own title:t/author:t/date:t
 # would print Org's topmatter *in addition to* that block's \maketitle, doubling both.
 #+options:    toc:nil num:nil title:nil author:nil date:nil broken-links:t
-#+html_head:  <meta name="description" content="최근 1년의 AX·에이전트 플랫폼 작업을 코드, 운영 기록, 제3자의 행동, 공개 시간축으로 검증하는 기록면">
+#+html_head:  <meta name="description" content="최근 1년간 모델 역량을 문서·기억·도구·사람의 판단이 만나는 작업면으로 옮겨 온 기록을 코드, 운영 기록, 제3자의 행동, 공개 시간축으로 검증하는 기록면">
 
 # The typesetting below descends from the private dossier's pipeline/preamble.org. It is
 # transplanted rather than reinvented: the same Org source has to be able to leave through
@@ -97,7 +97,7 @@
 #+latex_header: \captionsetup[table]{name=표,labelsep=period}
 
 #+begin_export latex
-\title{에이전트 플랫폼 운영과 조직 AX 전환}
+\title{에이전트 플랫폼 운영에서 책임질 수 있는 작업면까지}
 \subtitle{Linux 인프라에서 메모리·디스패치·개발 루프·문서 전파까지}
 \author{김정한 (Junghan Kim)}
 \affiliation{\institution{Independent Engineer}\country{Republic of Korea}}
@@ -105,18 +105,19 @@
 \maketitle
 #+end_export
 
-* 저는 PKM-AI 가드너입니다. AX도 결국 인간 생산성의 문제입니다. :d0:
+* 저는 PKM-AI 가드너입니다. 모델 역량은 사람이 만든 작업면 위에서만 값이 됩니다. :d0:
 :PROPERTIES:
 :CUSTOM_ID: landing
 :END:
 
-AX를 도구 도입 문제로 읽으면 답은 도구 목록이 됩니다. 지난 1년간 제가 판 것은 그게 아닙니다.
-*한 사람의 지식과 시간을 어디까지 가꿀 수 있는가,* 그리고 에이전트가 그 경계를 실제로 어디까지
-밀어주는가 — 이것이 제 질문이었고, 매일의 기록으로 검증해 왔습니다.
+모델 역량을 도구 도입 문제로 읽으면 답은 도구 목록이 됩니다. 지난 1년간 제가 판 것은 그게
+아닙니다. *한 사람의 지식과 시간을 어디까지 가꿀 수 있는가,* 그리고 그 위에서 에이전트가 실제로
+검토·지속·복구·인계를 견디는 작업면을 어디까지 만들어 주는가 — 이것이 제 질문이었고, 매일의
+기록으로 검증해 왔습니다.
 
 그래서 저를 엔지니어나 개발자로 먼저 소개하지 않습니다. *엔지니어링은 정체성이 아니라 증거를
-만드는 방법입니다.* 지식 기반을 가꾸는 사람이 에이전트를 운영 계층까지 끌고 내려간 기록 —
-이 문서는 그 기록입니다.
+만드는 방법입니다.* 지식 기반을 가꾸는 사람이 에이전트를 운영 계층까지 끌고 내려가 책임질 수
+있는 작업면으로 바꾼 기록 — 이 문서는 그 기록입니다.
 
 가꾼 것은 말이 아니라 데이터로 남습니다. 저널 *1,500일 이상,* 노트 *3,500개 이상,* 서지
 *8,200건 이상,* 커밋 *8,500개 이상,* 생활 기록 *2,500일 이상.* 지금 이 순간
@@ -614,7 +615,7 @@ AWS IoT를, 폐쇄망은 로컬 백엔드가 같은 프로토콜을 제공하고
 
 *** 배경 신뢰도로 두는 이유 :d1:
 
-이 경험은 이 기록의 중심축이 아닙니다. 다만 AX 계층 /아래/ 의 DB·MQ·프로토콜·디바이스 현실을
+이 경험은 이 기록의 중심축이 아닙니다. 다만 에이전트 계층 /아래/ 의 DB·MQ·프로토콜·디바이스 현실을
 이해하고 있다는 배경 신뢰도로 둡니다. *에이전트를 붙일 대상이 무엇으로 만들어졌는지 모르면,
 붙이는 방식도 틀립니다.*
 
