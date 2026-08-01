@@ -2,6 +2,29 @@
 
 Governance for the identity-document set in this repository.
 
+## Nested governance — read before editing, not after
+
+This file does not govern every directory. One subtree has its own `AGENTS.md`, and it is
+the operative file for everything inside it:
+
+| Subtree | Its `AGENTS.md` | Read it before you |
+|---|---|---|
+| `apply/ax/` | [`apply/ax/AGENTS.md`](apply/ax/AGENTS.md) | edit `ax.org`, restyle `assets/`, touch the Makefile gates, clear an image, or publish |
+
+**Read it first, in full, on the session's first touch of that subtree** — not when
+something breaks. It is not a supplement to this file; it carries rules that exist nowhere
+else and that no build error will teach you: what may enter `경계` and what may not, the
+depth-tag invariant that deletes a section with no error anywhere, the image clearance
+contract that `make` cannot enforce because the leak gate cannot read pictures, and what
+`make repro` actually proves about the PDFs.
+
+Both failures this rule exists for are on the record. An agent restyled `paper.css` and
+edited the record's prose across a whole session without opening that file. And three
+`경계` lines shipped from an application draft because the rule against them lives there,
+where nobody had looked. **A rule in an unread file is not governance.** When the two files
+disagree about the same subject, this one wins and the nested file gets corrected — say so
+rather than following the narrower one silently.
+
 ## Documents in scope
 
 This repo holds three coordinated identity documents plus a glossary.
@@ -77,9 +100,23 @@ reconstruct the toolchain:
 ./run.sh help        # every command
 ```
 
-The usual loop is: edit `apply/ax/ax.org` → `./run.sh publish` → `./run.sh live`. If the
+The usual loop is: **read [`apply/ax/AGENTS.md`](apply/ax/AGENTS.md)** → edit
+`apply/ax/ax.org` → `./run.sh publish` → `./run.sh live`. The read is the first step, not a
+formality: this file owns the loop, that file owns *what may go in the document*. If the
 time axis moved (a fresh `events.jsonl` + `snapshot.json`), run `./run.sh axis` first,
 because `ax.org` `#+include`s the reading.
+
+**A prose edit is a publish, and a publish is outward-facing.** The record is live, so
+changing a sentence changes what a reader's agent fetches. Build and gate it (`./run.sh
+publish`), verify it from outside (`./run.sh live`), and leave the commit decision to GLG —
+a request to change the text is not a request to push it.
+
+**Do not let a job posting write a sentence here.** The record answers its own question, not
+a posting's requirement list. This is the same rule as "target-specific cuts belong outside
+this public identity repository", applied one level down to individual sentences: if a line
+only makes sense to a reader holding a particular job description, it is a target-specific
+cut no matter how short it is. `경계` is where this leaks in first — see that file's rule on
+it before adding a boundary.
 
 Two invariants the script enforces and you must not route around:
 
@@ -526,3 +563,9 @@ the rounding rules above.
   The commit is the measure; the stamp is a trace. See `timeline/`.
 - Do not chase missing commits, and do not force two machines' snapshots to agree.
   The axis holds the trunk, not every minute.
+- Do not touch anything under `apply/ax/` before reading `apply/ax/AGENTS.md` in full.
+  Styling and prose both count — the rules that file carries are not visible from the code,
+  and nothing in the build will raise them for you.
+- Do not add a `경계` line that disclaims a technology this document never claims. A
+  boundary bounds a claim; with no claim beside it, it is a job posting's question answered
+  in public.

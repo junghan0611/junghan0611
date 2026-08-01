@@ -56,8 +56,21 @@ place it was actually kept.
   company facts. Those stay in `apply/PRIVATE.md`. This file is tracked and public, so it
   must not spell out the terms it forbids — the denylist lives in the gitignored
   `leakwords.txt` and `make check` greps it against the shipped artifacts.
-- Do not claim direct use of a named framework that was not used. Map adjacent capability
-  only after stating the boundary plainly.
+- Do not claim direct use of a named framework that was not used. Where the document does
+  not claim it, it does not discuss it either — see the `경계` rule below.
+- **`경계` carries the author's own boundaries, never an answer to a posting's stack list.**
+  A line earns its place there by keeping this document from claiming something it cannot
+  keep: what is upstream and not the author's, what a hash proves and does not, what a role
+  name is not, which sentences are constants rather than proven propositions. A line that
+  exists only because one job posting named a technology does not. Three such lines shipped
+  here from an application draft — each disclaimed a framework this document never otherwise
+  mentions, and each one quietly turned a public record into a reply addressed to a reader it
+  was not written for. They were removed on 2026-08-01. Root `AGENTS.md` already governs
+  this — *"target-specific cuts belong outside this public identity repository"* — so a
+  boundary naming a technology the document never uses is a target-specific cut wearing a
+  boundary's clothes. **Test before adding one: does the surrounding document make a claim
+  this line has to bound?** If nothing here claims it, the line does not go in, and stating
+  the boundary "plainly" is not a reason to add it.
 
 ## One document, four depths
 
