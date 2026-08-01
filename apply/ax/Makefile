@@ -216,13 +216,24 @@ check: all leak
 # baseline: visible keyboard focus, anchor landing clearance, horizontally scrollable tables,
 # and figures constrained to the content box. Without the last rule a 1600px diagram overflows
 # a phone viewport and drags the page's horizontal scroll with it — the figure's own box is
-# already constrained by `body > *`, so the image is the one thing that escapes.
+# already constrained by the document column, so the image is the one thing that escapes.
 	grep -q 'focus-visible' $(BUILD)/index.html
 	grep -q '<link rel="stylesheet" href="paper.css"' $(BUILD)/record.html
 	grep -q 'focus-visible' $(BUILD)/paper.css
 	grep -q 'scroll-margin-top' $(BUILD)/paper.css
 	grep -q 'overflow-x: auto' $(BUILD)/paper.css
 	grep -A6 '^figure img {' $(BUILD)/paper.css | grep -q 'max-width: 100%'
+# The document column belongs to `body`, not to `body > *`. Declared per-child it sits inside
+# the reach of every rule that styles a top-level block, and three of them took it: a
+# `margin: … 0` shorthand pinned the block to the viewport's left edge, a later `width`
+# replaced the column with `100%` of the viewport, and a narrower `max-width` let the leftover
+# auto margins drift the block to the middle. Tables and the evidence mount shipped against
+# the left edge and every paragraph floated. The page renders either way and says nothing, so
+# assert the column's home rather than trusting the next edit to remember why it moved.
+	grep -A2 '^body {' $(BUILD)/paper.css | grep -q 'width: min(calc(100% - 40px), var(--content))'
+	grep -A2 '^body {' $(BUILD)/paper.css | grep -q 'margin: 0 auto'
+	! grep -q '^body > \*' $(BUILD)/paper.css
+	! grep -A5 '^table {' $(BUILD)/paper.css | grep -qE '^  width:'
 # No binary may re-enter the text artifacts. base64 both bloats the record and fills the
 # leak gate with false matches, so its absence is checked rather than remembered.
 	! grep -q 'base64,' $(BUILD)/record.html

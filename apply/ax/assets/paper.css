@@ -15,17 +15,32 @@ html {
   scroll-behavior: smooth;
   background: var(--bg);
 }
+/* The document column is declared once, here, on the container that holds it.
+   It used to be declared on `body > *` instead — every top-level block given the column
+   width plus `margin-inline: auto` of its own — which put the column inside the reach of
+   every rule that styles one of those blocks, and three of them took it:
+
+     - a `margin: … 0` shorthand cancels the auto side margins, so the block keeps the
+       column's width but sits at the viewport's left edge (`.evidence-mount`, and `table`
+       before this commit — every table on the record shipped that way);
+     - a `width` in a later rule of equal specificity replaces the column outright, and its
+       `100%` resolves against `body`, i.e. the whole viewport (`table`, same commit);
+     - a narrower `max-width` leaves the auto margins with slack to distribute, so the block
+       drifts to the middle of the page instead of staying on the column's left rail
+       (`p` at 72ch, the landing `h1` at 19ch).
+
+   None of those are errors — the page renders, and nothing reports a misplaced block. So
+   the fix is structural rather than three overrides: with the column on `body`, children
+   fill it by simply being blocks, side margins mean what they say, `max-width` narrows a
+   block in place, and no child rule can take the column away again. */
 body {
-  margin: 0;
+  width: min(calc(100% - 40px), var(--content));
+  margin: 0 auto;
   color: var(--ink);
   background: var(--bg);
   font: 17px/1.72 "Noto Sans CJK KR", "Noto Sans KR", system-ui, sans-serif;
   overflow-wrap: break-word;
   word-break: keep-all;
-}
-body > * {
-  width: min(calc(100% - 40px), var(--content));
-  margin-inline: auto;
 }
 body > header {
   padding: 64px 0 26px;
@@ -114,13 +129,13 @@ pre {
    scroll with it. That is the whole of the overflow, and `max-width: 100%` is the whole of
    the fix; `width`/`height: auto` keep the aspect ratio while it scales.
 
-   The figure box itself was never the problem. `figure` is a direct child of `body`, so
-   `body > *` above already gives it the document width and `margin-inline: auto`, which beat
-   the UA stylesheet's `margin: 1em 40px` long before this rule existed. The margin declared
-   here only replaces the UA's vertical `1em` with this document's rhythm. Said plainly
-   because the first version of this comment claimed the page overflowed twice — once for
-   those 40px margins and once for the image — and the next person to read it would go
-   looking for a second overflow that was never there. */
+   The figure box itself was never the problem. `figure` is a block child of the column, so
+   it fills the column on its own; this rule only replaces the UA stylesheet's `margin:
+   1em 40px` — whose 40px sides would inset the figure off the column's rails — with this
+   document's vertical rhythm and no side inset. Said plainly because the first version of
+   this comment claimed the page overflowed twice — once for those 40px margins and once for
+   the image — and the next person to read it would go looking for a second overflow that
+   was never there. */
 figure {
   margin: 1.8rem auto 2.4rem;
 }
@@ -139,9 +154,14 @@ figcaption {
   line-height: 1.55;
 }
 
+/* Declare no `width` here. `display: block` already fills the column, and the `width: 100%`
+   this rule used to carry is what made every table on the record ship viewport-wide and hard
+   left, sliding under the fixed #TOC rail on wide screens — see the note on `body`. It reads
+   harmless next to the column rule, which is exactly why it is spelled out here as well.
+   `max-width` and `overflow-x` stay: they are what makes a table too wide for the column
+   scroll inside itself instead of widening the page. */
 table {
   display: block;
-  width: 100%;
   max-width: 100%;
   margin: 1.6rem 0 2.5rem;
   overflow-x: auto;
@@ -290,7 +310,7 @@ body > header + h1 ~ ul:last-of-type + p {
     line-height: 1.68;
     word-break: normal;
   }
-  body > * { width: min(calc(100% - 28px), var(--content)); }
+  body { width: min(calc(100% - 28px), var(--content)); }
   body > header { padding-top: 38px; }
   body > header h1 { font-size: clamp(2rem, 12vw, 3rem); }
   h1 { margin-top: 3.2rem; }
