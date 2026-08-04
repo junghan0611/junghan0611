@@ -107,7 +107,9 @@ derivative by hand; fix `ax.org` or the build wiring.
 English translation beside it, nor an English edition with a Korean translation beside it.
 It is one evidence record with a short bilingual entrance and a Korean deep read:
 
-- d0 is the human front door. Every d0 unit is written **English first, then its direct
+- d0 is the human front door. Its visual hierarchy — title, subtitle, author byline,
+  headings, and link labels — is **English only**; the Korean name `김정한` may appear
+  parenthetically in the byline. Every prose unit is written **English first, then its direct
   Korean counterpart**. The pair communicates one claim; do not let one language gain a
   claim, qualification, number, link, or boundary that the other omits.
 - d1–d3 are the Korean record. `record.html`, the PDFs, and detailed Markdown therefore

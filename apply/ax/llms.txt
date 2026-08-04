@@ -83,8 +83,9 @@ organisation, so the work is to attach agents to the record a domain owner alrea
 
 The whole document is generated from a single authored Org-mode source by one `make`: the
 landing page, the deep web record, two submission PDFs, and a detailed Markdown are all
-derivatives of the same file. The way it is built is itself part of the claim. The language
-is primarily Korean with English technical terms.
+derivatives of the same file. The way it is built is itself part of the claim. The front
+door (d0) is bilingual: its visual hierarchy is English, and each English prose unit is
+immediately followed by its Korean counterpart. The deep record (d1–d3) remains Korean.
 
 ## What the author operated
 

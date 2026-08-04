@@ -171,6 +171,15 @@ than trusting that they do."
     (error "usage: build.el cut|latex|manifest SOURCE DEPTH OUTPUT"))
   (make-directory (file-name-directory (expand-file-name output)) t)
   (find-file source)
+  ;; The human front door carries the source-owned author byline. `author:nil' keeps
+  ;; ox-latex from duplicating the raw acmart title block, so change it only in this
+  ;; in-memory d0 cut; d3 and LaTeX begin from a fresh source buffer and remain unchanged.
+  (when (and (equal mode "cut") (equal depth "0"))
+    (save-excursion
+      (goto-char (point-min))
+      (when (re-search-forward "^#\\+options:.*$" nil t)
+        (replace-match (replace-regexp-in-string "author:nil" "author:t"
+                                                       (match-string 0)) t t))))
   (let ((rows (ax/scan))
         (max-depth (string-to-number depth)))
     (ax/validate-depths rows)

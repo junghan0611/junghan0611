@@ -1,6 +1,6 @@
-#+title:      모델 역량에서 책임질 수 있는 작업면까지
-#+subtitle:   에이전트 플랫폼 운영·기억·디스패치·도메인 접점·임베디드 — 다섯 축의 공개 증거
-#+author:     김정한 (Junghan Kim)
+#+title:      From Model Capability to an Accountable Work Surface
+#+subtitle:   Public Evidence Across Five Axes: Agent Platform Operation, Memory, Dispatch, Domain Attachment, and Embedded Systems
+#+author:     Junghan Kim (김정한) — Polymath Engineer & Digital Gardener · [[https://junghanacs.com/][Homepage]] · [[https://kr.linkedin.com/in/junghan-kim-1489a4306][LinkedIn]]
 #+date:       2026-07-31
 #+language:   ko
 # toc:nil / title:nil / author:nil / date:nil — an in-buffer #+options beats the export
@@ -10,7 +10,6 @@
 # \affiliation, \email, \maketitle) is the SSOT — ox-latex's own title:t/author:t/date:t
 # would print Org's topmatter *in addition to* that block's \maketitle, doubling both.
 #+options:    toc:nil num:nil title:nil author:nil date:nil broken-links:t
-#+html_head:  <meta name="description" content="한 사람의 지식 기반에서 조직의 에이전트 작업면까지 — 에이전트 하네스 엔지니어링, AI 에이전트 시스템, 지식공학, 임베디드 시스템, HCI 다섯 축을 코드, 운영 기록, 제3자의 행동, 공개 시간축으로 검증하는 기록면">
 
 # The typesetting below descends from the private dossier's pipeline/preamble.org. It is
 # transplanted rather than reinvented: the same Org source has to be able to leave through
@@ -88,8 +87,8 @@
 #+latex_header: \def\@subsubsecfont{\sffamily\bfseries\large\section@raggedright}
 #+latex_header: \makeatother
 
-# Caption labels in Korean. This document is Korean throughout and now carries five
-# figures, so an English "Fig. 1." is the one line on the page written in another language.
+# Caption labels in Korean. The d0 front door is bilingual, while the deep record and its five
+# figures remain Korean, so an English "Fig. 1." would still be the wrong label on the page.
 # The label is owned by the caption package, not by \figurename: acmart fixes it with
 # \captionsetup{name=Figure}, so \renewcommand{\figurename}{그림} is silently ignored and
 # the PDF keeps printing "Fig." — it has to be overridden at the same layer.
@@ -97,53 +96,184 @@
 #+latex_header: \captionsetup[table]{name=표,labelsep=period}
 
 #+begin_export latex
-\title{모델 역량에서 책임질 수 있는 작업면까지}
-\subtitle{에이전트 플랫폼 운영·기억·디스패치·도메인 접점·임베디드 — 다섯 축의 공개 증거}
-\author{김정한 (Junghan Kim)}
+\title{From Model Capability to an Accountable Work Surface}
+\subtitle{Public Evidence Across Five Axes: Agent Platform Operation, Memory, Dispatch, Domain Attachment, and Embedded Systems}
+\author{Junghan Kim (김정한)}
 \affiliation{\institution{Independent Engineer}\country{Republic of Korea}}
 \email{junghanacs@gmail.com}
 \maketitle
 #+end_export
 
-* 모델 역량만으로는 일이 되지 않습니다 :d0:
+* Model Capability Alone Does Not Make Work Happen :d0:
 :PROPERTIES:
 :CUSTOM_ID: landing
 :END:
 
+#+begin_export html
+<div lang="en">
+#+end_export
+I am a PKM-AI gardener who cultivates a person's knowledge and time. On that foundation, I
+build work surfaces where agents can be reviewed, continued, recovered, and handed over to the
+next person.
+#+begin_export html
+</div>
+#+end_export
+
+#+begin_export html
+<div lang="ko">
+#+end_export
 저는 사람의 지식과 시간을 가꾸는 PKM-AI 가드너입니다. 그 기반 위에, 에이전트가 검토받고
 이어가고 복구하고 다음 사람에게 넘길 수 있는 작업면을 만듭니다.
+#+begin_export html
+</div>
+#+end_export
 
+#+begin_export html
+<div lang="en">
+#+end_export
+If model capability is read as a tool-adoption problem, the answer becomes a list of tools. That
+is not what I have been digging into for the past year. *How far can one person's knowledge and
+time be cultivated,* and how far can that foundation support a work surface where agents
+withstand review, continuity, recovery, and handoff? That has been my question, tested through a
+daily record.
+#+begin_export html
+</div>
+#+end_export
+
+#+begin_export html
+<div lang="ko">
+#+end_export
 모델 역량을 도구 도입 문제로 읽으면 답은 도구 목록이 됩니다. 지난 1년간 제가 판 것은 그게
 아닙니다. *한 사람의 지식과 시간을 어디까지 가꿀 수 있는가,* 그리고 그 위에서 에이전트가
 검토·지속·복구·인계를 견디는 작업면을 어디까지 만들 수 있는가 — 이것이 제 질문이었고, 매일의
 기록으로 검증해 왔습니다.
+#+begin_export html
+</div>
+#+end_export
 
+#+begin_export html
+<div lang="en">
+#+end_export
+I do not introduce myself first as an engineer or developer. *Engineering is not my identity; it
+is how I make evidence.*
+#+begin_export html
+</div>
+#+end_export
+
+#+begin_export html
+<div lang="ko">
+#+end_export
 그래서 저를 엔지니어나 개발자로 먼저 소개하지 않습니다. *엔지니어링은 정체성이 아니라 증거를
 만드는 방법입니다.*
+#+begin_export html
+</div>
+#+end_export
 
+#+begin_export html
+<div lang="en">
+#+end_export
+What is cultivated remains as data, not rhetoric: *1,500+ journal days, 3,500+ notes, 8,200+
+bibliographic records, 8,500+ commits, and 2,500+ days of life records.* These are numbers that
+can be counted again in the live [[https://agenda.junghanacs.com][statistics]] at this moment.
+#+begin_export html
+</div>
+#+end_export
+
+#+begin_export html
+<div lang="ko">
+#+end_export
 가꾼 것은 말이 아니라 데이터로 남습니다. 저널 *1,500일 이상,* 노트 *3,500개 이상,* 서지
 *8,200건 이상,* 커밋 *8,500개 이상,* 생활 기록 *2,500일 이상.* 지금 이 순간
 [[https://agenda.junghanacs.com][라이브 통계]]에서 다시 셀 수 있는 숫자입니다.
+#+begin_export html
+</div>
+#+end_export
 
+#+begin_export html
+<div lang="en">
+#+end_export
+On that foundation, I operated an agent runtime for roughly five months through *more than twenty
+version cycles.* When it regressed, I measured and rolled back; I then set down rules in documents
+to prevent recurrence. The experience did not remain a product configuration: it separated into
+three layers — *memory, dispatch, and a reviewable development loop.*
+#+begin_export html
+</div>
+#+end_export
+
+#+begin_export html
+<div lang="ko">
+#+end_export
 그 기반 위에서 에이전트 런타임을 약 5개월간 *20회 이상의 버전 사이클로 운영했습니다.* 회귀가
 났을 때는 계측해서 롤백했고, 재발을 막는 규칙을 문서로 못 박았습니다. 그 운영 경험은 한 제품
 설정에 갇히지 않고 세 계층으로 분리되었습니다 — *메모리, 디스패치, 검토 가능한 개발 루프.*
+#+begin_export html
+</div>
+#+end_export
 
+#+begin_export html
+<div lang="en">
+#+end_export
+*There is evidence outside my repositories too.* An outside developer contributed through an
+extension boundary I had drawn ([[https://github.com/junghan0611/entwurf/pull/40][entwurf #40]]), and my code was
+merged into another project's repository ([[https://github.com/dakra/ghostel/pull/343][ghostel #343]] ·
+[[https://github.com/dakra/ghostel/pull/510][#510]]). Self-owned repositories demonstrate capacity; these two
+lines demonstrate reception.
+#+begin_export html
+</div>
+#+end_export
+
+#+begin_export html
+<div lang="ko">
+#+end_export
 *그리고 제 저장소 밖에서도 확인됩니다.* 외부 개발자가 제가 그은 확장 경계에 기여를 열었고
 ([[https://github.com/junghan0611/entwurf/pull/40][entwurf #40]]), 제 코드가 남의 프로젝트에 병합됐습니다 ([[https://github.com/dakra/ghostel/pull/343][ghostel #343]] ·
 [[https://github.com/dakra/ghostel/pull/510][#510]]). 자기 저장소는 능력을 보여 주고, 이 두 줄은 수용을 보여 줍니다.
+#+begin_export html
+</div>
+#+end_export
 
+#+begin_export html
+<div lang="en">
+#+end_export
+*How far has this been taken?* Every major claim below descends to code, operating incidents,
+third-party actions, live aggregates, and a public time axis. Claim and evidence appear on the
+same page.
+#+begin_export html
+</div>
+#+end_export
+
+#+begin_export html
+<div lang="ko">
+#+end_export
 *그래서, 이걸 얼마나 파보았는가.* 아래의 모든 큰 주장은 코드, 운영 인시던트, 제3자의 행동,
 라이브 집계, 공개 시간축으로 내려갑니다. 주장과 근거가 한 화면 안에 있습니다.
+#+begin_export html
+</div>
+#+end_export
 
-- [[file:record.html][Read the record — 깊은 기록면]]
-- [[file:KimJunghan_AX_Overview.pdf][큰그림 — 깊이 0–1 PDF]]
-- [[file:KimJunghan_AX_Record.pdf][기록 — 깊이 0–2 PDF]]
-- [[file:KimJunghan_AX_Detail.md][상세 Markdown]]
+- [[file:record.html][Read the Record (Korean)]]
+- [[file:KimJunghan_AX_Overview.pdf][Overview PDF (Korean, depths 0–1)]]
+- [[file:KimJunghan_AX_Record.pdf][Record PDF (Korean, depths 0–2)]]
+- [[file:KimJunghan_AX_Detail.md][Detailed Markdown (Korean)]]
 - [[https://github.com/junghan0611][GitHub]] · [[https://notes.junghanacs.com][Digital Garden]] · [[https://agenda.junghanacs.com][Live Agenda]]
 
+#+begin_export html
+<div lang="en">
+#+end_export
+This document is itself evidence. One canonical Org source and one =make= regenerate this web
+record, two PDFs at different reading depths, and detailed Markdown together.
+#+begin_export html
+</div>
+#+end_export
+
+#+begin_export html
+<div lang="ko">
+#+end_export
 이 문서 자체가 하나의 증거입니다. Org 정본 한 장에서 =make= 한 번으로 이 웹 기록면과 읽기 깊이가
 다른 PDF 2종, 상세 Markdown이 함께 재생성됩니다.
+#+begin_export html
+</div>
+#+end_export
 
 * 왜 이 일을 하는가 :d1:
 :PROPERTIES:

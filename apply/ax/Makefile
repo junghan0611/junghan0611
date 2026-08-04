@@ -38,6 +38,8 @@ SITEMAP := sitemap.xml
 # analytics tag, the identity schema, the icon) and goes into both pages, while this goes
 # into the record alone and is about reading, not identity.
 DIAL := assets/depth.html
+TITLE := From Model Capability to an Accountable Work Surface
+RECORD_TITLE := From Model Capability to an Accountable Work Surface: The Record (Korean)
 
 # Insert $(HEAD) verbatim before the first </head> of an HTML file, in place. awk reads the
 # include fully (FNR==NR) then streams the target, emitting the buffer once at </head>.
@@ -48,6 +50,13 @@ endef
 # Same trick at the other end of the document.
 define inject_dial =
 awk 'FNR==NR{h=h $$0 ORS; next} /<\/body>/ && !done{printf "%s", h; done=1} {print}' $(DIAL) $(1) > $(1).tmp && mv $(1).tmp $(1)
+endef
+
+# d0 is English-first with Korean prose counterparts, so its human front door declares
+# English as the document language. The deeper record remains Korean. Touch only the root
+# tag: a global replacement could change a future Korean language annotation in the body.
+define set_index_language =
+awk '/<html / && !done { sub(/lang="ko"/, "lang=\"en\""); sub(/xml:lang="ko"/, "xml:lang=\"en\""); done=1 } { print }' $(1) > $(1).tmp && mv $(1).tmp $(1)
 endef
 
 # Stamp each heading with the depth it was authored at, so the dial can hide tiers at
@@ -103,9 +112,13 @@ $(MANIFEST): $(SOURCE) $(INCLUDES) build.el | $(BUILD)
 
 html: $(BUILD)/index.html $(BUILD)/record.html $(BUILD)/paper.css
 
+# The source keeps author:nil because PDFs own their author line through the raw acmart
+# topmatter. build.el changes that option only in the generated d0 cut, preserving Org's
+# linked author metadata for this human front door without touching the LaTeX export.
 $(BUILD)/index.html: $(BUILD)/d0.org assets/paper.css $(HEAD)
 	pandoc $< -f org -t html5 --standalone --embed-resources --wrap=none \
-	  --css assets/paper.css --metadata title="모델 역량에서 책임질 수 있는 작업면까지" -o $@
+	  --css assets/paper.css --metadata title="$(TITLE)" -o $@
+	$(call set_index_language,$@)
 	$(call inject_head,$@)
 
 # The record does NOT embed its resources, and the front door does. That asymmetry is the
@@ -131,7 +144,7 @@ $(BUILD)/paper.css: assets/paper.css | $(BUILD)
 
 $(BUILD)/record.html: $(BUILD)/d3.org $(BUILD)/paper.css $(HEAD) $(DIAL) $(MANIFEST) $(IMAGES)
 	pandoc $< -f org -t html5 --standalone --toc --toc-depth=2 --wrap=none \
-	  --css paper.css --metadata title="모델 역량에서 책임질 수 있는 작업면까지 — 기록" -o $@
+	  --css paper.css --metadata title="$(RECORD_TITLE)" -o $@
 	$(call inject_head,$@)
 	$(call stamp_depth,$@)
 	$(call inject_dial,$@)
@@ -198,7 +211,16 @@ check: all leak
 	test -s $(OVERVIEW).pdf
 	test -s $(RECORD).pdf
 	test -s $(DETAIL)
-	grep -q 'Read the record' $(BUILD)/index.html
+	grep -q 'Read the Record (Korean)' $(BUILD)/index.html
+	grep -q '<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">' $(BUILD)/index.html
+	grep -q '<html xmlns="http://www.w3.org/1999/xhtml" lang="ko" xml:lang="ko">' $(BUILD)/record.html
+	grep -q '<div lang="en">' $(BUILD)/index.html
+	grep -q '<div lang="ko">' $(BUILD)/index.html
+	grep -q 'I am a PKM-AI gardener' $(BUILD)/index.html
+	test "$$(grep -c 'class="author"' $(BUILD)/index.html)" -eq 1
+	grep -q 'Junghan Kim (김정한) — Polymath Engineer &amp; Digital Gardener' $(BUILD)/index.html
+	grep -q 'href="https://junghanacs.com/"' $(BUILD)/index.html
+	grep -q 'href="https://kr.linkedin.com/in/junghan-kim-1489a4306"' $(BUILD)/index.html
 	grep -q 'timeline-projection' $(BUILD)/record.html
 # The post-pandoc head injection must actually land in both shipped HTML files. A silent
 # failure of the inject step would ship pages with no analytics, no identity schema, no icon —
@@ -208,6 +230,9 @@ check: all leak
 	grep -q 'application/ld+json' $(BUILD)/index.html
 	grep -q 'application/ld+json' $(BUILD)/record.html
 	grep -q 'rel="icon"' $(BUILD)/index.html
+	test "$$(grep -c 'name="description"' $(BUILD)/index.html)" -eq 1
+	test "$$(grep -c 'name="description"' $(BUILD)/record.html)" -eq 1
+	grep -q '"inLanguage": \["en", "ko-KR"\]' $(BUILD)/index.html
 # Search Console verifies by fetching the root URL, so the token must survive into index.html.
 # Losing it silently un-verifies the property — Search Console stops reporting and says nothing
 # here.
@@ -253,12 +278,13 @@ check: all leak
 	grep -q '<loc>https://ax.junghanacs.com/KimJunghan_AX_Detail.md</loc>' $(SITEMAP)
 	grep -q '<loc>https://ax.junghanacs.com/llms.txt</loc>' $(SITEMAP)
 	! grep -q 'lastmod' $(SITEMAP)
-# The title's opening words, not the whole title: a title long enough to wrap arrives from
-# pdftotext split across two lines, so grepping the full string would fail on a document
-# that is in fact correct. The check is that Korean topmatter reached the PDF at all — if
-# the Hangul faces had not resolved this is the line that would go quiet.
-	pdftotext $(OVERVIEW).pdf - | grep -q '모델 역량에서'
-	pdftotext $(RECORD).pdf - | grep -q '모델 역량에서'
+# A body witness, not merely a translated title: d0's English-first prose and its Korean
+# counterpart must both reach each PDF. The strings are short enough not to wrap in a way
+# that defeats pdftotext, and distinct enough that topmatter cannot satisfy this check.
+	pdftotext $(OVERVIEW).pdf - | grep -q 'I am a PKM-AI gardener'
+	pdftotext $(RECORD).pdf - | grep -q 'I am a PKM-AI gardener'
+	pdftotext $(OVERVIEW).pdf - | grep -q 'PKM-AI 가드너입니다'
+	pdftotext $(RECORD).pdf - | grep -q 'PKM-AI 가드너입니다'
 # Both PDFs must be A4. acmart hard-codes letterpaper inside the class — it is an ACM
 # format and ACM prints on US letter — so the page size is not something the document asks
 # for and gets; it is something `build.el` has to take back with a \geometry re-call. A

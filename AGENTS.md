@@ -52,8 +52,10 @@ Three rules govern this directory, and they invert the ones above.
    reads `apply/README.md` and `apply/portfolio.md`; keep them Korean. The English-only
    language policy below applies to the four identity documents *only* — it does not
    apply to `apply/`. `apply/ax/ax.org` is one bilingual document, not two language
-   editions: its d0 front door puts English first and its direct Korean counterpart
-   immediately after it, while d1–d3 remain Korean. Do not "fix" that Korean, create
+   editions: its d0 front door uses English-only visual hierarchy (title, subtitle,
+   author byline, headings, and link labels; `김정한` may appear parenthetically in the
+   byline), with each prose unit in English followed immediately by its direct Korean
+   counterpart; d1–d3 remain Korean. Do not "fix" that Korean, create
    `ax-en.org` / `ax-ko.org`, or add an `index-en.html` translation layer; the nested
    `apply/ax/AGENTS.md` carries the complete invariant.
 2. **`apply/PRIVATE.md` is never committed.** It holds referrer names, job postings,
