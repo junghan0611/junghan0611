@@ -48,9 +48,14 @@ an employer-specific application and does not position its author as an AX-only 
 
 Three rules govern this directory, and they invert the ones above.
 
-1. **Korean, deliberately.** The Korean hiring market reads these. The English-only
+1. **Korean, deliberately — with one AX front-door rule.** The Korean hiring market
+   reads `apply/README.md` and `apply/portfolio.md`; keep them Korean. The English-only
    language policy below applies to the four identity documents *only* — it does not
-   apply to `apply/`. Do not "fix" the Korean here; that is not drift, it is the point.
+   apply to `apply/`. `apply/ax/ax.org` is one bilingual document, not two language
+   editions: its d0 front door puts English first and its direct Korean counterpart
+   immediately after it, while d1–d3 remain Korean. Do not "fix" that Korean, create
+   `ax-en.org` / `ax-ko.org`, or add an `index-en.html` translation layer; the nested
+   `apply/ax/AGENTS.md` carries the complete invariant.
 2. **`apply/PRIVATE.md` is never committed.** It holds referrer names, job postings,
    application routes, and closed company facts. It is gitignored. Keep it that way.
    Company-identifying material belongs there, not in the two public files.
@@ -385,8 +390,8 @@ Korean text must not appear in these files except in four explicit cases.
    examples in prose, accompanied by an English gloss in parentheses.
    Example: `"밥먹고 올게" (going to eat)`.
 5. The rows of the Korean surface-form table in `VOCABULARY.md` — that table
-   only, nowhere else. `apply/ax/` publishes in Korean, so its headwords have to
-   be pinned against the canonical English terms somewhere, and the glossary is
+   only, nowhere else. `apply/ax/` keeps its deep record in Korean, so its headwords
+   have to be pinned against the canonical English terms somewhere, and the glossary is
    the only place that cannot drift from them. The exception covers the table's
    cells and not its surrounding prose: it carries names, never definitions. If
    that table is ever the thing defining a term, the exception has been abused

@@ -101,6 +101,32 @@ catches that.
 Generated `build/*.org`, HTML, TeX, PDF, and Markdown are derivatives. Never repair a
 derivative by hand; fix `ax.org` or the build wiring.
 
+### One source, bilingual front door
+
+`ax.org` remains the only authored source. This is **not** a Korean edition with an
+English translation beside it, nor an English edition with a Korean translation beside it.
+It is one evidence record with a short bilingual entrance and a Korean deep read:
+
+- d0 is the human front door. Every d0 unit is written **English first, then its direct
+  Korean counterpart**. The pair communicates one claim; do not let one language gain a
+  claim, qualification, number, link, or boundary that the other omits.
+- d1–d3 are the Korean record. `record.html`, the PDFs, and detailed Markdown therefore
+  remain Korean in their substantive depth. Because every derivative contains d0, they
+  also carry its short bilingual entrance. That is one document propagating its opening,
+  not a second language edition.
+- Do not create `ax-en.org`, `ax-ko.org`, `index-en.html`, `index-ko.html`, language-suffixed
+  records, PDFs, Markdown, depth controls, images, or an index-only translation include.
+  A second source or presentation layer creates a second entry point and makes the
+  single-source claim false.
+- The root URL is the one bilingual human entry point. Its English-facing title, summary,
+  and link labels must say when a destination is Korean; do not imply that the deep record
+  was translated. The Korean counterpart remains visible on that same page, immediately
+  after the English unit.
+
+This language rule is structural, not a request to add a converter or a per-view exception.
+Put both members of every d0 pair in `ax.org`, then let the existing depth cuts carry them.
+Update the repository-root and this AGENTS file together if this invariant ever changes.
+
 ### The invariant: depth must not decrease down the tree
 
 Every heading carries exactly one depth tag. A cut at depth N excludes the subtrees tagged
