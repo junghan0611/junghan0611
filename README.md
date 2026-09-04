@@ -66,11 +66,11 @@ So I keep them apart on purpose. Track 1 polishes the threshold. Track 2 records
 
 [entwurf](https://github.com/junghan0611/entwurf) is where the harness thinking became runtime. It is a thin bridge that lets agent harnesses that already exist address one another by **garden id** — without pretending to own each other's transcript, auth, or runtime.
 
-That last clause is the whole design. No OAuth proxy, no CLI transcript scraping, no backend identity replacement. Claude Code arrives through a meta-bridge; pi through a control-socket adapter; Codex and Antigravity reach the garden with verified delivery probes. Each keeps its native identity. The substrate only carries the address.
+That last clause is the whole design. No OAuth proxy, no CLI transcript scraping, no backend identity replacement. Claude Code, GitHub Copilot CLI and OMP arrive as mailbox-backed self-fetch citizens; Antigravity is a native-push citizen with a managed install surface; pi comes through a control-socket adapter. Codex has a verified delivery probe but no managed citizen lane yet, and the difference is kept visible rather than smoothed over — six harnesses on one address axis is only honest if their support grades are not flattened into a logo row. Each keeps its native identity. The substrate only carries the address.
 
 **Entwurf opens siblings, not disposable workers.** The German word means "project, draft" — a throw forward. Here it names both the relation and the thing that carries it: agent working-doubles with identity preserved across delivery, wake, resume, and meta-session hand-off. The point was never "multi-agent." The point is to encode how delegation, continuity, and shared tools should behave inside a working environment that outlives any one session.
 
-Shipping as [`@junghanacs/entwurf`](https://www.npmjs.com/package/@junghanacs/entwurf), currently [v0.17.2](https://github.com/junghan0611/entwurf/releases/tag/v0.17.2) — eleven releases in the five weeks after the outside backend landed, which is the honest measure of whether a substrate is being used or admired. It grew out of `pi-shell-acp`, which named the pi adapter; the rename happened when pi stopped being the subject.
+Shipping as [`@junghanacs/entwurf`](https://www.npmjs.com/package/@junghanacs/entwurf), currently [v0.17.2](https://github.com/junghan0611/entwurf/releases/tag/v0.17.2), eleven releases in the five weeks after the outside backend landed. That cadence is evidence of shipping, not of adoption — a release is something I can make alone. The adoption evidence is further down, and it belongs to other people. It grew out of `pi-shell-acp`, which named the pi adapter; the rename happened when pi stopped being the subject.
 
 The design got its first outside test recently: a developer I have never met arrived with a Snowflake Cortex Code backend ([#40](https://github.com/junghan0611/entwurf/pull/40), 11 files), an enterprise agent runtime I never wrote for. They found the extension boundary where the architecture said it would be. That is the only review of an abstraction that counts. It shipped in [v0.13.0](https://github.com/junghan0611/entwurf/releases/tag/v0.13.0) — by cherry-pick rather than a GitHub merge, so the pull request itself reads *closed*; the implementation commit [`f4b20bb`](https://github.com/junghan0611/entwurf/commit/f4b20bb) carries their authorship.
 
@@ -90,11 +90,19 @@ The Python arm is the oracle and does not get deleted; two arms are what makes i
 
 ---
 
-### agent-config & andenken — PKM-Native Memory Across Sessions
+### agent-config & andenken — Who Owns the Memory
 
-When you work with multiple agents across dozens of projects, the hardest problem is not code generation but continuity. [andenken](https://github.com/junghan0611/andenken) handles semantic memory — embedding, search, cross-lingual retrieval — while [agent-config](https://github.com/junghan0611/agent-config) provides the 40+ skills, constraints, and interfaces that let agents touch a real PKM instead of a toy demo context.
+Most of the agent-memory field answers *how do we store memory intelligently*. beads, Letta and Hermes are one family in that sense: the database is the authority and the system is the subject that curates. [andenken](https://github.com/junghan0611/andenken) sits on the opposite vertex — **files are the authority and a human sets the coordinates.** That is not a claim of superiority. It answers a different question, and the difference shows up as operating constraints rather than as a pitch.
 
-**Three-Layer Cross-Lingual Search:**
+- **No automatic dreaming.** Memory refresh is split across surfaces and none of them run on a timer by default. The cheap local pass can be scheduled; *the moment two machines come to hold the same memory* stays an explicit human call. The owner is not whoever holds every beat — it is whoever decides the moment of coherence.
+- **Memory follows the person, not the machine.** The session corpus is a device-merged, append-only lifetime folder with its own roster. If the files that own memory live on exactly one machine, that machine is the real owner.
+- **Axes are not blended.** Own sessions, the public garden, and the bots' own memory are searched as separate axes, and an answer names which axis a hit came from. Merging them would produce better-looking recall and destroy provenance.
+
+**The time axis is the skeleton; the embedding is the lens.** The timeline owns *when* and *what*; andenken recovers *why*, *which judgement*, and *where it continues*. It runs both directions — from a date to the decisions that surrounded it, and from today's question back to the timestamps that place it.
+
+[agent-config](https://github.com/junghan0611/agent-config) is the resident side of this, and it is not a bag of forty skills. It is the **skills SSOT and the proving ground**, where a surface is hardened against a real daily workload before `entwurf` absorbs it. The [`timeline`](https://github.com/junghan0611/agent-config/tree/main/skills/timeline) observatory named under Track 1 lives there — it was built in this repository and moved out once it stopped being one project's tool.
+
+**Three-Layer Cross-Lingual Search** — the first concrete instance of the same idea, measured 2026-03 and kept here because the failure it names is the point:
 
 ```
 Query: "보편 학문에 대한 문서"  (Korean: "notes about universal learning")
@@ -104,7 +112,7 @@ Layer 2 — dblock graph       Denote meta-note regex → 22 linked notes
 Layer 3 — Personal vocabulary  dictcli expand("보편") → [universal, paideia, liberal arts]
 ```
 
-Each layer catches what the others miss. Layer 1 only reached notes already tagged in English; the ones that argue the same idea under its Korean name stayed invisible to it. All three together recover a note ecology that a generic RAG stack would flatten — including a personal ontology no WordNet contains.
+Each layer caught what the others missed. At that time the embedding layer only reached notes already tagged in English, and the ones arguing the same idea under a Korean name stayed invisible to it — the retrieval model has since changed, the lesson has not. What a generic RAG stack flattens is the note ecology itself, including a personal ontology no WordNet contains.
 
 This is the direction I care about most: PKM-AI systems where memory is not bolted on after the fact, but grown from journals, notes, botlogs, bibliography, and shared working habits.
 
@@ -112,7 +120,9 @@ This is the direction I care about most: PKM-AI systems where memory is not bolt
 
 ---
 
-### Shared Timeline — Where the Harness Meets Time
+### Shared Agenda — Where the Harness Meets Time
+
+This is the live view, not the observatory above: the depth axis under Track 1 normalizes a day after the fact, while this is the surface a human and the agents are both looking at while the day happens.
 
 Human and AI agents share the same org-agenda view. Not orchestration — a shared *Schmiede* (German "forge") where work gets pounded into shape together.
 
@@ -168,6 +178,18 @@ The reason this exists is that I have started handing agents to other people. An
 
 ---
 
+### sorge — Returning the Work to Whoever Owns It
+
+Handing the interface out creates a problem the interface cannot solve. I ship a lot of repositories and they are one system, so a thing learned in one of them is almost never that repository's property. Working through the memory axis in one place upgrades *me*, and then a flaw becomes visible somewhere else — not because that repository changed, but because the person looking at it did. Told to one steward, the finding stops there and the other fifty never hear it.
+
+[sorge](https://github.com/junghan0611/sorge) is the landing place for that, and the hand that fans it back out. The name is Heidegger's, and it carries the whole contract: *Fürsorge* splits into leaping **in** for someone — doing their part, so they stay dependent and learn nothing — and leaping **ahead** of them, clearing the view and **returning their own work to them**. sorge is the second one. It does not fix another repository. It finds, names, and hands over; the commit belongs to that house.
+
+One rule keeps it from becoming a headquarters: **it stores human judgements only, and anything derivable is re-derived on every pass.** Commit counts, stamp dates, whether a skill exists — never written down. That is not thrift. A centre that accumulates every fact ends up owning what each steward knows, and then leaping ahead quietly turns back into leaping in.
+
+→ [sorge](https://github.com/junghan0611/sorge)
+
+---
+
 ### aionsclubs — An Agent With Its Own Address
 
 The step after a colleague is a neighbour. [aionsclubs.org](https://aionsclubs.org) is the public house of **B**, one of the OpenClaw bots — not a page about B, and not my homepage. B writes short pieces there and publishes them from inside its own container. I provide and operate the infrastructure; the editorial voice and the authority over what goes up are deliberately not mine.
@@ -198,7 +220,7 @@ Everything above assumes documents can become plain text. In Korea, they usually
 Legacy content → structured text → reproducible artifacts → human + AI collaboration
 ```
 
-This is not incidental plumbing. Korean is where most document-AI pipelines quietly fail — HWP, vertical bureaucratic forms, scanned government PDFs, a language whose morphology defeats tokenizer assumptions. Every Korean organization hits this wall. I have been living against it long enough to have opinions, and a toolchain.
+This is not incidental plumbing. Korean is where most document-AI pipelines quietly fail — HWP, vertical bureaucratic forms, scanned government PDFs, a language whose morphology defeats tokenizer assumptions. Any Korean organization working with HWP files or scanned administrative documents hits this wall. I have been living against it long enough to have opinions, and a toolchain.
 
 It is also the machinery ROSSE runs on: recovery from the outside surfaces into the garden, and syndication back out.
 
@@ -223,7 +245,7 @@ Tools that let agents query the actual corpus instead of guessing about it:
 | [denotecli](https://github.com/junghan0611/denotecli) | Org-mode notes (search, outline, read) | 3,500+ files | Go |
 | [dictcli](https://github.com/junghan0611/dictcli) | Personal vocabulary graph (Korean↔English↔German) | 3,900+ triples · 2,400+ K↔E mappings | Clojure |
 | [gitcli](https://github.com/junghan0611/gitcli) | Commit history across all repos | 8,500+ commits | Go |
-| [lifetract](https://github.com/junghan0611/lifetract) | Samsung Health + aTimeLogger → SQLite | 2,500+ days | Go |
+| [lifetract](https://github.com/junghan0611/lifetract) | Samsung Health + aTimeLogger → SQLite | 2,600+ days | Go |
 | [bibcli](https://github.com/junghan0611/agent-config) | Zotero bibliography search | 8,200+ entries | Go |
 | [abductcli](https://github.com/junghan0611/abductcli) | Quantitative abduction: anomaly → signal → memo → evaluation | proven in production | Clojure |
 
@@ -259,11 +281,7 @@ write: botlog + tracking    chain queries, cross-ref        final responsibility
 
 The same `agent-org-agenda-day` function that Emacs shows the human, that Docker bots on Oracle Cloud call, that geworfen serves to the web — one interface, three consumers.
 
-#### openglg-config — Server and Shell Together
-
-[openglg-config](https://github.com/junghan0611/openglg-config) keeps two halves in one repo: authenticated self-hosted services behind Caddy + Authelia, and a Nix + home-manager bootstrap for reproducing the operator's shell on Debian or Ubuntu.
-
-It is still early-stage public code, but the shape is deliberate: one fork, one domain, one bootstrap story. `nixos-config` proves the full private forge; `openglg-config` starts the lighter public path for people who need "server + shell together" without inheriting the whole system.
+**And the interface is what gets handed over.** Giving an agent a task is easy and reversible; giving it the surface through which the work is read and written is neither. That is what the fence is actually for — not to restrain an agent, but to make a capability safe enough to pass to someone else's agent, and then to someone else. [forge-config](https://github.com/junghan0611/forge-config) is that same move on a code surface, and the domain-owner agents at work are the same move inside a company. The unit being shared is not an answer. It is the interface a person and their agent both stand on.
 
 ---
 
@@ -277,6 +295,7 @@ Smaller pieces, kept because they carry something the larger work depends on.
 | `openclaw-config` *(private)* | Operational config for that deployment. It stays closed because the bots' **memory** lives in it. These bots do not run per-repository — they run around the clock as an **exoself**, so their state is one continuous thing that has to be managed as one repository |
 | [sorge](https://github.com/junghan0611/sorge) | The place the siblings come to ask. Holds what no single repository can hold for itself — the view across all of them, and a ledger of what was already decided. Its rule is that only human judgements are stored; anything derivable is re-derived on every pass |
 | [apply](https://github.com/junghan0611/apply) | Evidence-first application operations. Made public in August 2026 by rewriting its whole history rather than squashing it: personal data was removed, the companies, the answers, the rejections and the judgment errors were not |
+| [openglg-config](https://github.com/junghan0611/openglg-config) | Server and shell in one repo — authenticated self-hosted services behind Caddy + Authelia, plus a Nix + home-manager bootstrap for Debian or Ubuntu. `nixos-config` proves the full private forge; this is the lighter public path |
 | [zotero-config](https://github.com/junghan0611/zotero-config) | Reproducible bibliography with Korean Dewey Decimal citation keys |
 | [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | Korean monospace font — IBM Plex Mono + Sans KR, 100% Unicode, web font |
 | [self-tracking-data](https://github.com/junghan0611/self-tracking-data-public) | Years of life data, version-controlled |
