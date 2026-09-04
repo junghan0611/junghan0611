@@ -25,6 +25,43 @@ where nobody had looked. **A rule in an unread file is not governance.** When th
 disagree about the same subject, this one wins and the nested file gets corrected — say so
 rather than following the narrower one silently.
 
+## The steward note — pinned by ID, never re-derived
+
+This repository's **담당자 문서** (steward note) lives in the public garden as a Denote note,
+and which note it is, is a **decision — not a lookup**.
+
+| | |
+|---|---|
+| Steward note | **`20260318T183247`** — *§junghan0611: 깃허브 프로파일 이력서 — 영문 공개키* |
+| Read it at | `~/org/botlog/` — the org original |
+| Do **not** judge from | `notes/content/` — the exported `.md` lags the original by a cycle |
+
+**Pin the ID; do not re-derive which note this is.** That derivation broke three separate ways
+in a single day (2026-09-04): an export-lagged `.md` read as "the note does not exist", a topic
+note that merely mentions `§` mistaken for the steward note, and a stamp that disagreed with the
+procedure. All three were the same error — treating a decision as something to look up. The
+reason the ID is the right handle was measured that day: when the steward note was renamed, its
+title, slug, tags and filename all changed and `#+identifier` did not. **A title moves within a
+day; an ID does not.**
+
+Write to it through the `botlog` skill — `agent-denote-add-history` for the log line,
+`agent-denote-add-heading` for a dated steward report. Documents grow; do not read the note
+whole and rewrite it.
+
+**Stamp `:hugo_lastmod:` (`agent-denote-set-front-matter`) only when the content actually
+changed.** A history line is a log, not an edit. That stamp is the baseline the cross-repo
+steward pass counts this repo's debt from, so a stamp moved without an edit hides real drift,
+and an edit left unstamped invents it.
+
+### Direction of authority — the note is not the SSOT
+
+The note carries a verbatim 2026-07-10 copy of `README.md` and `resume/README.md` under headings
+that read `(SSOT)`. **Those headings are historical.** This file's "Where each document is
+authored" section is the operative rule: `README.md`, `resume/README.md` and `VOCABULARY.md` are
+authored *here*. Correct the document in this repo; record the judgement in the note. Do not
+author prose in the note and mirror it back — the mirror has already drifted once, on the
+manifesto's opening claim, which `d6593ab` changed here on 2026-07-31 and the note never saw.
+
 ## Documents in scope
 
 This repo holds three coordinated identity documents plus a glossary.
@@ -551,6 +588,8 @@ the rounding rules above.
 4. Stage every affected identity document together. Do not commit one in
    isolation when cross-document consistency is being touched.
 5. Run the drift check from the Language policy section before staging.
+6. Record the judgement — not the diff — in the steward note `20260318T183247`, and
+   stamp `:hugo_lastmod:` because the content changed. See "The steward note" above.
 
 ## What not to do
 
