@@ -32,7 +32,7 @@ and which note it is, is a **decision — not a lookup**.
 
 | | |
 |---|---|
-| Steward note | **`20260318T183247`** — *§junghan0611: 깃허브 프로파일 이력서 — 영문 공개키* |
+| Steward note | **`20260318T183247`** — *§junghan0611 #담당자 깃허브 프로파일 이력서 — 영문 공개키* (the title is a label, the ID is the handle) |
 | Read it at | `~/org/botlog/` — the org original |
 | Do **not** judge from | `notes/content/` — the exported `.md` lags the original by a cycle |
 
