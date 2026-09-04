@@ -155,6 +155,11 @@ See `AGENTS.md` for governance and update workflow.
   in it. The phrase already ran through this file before it had an entry — the
   same gap `PKM-AI` had. Used in `README.md`, `resume/README.md`, and
   `apply/ax/`.
+- **RLM loop** — A persistent REPL workspace given to a model: it runs cells and
+  that state survives across the conversation, so what it did is left as a form
+  rather than as prose describing a form. Named upstream in
+  `PrimeIntellect-ai/prime-agent`; used here for the Clojure/SCI arm of that
+  fork. Used in `README.md` and `resume/README.md`.
 - **Depth axis** — The four zoom levels on a single day, and the ordering that
   makes them a claim rather than a log: **0** the life as lived (hand-logged
   time blocks), **1** the person's own journal headings, **2** the agents'

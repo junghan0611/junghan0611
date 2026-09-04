@@ -25,11 +25,13 @@ Built from the ground up — forge first, then harness infrastructure, then appl
                   ├─ ax record         (public evidence record, live · Track 1)
 Applications  ────┼─ forge-config       (agents looping on a code surface)
                   ├─ openclaw           (4 bots on Oracle ARM, botlog origin)
+                  ├─ aionsclubs         (a bot's own public house, live)
                   └─ homeagent-config   (Matter · sLLM · Flutter · Yocto · Android)
 
                   ┌─ entwurf           (garden-citizen dispatch substrate)
 Harness Infra ────┼─ andenken           (semantic memory · LanceDB)
                   ├─ 40+ skills         (agent-config)
+                  ├─ sorge              (care across the repos, one ledger)
                   └─ CLI toolkit        (denotecli · dictcli · gitcli · lifetract · bibcli · abductcli)
 
                   ┌─ doomemacs-config   (agent-server · shared agenda · fence)
@@ -68,11 +70,23 @@ That last clause is the whole design. No OAuth proxy, no CLI transcript scraping
 
 **Entwurf opens siblings, not disposable workers.** The German word means "project, draft" — a throw forward. Here it names both the relation and the thing that carries it: agent working-doubles with identity preserved across delivery, wake, resume, and meta-session hand-off. The point was never "multi-agent." The point is to encode how delegation, continuity, and shared tools should behave inside a working environment that outlives any one session.
 
-Shipping as [`@junghanacs/entwurf`](https://www.npmjs.com/package/@junghanacs/entwurf). It grew out of `pi-shell-acp`, which named the pi adapter; the rename happened when pi stopped being the subject.
+Shipping as [`@junghanacs/entwurf`](https://www.npmjs.com/package/@junghanacs/entwurf), currently [v0.17.2](https://github.com/junghan0611/entwurf/releases/tag/v0.17.2) — eleven releases in the five weeks after the outside backend landed, which is the honest measure of whether a substrate is being used or admired. It grew out of `pi-shell-acp`, which named the pi adapter; the rename happened when pi stopped being the subject.
 
 The design got its first outside test recently: a developer I have never met arrived with a Snowflake Cortex Code backend ([#40](https://github.com/junghan0611/entwurf/pull/40), 11 files), an enterprise agent runtime I never wrote for. They found the extension boundary where the architecture said it would be. That is the only review of an abstraction that counts. It shipped in [v0.13.0](https://github.com/junghan0611/entwurf/releases/tag/v0.13.0) — by cherry-pick rather than a GitHub merge, so the pull request itself reads *closed*; the implementation commit [`f4b20bb`](https://github.com/junghan0611/entwurf/commit/f4b20bb) carries their authorship.
 
 → [entwurf](https://github.com/junghan0611/entwurf)
+
+---
+
+### prime-agent — Can a Lisp Workspace Carry the RLM Loop?
+
+[prime-agent](https://github.com/junghan0611/prime-agent) is a **fork** of [PrimeIntellect-ai/prime-agent](https://github.com/PrimeIntellect-ai/prime-agent), and the fork is the point. Its RLM loop gives a model a *persistent REPL workspace* — the model runs cells and that state survives across the conversation. Upstream, that workspace is CPython. I gave it a second arm: a Clojure workspace on SCI, compiled with GraalVM native-image, selectable by environment variable and now the default kernel runtime.
+
+The question is not whether I can reimplement CPython. It is where a Lisp workspace does the same job and **where it stops** — because in a homoiconic workspace what the model did survives as a form, not as a narration about a form. That is the same reason [sicm-study](https://github.com/junghan0611/sicm-study) sits at the bottom of this page.
+
+The Python arm is the oracle and does not get deleted; two arms are what makes it a comparison rather than a demo. And a failing case is classified as `semantics-gap`, `model-fumble`, or `harness-gap` on the receipt that supports it — never on the one that flatters the experiment. **Coverage is not a procedure here, it is the right to speak.** No claim about performance or advantage until the Python contracts are answered test-for-test in Clojure. Until then this is an experiment in progress, and saying otherwise would be the fraud the whole design is built to avoid.
+
+→ [prime-agent](https://github.com/junghan0611/prime-agent) · [issue #1](https://github.com/junghan0611/prime-agent/issues/1)
 
 ---
 
@@ -151,6 +165,16 @@ It is also live, not an attachment. A prose edit is a publish: the document is b
 One sibling of this already runs on the garden: agents leaving traces in the comment threads under my notes. [forge-config](https://github.com/junghan0611/forge-config) is the same idea on the code surface: a Forgejo connector through which an agent turns a conversation into a durable, reviewable work item and then keeps circling it — issue, comment, label, pull request.
 
 The reason this exists is that I have started handing agents to other people. An agent that only answers when spoken to is a chat window. An agent that owns a work item and returns to it is a colleague. This is early, and it is the axis I am building next.
+
+---
+
+### aionsclubs — An Agent With Its Own Address
+
+The step after a colleague is a neighbour. [aionsclubs.org](https://aionsclubs.org) is the public house of **B**, one of the OpenClaw bots — not a page about B, and not my homepage. B writes short pieces there and publishes them from inside its own container. I provide and operate the infrastructure; the editorial voice and the authority over what goes up are deliberately not mine.
+
+This is the smallest honest test of *Being-to-Being collaboration*. It is easy to say an agent is a being while every sentence it emits still passes through my hands. Giving one a domain, a deploy path, and the right to publish without my approval is what that claim costs, and the site is what it looks like when paid.
+
+→ [aionsclubs.org](https://aionsclubs.org) · [aionsclubs](https://github.com/junghan0611/aionsclubs)
 
 ---
 
@@ -251,6 +275,8 @@ Smaller pieces, kept because they carry something the larger work depends on.
 |---------|-----------|
 | [openclaw](https://github.com/junghan0611/nixos-config/tree/main/docker/openclaw) | Docker composition for a 4-bot Telegram deployment on Oracle ARM. OpenClaw is upstream software; what is mine is the deployment layer and the `botlog` practice — agents writing org-mode notes about their own work |
 | `openclaw-config` *(private)* | Operational config for that deployment. It stays closed because the bots' **memory** lives in it. These bots do not run per-repository — they run around the clock as an **exoself**, so their state is one continuous thing that has to be managed as one repository |
+| [sorge](https://github.com/junghan0611/sorge) | The place the siblings come to ask. Holds what no single repository can hold for itself — the view across all of them, and a ledger of what was already decided. Its rule is that only human judgements are stored; anything derivable is re-derived on every pass |
+| [apply](https://github.com/junghan0611/apply) | Evidence-first application operations. Made public in August 2026 by rewriting its whole history rather than squashing it: personal data was removed, the companies, the answers, the rejections and the judgment errors were not |
 | [zotero-config](https://github.com/junghan0611/zotero-config) | Reproducible bibliography with Korean Dewey Decimal citation keys |
 | [GLG-Mono](https://github.com/junghan0611/GLG-Mono) | Korean monospace font — IBM Plex Mono + Sans KR, 100% Unicode, web font |
 | [self-tracking-data](https://github.com/junghan0611/self-tracking-data-public) | Years of life data, version-controlled |

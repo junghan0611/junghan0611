@@ -131,6 +131,14 @@ Canonical definitions live in [VOCABULARY.md](https://github.com/junghan0611/jun
   - https://github.com/junghan0611/abductcli
 - **forge-config**: Forgejo connector — agents leave durable traces on code work items
   - https://github.com/junghan0611/forge-config
+- **sorge**: Cross-repository care — the view across the repositories and a ledger of decisions already made
+  - https://github.com/junghan0611/sorge
+- **prime-agent**: Fork of PrimeIntellect-ai/prime-agent — a Clojure/SCI kernel runtime beside the CPython oracle for the RLM persistent-REPL loop
+  - https://github.com/junghan0611/prime-agent
+- **apply**: Evidence-first application operations; history rewritten for publication rather than squashed
+  - https://github.com/junghan0611/apply
+- **aionsclubs**: Public house of B, an OpenClaw bot — B's editorial voice, operated but not authored by Junghan Kim
+  - https://github.com/junghan0611/aionsclubs
 - **memex-kb**: Korean document toolchain — HWPX, scanned PDF, EPUB → Org as meta-document → office formats
   - https://github.com/junghan0611/memex-kb
 - **nixos-config**: Reproducible NixOS system across 4 devices
