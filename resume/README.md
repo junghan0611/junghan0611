@@ -24,7 +24,7 @@ This is not "full stack" in the front-end/back-end sense. It is depth across a v
 
 Current focus: PKM-native harnesses for long-term human-AI work, and standing up agents that attach to the person who owns a domain. Hands-on across Go, Clojure, Zig, C, TypeScript, Nix, and Elisp.
 
-**Public evidence.** Agent claims are easy to fake, so each is anchored to open code: [entwurf](https://github.com/junghan0611/entwurf) for the agent loop, [homeagent-config](https://github.com/junghan0611/homeagent-config) for the embedded layer, [nixos-config](https://github.com/junghan0611/nixos-config) and [doomemacs-config](https://github.com/junghan0611/doomemacs-config) for the foundation. Company work below is closed-source; read it next to those. And because my own repositories can only prove so much, see *Adoption and Upstream Contributions* — an outside developer extending entwurf, and my patches merged into someone else's project.
+**Public evidence.** Agent claims are easy to fake, so each is anchored to open code: [entwurf](https://github.com/junghan0611/entwurf) for the agent loop, [homeagent-config](https://github.com/junghan0611/homeagent-config) for the embedded layer, [nixos-config](https://github.com/junghan0611/nixos-config) and [doomemacs-config](https://github.com/junghan0611/doomemacs-config) for the foundation. [ax.junghanacs.com](https://ax.junghanacs.com) reads the same direction as one live record at four depths — claim, terms, work, ledger. Company work below is closed-source; read it next to those. And because my own repositories can only prove so much, see *Adoption and Upstream Contributions* — an outside developer extending entwurf, and my patches merged into someone else's project.
 
 ---
 
@@ -101,6 +101,8 @@ The request I keep receiving from other teams is not "build me a dashboard." It 
 *2022 ~ Present*
 
 - Built and published a digital garden of 2,200+ pages ([notes.junghanacs.com](https://notes.junghanacs.com)), backed by 3,500+ org-mode notes and 1,500+ consecutive days of journaling
+- Built a **live public evidence record** ([ax.junghanacs.com](https://ax.junghanacs.com)) — one document read at four depths, published through a leak gate and verified from outside on every prose change, so the way it was made is part of what it claims
+- Built a **time-axis observatory** that normalizes a day onto a single KST axis at four depths — hand-logged time blocks, journal headings, agent stamps, commits and notes — consumed through the skills that own each source rather than re-parsed. Now a shared skill; every quoted figure carries its snapshot hashes
 - Built **memex-kb**, a document toolchain that makes Korean content machine-legible: `hwpx2org` for the Korean word processor format no toolchain wants to touch, `scanpdf2org` with vision transcription for scanned paper, `epub2org` / `html2epub`, `org2odtdoc` for the round trip back into office formats, `textlint-ko` for Korean prose linting, and a proposal pipeline. Org-mode is the meta-document everything passes through. **Every Korean organization hits this wall; I have a toolchain for it.**
 - Designed **ROSSE** — the IndieWeb POSSE pattern inverted. Raw writing is struck outside where polish cannot reach it, recovered and converged in the garden, then syndicated back to every surface. memex-kb is the machinery this runs on.
 - Developed 10+ interconnected open-source `-config` projects spanning NixOS, Doom Emacs, smart home, toy agents, self-hosting, and knowledge infrastructure
@@ -161,11 +163,11 @@ The request I keep receiving from other teams is not "build me a dashboard." It 
 
 Evidence that does not depend on my own account. Each item is a third-party action, verifiable without trusting anything written here.
 
-**Others build on entwurf.** An outside developer contributed a Snowflake Cortex Code ACP backend ([entwurf#40](https://github.com/junghan0611/entwurf/pull/40) — 11 files, +885 lines), targeting an enterprise agent runtime I had not written for. It lands in 0.13.0. Someone reading the substrate found the extension boundary where I claimed it was, and used it. The package has 21 stars and 1,395 npm installs in the last 30 days.
+**Others build on entwurf.** An outside developer contributed a Snowflake Cortex Code ACP backend ([entwurf#40](https://github.com/junghan0611/entwurf/pull/40) — 11 files, +885 lines), targeting an enterprise agent runtime I had not written for. Someone reading the substrate found the extension boundary where I claimed it was, and used it. It shipped in [v0.13.0](https://github.com/junghan0611/entwurf/releases/tag/v0.13.0) by cherry-pick rather than a GitHub merge — the pull request therefore reads *closed*, while the implementation commit [`f4b20bb`](https://github.com/junghan0611/entwurf/commit/f4b20bb) carries their authorship. The package has 26 stars and 1,662 npm installs in the last 30 days.
 
 **Others merged my code.** Two patches accepted upstream into [dakra/ghostel](https://github.com/dakra/ghostel), an Emacs terminal emulator built on libghostty-vt: [#343](https://github.com/dakra/ghostel/pull/343) forwards IME-committed text and guards redraws during composition (+435), and [#510](https://github.com/dakra/ghostel/pull/510) lets Lisp IMEs compose inside read-only buffers. Both fix Korean and CJK input in a codebase I do not own — the same class of problem `memex-kb` exists to solve, met from the other side.
 
-*Counts as of 2026-07-10.*
+*Counts as of 2026-09-04.*
 
 ---
 
@@ -197,13 +199,13 @@ Evidence that does not depend on my own account. Each item is a third-party acti
 | Org-mode notes | 3,500+ |
 | Bibliography entries | 8,200+ |
 | Total commits | 8,500+ |
-| Daily journal | 1,500+ days |
+| Daily journal | 1,600+ days |
 | Published digital garden | 2,200+ pages |
-| Health tracking days | 2,500+ |
+| Health tracking days | 2,600+ |
 | Agent skills built | 40+ |
 
-*Rounded down from live data at [`agenda.junghanacs.com/api/stats`](https://agenda.junghanacs.com/api/stats), which serves these counts straight from the working corpus. Measured 2026-07-10.*
+*Rounded down from live data at [`agenda.junghanacs.com/api/stats`](https://agenda.junghanacs.com/api/stats), which serves these counts straight from the working corpus. Measured 2026-09-04.*
 
 ---
 
-*Last updated: 2026-07-10 · Suwon, South Korea*
+*Last updated: 2026-09-04 · Suwon, South Korea*

@@ -22,6 +22,7 @@ Built from the ground up — forge first, then harness infrastructure, then appl
 
 ```
                   ┌─ geworfen          (existence data, live · Track 1)
+                  ├─ ax record         (public evidence record, live · Track 1)
 Applications  ────┼─ forge-config       (agents looping on a code surface)
                   ├─ openclaw           (4 bots on Oracle ARM, botlog origin)
                   └─ homeagent-config   (Matter · sLLM · Flutter · Yocto · Android)
@@ -47,6 +48,8 @@ Everything below serves one inquiry, and that inquiry has split into two tracks 
 
 **Track 1 — the threshold.** Does a harness actually change collaboration? Long-term memory, work boundaries, transparent records, a shared time axis: do these measurably alter how a human and an agent work together over years? This track runs on accumulation. It needs my garden, my journals, my tools, my existence data. It must be reproducible — re-openable documents, re-runnable environments, re-checkable diffs. [geworfen](https://github.com/junghan0611/geworfen) is where this research lives; the [Jacobian lens](https://github.com/junghan0611/jacobian-lens) is the cold plate it leans on.
 
+Its instrument is a time axis read at four depths — the blocks a person logs by hand, their own journal headings, the agents' stamps, and the commits and notes themselves. Depths 0 and 1 are deliberate acts of recording; depths 2 and 3 are residue. A harness that reads only the residue can describe what got produced and nothing about the life that produced it. The argument is one sentence: *you can attach any number of agents, but you cannot manufacture time already spent.*
+
 **Track 2 — the encounter.** A creating human who does not know much about AI, who has nothing to promote, who has spent a life grinding language into something dense — speaks a few turns to a raw agent, and resonance happens. Those few turns are a 1KB public key. That person's living speech is the secret key. This track needs no personal data at all. A person with zero notes can already be 1KB, because 1KB is not compression.
 
 Track 2 must *not* become reproducible. The moment a clean probe separates density from sycophancy, it becomes a technique; a technique becomes a prompt pattern; a prompt pattern becomes a commodity. Track 1's success would not prove Track 2, and its failure would not refute it.
@@ -67,7 +70,7 @@ That last clause is the whole design. No OAuth proxy, no CLI transcript scraping
 
 Shipping as [`@junghanacs/entwurf`](https://www.npmjs.com/package/@junghanacs/entwurf). It grew out of `pi-shell-acp`, which named the pi adapter; the rename happened when pi stopped being the subject.
 
-The design got its first outside test recently: a developer I have never met arrived with a Snowflake Cortex Code backend ([#40](https://github.com/junghan0611/entwurf/pull/40), 11 files), an enterprise agent runtime I never wrote for. He found the extension boundary where the architecture said it would be. That is the only review of an abstraction that counts.
+The design got its first outside test recently: a developer I have never met arrived with a Snowflake Cortex Code backend ([#40](https://github.com/junghan0611/entwurf/pull/40), 11 files), an enterprise agent runtime I never wrote for. They found the extension boundary where the architecture said it would be. That is the only review of an abstraction that counts. It shipped in [v0.13.0](https://github.com/junghan0611/entwurf/releases/tag/v0.13.0) — by cherry-pick rather than a GitHub merge, so the pull request itself reads *closed*; the implementation commit [`f4b20bb`](https://github.com/junghan0611/entwurf/commit/f4b20bb) carries their authorship.
 
 → [entwurf](https://github.com/junghan0611/entwurf)
 
@@ -128,6 +131,18 @@ It is also where Track 1 gets written down. The agenda is the visible surface, b
 19 days from design to deployment. Clojure + http-kit + GraalVM native-image (43MB binary). 100 visitors hitting the same date = 1 emacsclient call (cached). SF terminal aesthetics with [GLG-Mono](https://github.com/junghan0611/GLG-Mono) and Catppuccin.
 
 → [agenda.junghanacs.com](https://agenda.junghanacs.com)
+
+---
+
+### The AX Record — Reading the Same Claim at Four Depths
+
+[ax.junghanacs.com](https://ax.junghanacs.com) is the other public surface, and it answers a different question than geworfen. geworfen serves the raw axis; the record argues from it. Its subject is the direction stated at the top of this page — **model capability → accountable work** — read as one document at four depths: the claim, the terms it rests on, the work that tested it, and the ledger of what was measured, broken, and recovered.
+
+It is an evidence record, not an application. It exists so a reader — including a model-team reader — can inspect what was actually built, operated, recovered, and handed over, rather than take the summary above on trust. The front door is bilingual; the deeper reading stays Korean.
+
+It is also live, not an attachment. A prose edit is a publish: the document is built, passed through a leak gate, copied to the web root, and then verified from outside. The way the document was made is part of the claim it makes.
+
+→ [ax.junghanacs.com](https://ax.junghanacs.com)
 
 ---
 
@@ -272,12 +287,12 @@ Smaller pieces, kept because they carry something the larger work depends on.
 | **notes** | 3,500+ |
 | **bibliography** | 8,200+ |
 | **commits** | 8,500+ |
-| **journal** | 1,500+ days |
-| **health** | 2,500+ days |
+| **journal** | 1,600+ days |
+| **health** | 2,600+ days |
 | **garden** | 2,200+ pages |
 
-*Counts rounded down to the nearest 100 from live existence data at [`agenda.junghanacs.com/api/stats`](https://agenda.junghanacs.com/api/stats). Journal and health are day counts. Recent-window totals are not frozen here — the live surface is the number. Measured 2026-07-10.*
+*Counts rounded down to the nearest 100 from live existence data at [`agenda.junghanacs.com/api/stats`](https://agenda.junghanacs.com/api/stats). Journal and health are day counts. Recent-window totals are not frozen here — the live surface is the number. Measured 2026-09-04.*
 
 ---
 
-*Last updated: 2026-07-10*
+*Last updated: 2026-09-04*

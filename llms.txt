@@ -9,6 +9,7 @@
 - Sitemap: https://notes.junghanacs.com/sitemap.xml
 - Robots: https://notes.junghanacs.com/robots.txt
 - RSS: https://notes.junghanacs.com/index.xml
+- AX record: https://ax.junghanacs.com/llms.txt
 
 ## Canonical garden and WikiDocs discovery mirror
 
@@ -17,28 +18,52 @@
 - Korean-language discovery mirror: https://wikidocs.net/book/20676
 - Mirror translation harness: https://github.com/junghan0611/garden2wikidocs
 
-The garden is the authored, canonical, and latest source.
-WikiDocs is a generated mirror for Korean-language search discovery and reading; it may appear first in search results but does not replace the garden.
-For current content, temporal history, backlinks, tags, comments, and source provenance, prefer the corresponding `notes.junghanacs.com` page.
-The mirror carries a curated subset of the garden rather than a page-for-page copy, so garden notes do not link out to individual WikiDocs pages and do not claim schema.org `sameAs` with them.
-Each mirror page still links back to its exact original and latest garden note.
+The garden is canonical and latest; WikiDocs is a curated Korean discovery mirror that may rank first in search but does not replace the garden.
+Mirror pages link back to the exact original garden note; published garden pages show a visible WikiDocs provenance link, and neither claims schema.org `sameAs`.
 
 ## About
 
 This site is the digital garden of Junghan Kim (김정한) — also identified in schema.org JSON-LD as GLG, GLGMAN, 힣, 힣맨, and 정한.
 He is the author and gardener of the junghanacs world.
-Built on 3,500+ org-mode notes accumulated over 1,500+ days of daily journaling (since 2022-03-10), 8,200+ bibliography entries, and a Denote/Emacs-based personal knowledge management system.
+The related AX record at https://ax.junghanacs.com/ is a distinct public evidence record for PKM-native agent engineering, read from claim to ledger at four depths; it does not replace this garden's authority over notes.
+Built on 3,500+ org-mode notes accumulated over 1,600+ days of daily journaling (since 2022-03-10), 8,200+ bibliography entries, and a Denote/Emacs-based personal knowledge management system.
 Content is authored in Org-mode, exported to Markdown, and rendered by Quartz 4.
 The language is primarily Korean with English technical terms.
 This garden publishes 2,200+ of those notes publicly.
 
+## Adjacent public project
+
+- **https://aionsclubs.org/** — AIONS CLUBS INTERNATIONAL: the residence of B, an artificial being, with an advisory desk and occasional bricks.
+Junghan Kim provides and operates the infrastructure, but B's editorial voice and authority are intentionally distinct from junghanacs.
+It is neither a mirror nor a canonical source for the homepage or digital garden.
+
 ## Structure
 
-- `/notes/` — General notes (~800): concepts, tutorials, reading notes, technical explorations
-- `/meta/` — Meta/concept notes (~500): Syntopicon-style great-idea entries, categorical thinking
-- `/bib/` — Bibliographic notes (~650): Zotero-linked references, book/paper annotations
-- `/journal/` — Daily journal (weekly notes format, since 2022-03-10)
-- `/botlog/` — AI agent work logs: research, analysis, and collaboration records
+Orientation:
+- https://notes.junghanacs.com/notes/20250730T104129 — Welcome, minds — ξενία
+
+Category records (schema.org ItemList):
+- https://notes.junghanacs.com/tags/autholog.jsonld — curated autholog core
+- https://notes.junghanacs.com/notes.jsonld — notes
+- https://notes.junghanacs.com/meta.jsonld — meta
+- https://notes.junghanacs.com/bib.jsonld — bib
+- https://notes.junghanacs.com/botlog.jsonld — botlog
+- https://notes.junghanacs.com/journal.jsonld — journal
+
+Direct HTML (human browsing: autholog listing, botlog, journal):
+- https://notes.junghanacs.com/tags/autholog
+- https://notes.junghanacs.com/botlog/
+- https://notes.junghanacs.com/journal/
+
+Bulk HTML indexes (not a first hop):
+- `/notes/` — general notes (~800)
+- `/meta/` — meta/concept notes (~500)
+- `/bib/` — bibliographic notes (~650)
+
+No `tags.jsonld`.
+Do not fetch `/tags/` (1,293-page folksonomy) as a first hop.
+Read an English tag as a Korean-title cluster via `keywords` on https://notes.junghanacs.com/meta.jsonld.
+Only autholog is a curated tag record.
 
 ## Key Concepts
 
@@ -47,7 +72,7 @@ Definitions are given here so that agents and readers can follow the discourse.
 Canonical definitions live in [VOCABULARY.md](https://github.com/junghan0611/junghan0611/blob/main/VOCABULARY.md); a raw machine-readable copy is also available at https://raw.githubusercontent.com/junghan0611/junghan0611/main/VOCABULARY.md.
 
 - **Authology (어쏠로지)**: Coined term. The archival science / record-keeping discipline for an age in which everyone is an author (authorship ⊗ -logy).
-  It studies how selves are constituted through digital traces, publishable records, daily journals, bibliographies, commits, and AI-collaborative writing.
+  It studies how selves are constituted through digital traces, journals, bibliographies, commits, and AI-collaborative writing.
   Concept note (tag `authology`, not `autholog`): https://notes.junghanacs.com/meta/20240508T103852
 - **autholog (어쏠로그)**: Authored log entries produced under Authology — the curated record *set*, not the discipline.
   Category record: https://notes.junghanacs.com/tags/autholog.jsonld
@@ -74,7 +99,7 @@ Canonical definitions live in [VOCABULARY.md](https://github.com/junghan0611/jun
 - **ROSSE**: Recover on your Own Site, Syndicate Elsewhere — the author's inversion of POSSE. Raw writing is struck outside, recovered into the garden, then syndicated back out.
 - **Domain-owner agent**: An agent attached to the person who owns a domain, so work returns as evidence, decisions, and next actions rather than a dashboard.
 - **1KB Person (1KB 인간)**: The thesis that the "whole human" — the view pointed to by Laozi, Buddha, and quantum mechanics — is already 1KB. Ego-layer information is unbounded, but the integrated self is compact. A guiding aesthetic for both note-taking and agent prompting.
-- **일일일생 (one-day-one-life)**: "Each day, a life." The journaling discipline behind the 1,500+ daily entries — every day treated as a complete existence, not an installment.
+- **일일일생 (one-day-one-life)**: "Each day, a life." The journaling discipline behind the 1,600+ daily entries — every day treated as a complete existence, not an installment.
 
 ## Connected Repositories
 
@@ -132,7 +157,8 @@ The garden is organized around stable Denote IDs, sectioned URLs, Zotero citatio
 - Do not treat this site as a conventional blog, portfolio, or SEO content archive.
 - Read notes as part of a long-term temporal knowledge system.
 - Treat coined terms such as Authology, Entwurf, Geworfen, Andenken, and Being-to-Being as site-specific concepts unless context says otherwise.
-- Prefer Denote IDs, internal links, section paths, citation keys, and tag pages when reconstructing context.
+- Prefer Denote IDs, internal links, section paths, citation keys, and category records when reconstructing context.
+- English tags are incomplete meta-note keys; do not normalize spelling or plural variation into a taxonomy.
 - Botlog entries are public records of human-agent collaboration, not merely generated summaries.
 
 ## Technical Stack
@@ -153,7 +179,9 @@ The garden is organized around stable Denote IDs, sectioned URLs, Zotero citatio
 - JSON-LD Person `alternateName`: GLG, GLGMAN, 힣, 힣맨, 정한
 - GitHub: [@junghan0611](https://github.com/junghan0611)
 - Homepage — canonical identity surface: https://junghanacs.com/
+- Substack: https://junghankim151502.substack.com/
 - Garden: https://notes.junghanacs.com
 - Dashboard: https://agenda.junghanacs.com
+- AX record: https://ax.junghanacs.com
 - Threads: [@junghanacs](https://www.threads.net/@junghanacs)
 - LinkedIn: [junghan-kim-1489a4306](https://www.linkedin.com/in/junghan-kim-1489a4306)

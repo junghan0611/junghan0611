@@ -147,6 +147,21 @@ See `AGENTS.md` for governance and update workflow.
   the hidden scale that must explain it: anomaly → signal → memo → evaluation.
   Prototyped in **abductcli**; proven in production as the company's VOC
   workbench.
+- **Public evidence record** — The live document at `ax.junghanacs.com` that
+  argues the author's direction from the record rather than summarizing it, read
+  as one document at four depths: claim, terms, work, ledger. It is *not* an
+  employer-specific application, a substitute résumé, or a positioning of its
+  author as an AX-only candidate; a job posting does not get to write a sentence
+  in it. The phrase already ran through this file before it had an entry — the
+  same gap `PKM-AI` had. Used in `README.md`, `resume/README.md`, and
+  `apply/ax/`.
+- **Depth axis** — The four zoom levels on a single day, and the ordering that
+  makes them a claim rather than a log: **0** the life as lived (hand-logged
+  time blocks), **1** the person's own journal headings, **2** the agents'
+  stamps, **3** the commits and notes. Depths 0 and 1 are deliberate acts of
+  recording; 2 and 3 are residue. Reading only the residue describes what got
+  produced and nothing about the life that produced it. Used in `README.md`,
+  `resume/README.md`, and the public evidence record.
 
 ## Project proper nouns
 
